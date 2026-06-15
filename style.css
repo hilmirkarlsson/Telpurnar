@@ -1043,11 +1043,7 @@ body::after {
   outline-offset: 3px;
   border-radius: 2px;
 }
-.ctrl-play:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 4px;
-}
-.track:focus-visible {
+.tl-track:focus-visible {
   outline: 1px solid var(--cyan-30);
   outline-offset: 0;
 }
@@ -1057,14 +1053,14 @@ body::after {
 .film   { --section-tint: rgba(124,58,237,0.03); }
 .gallery{ --section-tint: rgba(34,211,238,0.02); }
 .music  { --section-tint: rgba(34,211,238,0.04); }
-.team   { --section-tint: rgba(167,139,250,0.03); }
+.filmmakers { --section-tint: rgba(167,139,250,0.03); }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .film-inner { grid-template-columns: 1fr; gap: var(--sp-12); }
   .film-poster-art { max-width: 320px; margin: 0 auto; }
-  .music-inner { grid-template-columns: 1fr; gap: var(--sp-10); }
-  .player-display { position: static; }
+  .directors-grid { grid-template-columns: 1fr; }
+  .music-inner { max-width: 100%; }
   .footer-inner { flex-direction: column; align-items: center; text-align: center; gap: var(--sp-3); }
 }
 @media (max-width: 600px) {
@@ -1073,8 +1069,7 @@ body::after {
   .film   { clip-path: polygon(0 32px, 100% 0, 100% 100%, 0 100%); margin-top: -32px; padding-top: calc(var(--sp-20) + 32px); }
   .gallery{ clip-path: polygon(0 32px, 100% 0, 100% 100%, 0 100%); margin-top: -32px; }
   .music  { clip-path: polygon(0 32px, 100% 0, 100% 100%, 0 100%); margin-top: -32px; padding-top: calc(var(--sp-20) + 32px); }
-  .team   { clip-path: polygon(0 32px, 100% 0, 100% 100%, 0 100%); margin-top: -32px; padding-top: calc(var(--sp-20) + 32px); }
-  .credits-name { font-size: clamp(2rem, 9vw, 4rem); }
+  .filmmakers { clip-path: polygon(0 32px, 100% 0, 100% 100%, 0 100%); margin-top: -32px; padding-top: calc(var(--sp-20) + 32px); }
 }
 
 /* Reduce motion */
