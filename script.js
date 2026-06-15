@@ -648,6 +648,30 @@ window.addEventListener('load', function () {
     }
   })();
 
+  /* ── Ambient section-color shift on scroll ───────────────────── */
+  (function initAmbientShift() {
+    if (typeof ScrollTrigger === 'undefined') return;
+
+    const sections = [
+      { el: document.querySelector('.film'),    bg: '#0c0822' },
+      { el: document.querySelector('.gallery'), bg: '#07060e' },
+      { el: document.querySelector('.music'),   bg: '#060d18' },
+      { el: document.querySelector('.team'),    bg: '#060408' },
+    ];
+
+    sections.forEach(({ el, bg }) => {
+      if (!el) return;
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 55%',
+        end: 'bottom 55%',
+        onEnter:     () => document.body.style.setProperty('--ambient-bg', bg),
+        onEnterBack: () => document.body.style.setProperty('--ambient-bg', bg),
+        onLeaveBack: () => document.body.style.removeProperty('--ambient-bg'),
+      });
+    });
+  })();
+
   /* ── Nav logo hover ──────────────────────────────────────────── */
   document.querySelector('.nav-logo')?.addEventListener('mouseenter', () => {
     const letter = document.querySelector('.nav-logo-letter');

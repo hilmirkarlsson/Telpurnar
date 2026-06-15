@@ -424,6 +424,46 @@ body::after {
   rotate: 180deg;
 }
 
+/* ─── MARQUEE BAND ───────────────────────────────────────────────── */
+.marquee-band {
+  overflow: hidden;
+  background: var(--w03);
+  border-top:    1px solid var(--w06);
+  border-bottom: 1px solid var(--w06);
+  padding: var(--sp-4) 0;
+  position: relative;
+  z-index: 3;
+}
+.marquee-inner {
+  display: flex;
+  gap: var(--sp-6);
+  white-space: nowrap;
+  animation: marquee-band-scroll 28s linear infinite;
+  width: max-content;
+}
+@keyframes marquee-band-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-item {
+  font-family: var(--font-display);
+  font-size: clamp(0.9rem, 1.5vw, 1.3rem);
+  letter-spacing: 0.1em;
+  background: var(--grad-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex-shrink: 0;
+}
+.marquee-dot {
+  color: var(--w12);
+  flex-shrink: 0;
+  align-self: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-inner { animation: none; }
+}
+
 /* ─── FILM SECTION ───────────────────────────────────────────────── */
 .film {
   position: relative;
@@ -889,8 +929,8 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   color: var(--w50);
   transition: color 0.25s ease, transform 0.2s ease;
@@ -1033,6 +1073,28 @@ body::after {
   color: var(--w25);
   letter-spacing: 0.14em;
 }
+
+/* ─── FOCUS & KEYBOARD NAV ───────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.ctrl-play:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
+}
+.track:focus-visible {
+  outline: 1px solid var(--cyan-30);
+  outline-offset: 0;
+}
+
+/* ─── AMBIENT SCROLL BACKGROUND SHIFT ───────────────────────────── */
+/* JS updates --scroll-hue on scroll; sections tint subtly */
+.film   { --section-tint: rgba(124,58,237,0.03); }
+.gallery{ --section-tint: rgba(34,211,238,0.02); }
+.music  { --section-tint: rgba(34,211,238,0.04); }
+.team   { --section-tint: rgba(167,139,250,0.03); }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
 @media (max-width: 900px) {
