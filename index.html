@@ -9,29 +9,33 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ─── LOADER ───────────────────────────────────────────────────── -->
+  <!-- ─── CUSTOM CURSOR ────────────────────────────────────────────── -->
+  <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+  <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+  <!-- ─── LOADER ───────────────────────────────────────────────────────── -->
   <div class="loader" id="loader">
     <div class="loader-inner"></div>
   </div>
 
-  <!-- ─── FILM GRAIN ─────────────────────────────────────────────── -->
+  <!-- ─── FILM GRAIN ───────────────────────────────────────────────────── -->
   <div class="grain" id="grain" aria-hidden="true"></div>
 
-  <!-- ─── NAVIGATION ─────────────────────────────────────────────── -->
+  <!-- ─── NAVIGATION ───────────────────────────────────────────────────── -->
   <nav class="nav" id="nav">
     <a class="nav-logo" href="#hero" aria-label="Telpurnar — back to top">
       <span class="nav-logo-letter">T</span>
     </a>
     <div class="nav-links">
-      <a href="#film"  data-en="Film"   data-is="Myndin">Film</a>
-      <a href="#music" data-en="Music"  data-is="Tónlist">Music</a>
-      <a href="#team"  data-en="Team"   data-is="Liðið">Team</a>
+      <a href="#film"  data-en="Film"    data-is="Myndin">Film</a>
+      <a href="#music" data-en="Music"   data-is="Tónlist">Music</a>
+      <a href="#team"  data-en="Team"    data-is="Liðið">Team</a>
     </div>
     <button class="lang-toggle" id="langToggle" aria-label="Switch language">
       <span class="lt-en active">EN</span>
@@ -40,9 +44,13 @@
     </button>
   </nav>
 
-  <!-- ─── HERO ───────────────────────────────────────────────────── -->
+  <!-- ─── HERO ─────────────────────────────────────────────────────────── -->
   <section class="hero" id="hero">
-    <div class="hero-bg-glow" aria-hidden="true"></div>
+    <div class="hero-bg" aria-hidden="true">
+      <div class="hero-orb orb-1"></div>
+      <div class="hero-orb orb-2"></div>
+      <div class="hero-orb orb-3"></div>
+    </div>
 
     <div class="hero-content">
       <p class="hero-eyebrow" data-en="A Short Film" data-is="Stuttmynd">A Short Film</p>
@@ -54,8 +62,10 @@
       <div class="hero-line" aria-hidden="true"></div>
 
       <div class="hero-meta">
-        <span data-en="Iceland · 2026" data-is="Ísland · 2026">Iceland · 2026</span>
-        <span class="hero-meta-sep" aria-hidden="true">—</span>
+        <span data-en="Iceland" data-is="Ísland">Iceland</span>
+        <span class="hero-meta-dot" aria-hidden="true"></span>
+        <span>2026</span>
+        <span class="hero-meta-dot" aria-hidden="true"></span>
         <span data-en="14 minutes" data-is="14 mínútur">14 minutes</span>
       </div>
     </div>
@@ -66,7 +76,7 @@
     </div>
   </section>
 
-  <!-- ─── FILM ────────────────────────────────────────────────────── -->
+  <!-- ─── FILM ──────────────────────────────────────────────────────────── -->
   <section class="film" id="film">
     <div class="film-inner">
 
@@ -74,9 +84,8 @@
         <div class="film-poster">
           <div class="film-poster-art" aria-label="Film poster placeholder">
             <div class="poster-mark">T</div>
-            <div class="poster-glow" aria-hidden="true"></div>
           </div>
-          <div class="poster-caption" data-en="Film poster — 2026" data-is="Kynningarspjald — 2026">Film poster — 2026</div>
+          <p class="poster-caption" data-en="Film poster · 2026" data-is="Kynningarspjald · 2026">Film poster · 2026</p>
         </div>
       </div>
 
@@ -104,44 +113,50 @@
     </div>
   </section>
 
-  <!-- ─── GALLERY ─────────────────────────────────────────────────── -->
+  <!-- ─── GALLERY ───────────────────────────────────────────────────────── -->
   <section class="gallery">
     <div class="gallery-header">
       <p class="section-eyebrow" data-en="Stills" data-is="Myndir úr myndinni">Stills</p>
       <p class="gallery-hint" data-en="Drag to explore" data-is="Dragðu til að skoða">Drag to explore</p>
     </div>
 
-    <div class="gallery-track" id="galleryTrack">
-      <div class="gallery-item">
-        <div class="gallery-still gs-1">
-          <div class="still-overlay"></div>
-          <span class="still-num" aria-hidden="true">01</span>
+    <div class="film-strip">
+      <div class="film-perf film-perf--top" aria-hidden="true"></div>
+
+      <div class="gallery-track" id="galleryTrack">
+        <div class="gallery-item">
+          <div class="gallery-still gs-1">
+            <div class="still-overlay"></div>
+            <span class="still-num" aria-hidden="true">01</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-still gs-2">
+            <div class="still-overlay"></div>
+            <span class="still-num" aria-hidden="true">02</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-still gs-3">
+            <div class="still-overlay"></div>
+            <span class="still-num" aria-hidden="true">03</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-still gs-4">
+            <div class="still-overlay"></div>
+            <span class="still-num" aria-hidden="true">04</span>
+          </div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-still gs-5">
+            <div class="still-overlay"></div>
+            <span class="still-num" aria-hidden="true">05</span>
+          </div>
         </div>
       </div>
-      <div class="gallery-item">
-        <div class="gallery-still gs-2">
-          <div class="still-overlay"></div>
-          <span class="still-num" aria-hidden="true">02</span>
-        </div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-still gs-3">
-          <div class="still-overlay"></div>
-          <span class="still-num" aria-hidden="true">03</span>
-        </div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-still gs-4">
-          <div class="still-overlay"></div>
-          <span class="still-num" aria-hidden="true">04</span>
-        </div>
-      </div>
-      <div class="gallery-item">
-        <div class="gallery-still gs-5">
-          <div class="still-overlay"></div>
-          <span class="still-num" aria-hidden="true">05</span>
-        </div>
-      </div>
+
+      <div class="film-perf film-perf--bottom" aria-hidden="true"></div>
     </div>
 
     <div class="gallery-progress-wrap" aria-hidden="true">
@@ -151,7 +166,7 @@
     </div>
   </section>
 
-  <!-- ─── MUSIC ────────────────────────────────────────────────────── -->
+  <!-- ─── MUSIC ─────────────────────────────────────────────────────────── -->
   <section class="music" id="music">
     <div class="music-inner">
 
@@ -212,7 +227,7 @@
           </div>
 
           <div class="waveform-wrap">
-            <canvas class="waveform" id="waveformCanvas" width="400" height="80" aria-hidden="true"></canvas>
+            <canvas class="waveform" id="waveformCanvas" width="400" height="64" aria-hidden="true"></canvas>
           </div>
 
           <div class="player-progress">
@@ -246,87 +261,49 @@
     </div>
   </section>
 
-  <!-- ─── TEAM ─────────────────────────────────────────────────────── -->
+  <!-- ─── TEAM ──────────────────────────────────────────────────────────── -->
   <section class="team" id="team">
     <div class="team-inner">
+
       <p class="section-eyebrow" data-en="The Team" data-is="Liðið">The Team</p>
 
-      <!-- Directors — featured row -->
-      <div class="team-directors">
+      <div class="credits-block">
 
-        <div class="team-member tm-director">
-          <div class="member-portrait">
-            <div class="portrait-fill">
-              <span class="portrait-initial">H</span>
-            </div>
-            <div class="portrait-glow" aria-hidden="true"></div>
-          </div>
-          <div class="member-info">
-            <p class="member-role" data-en="Director" data-is="Leikstjóri">Director</p>
-            <h3 class="member-name">Hanna Álfheiður</h3>
-            <p class="member-bio" data-en="[Director biography — her vision, previous work, and what drew her to this story.]" data-is="[Ævisaga leikstjóra — sýn hennar, fyrri verk og hvað laðaði hana að þessari sögu.]">[Director biography — her vision, previous work, and what drew her to this story.]</p>
-          </div>
+        <div class="credits-group">
+          <p class="credits-role" data-en="Directors" data-is="Leikstjórar">Directors</p>
+          <h3 class="credits-name">Hanna Álfheiður</h3>
+          <h3 class="credits-name">Guðríður</h3>
+          <p class="credits-bio" data-en="[Director biographies — their visions, previous work, and what drew them to this story.]" data-is="[Ævisögur leikstjóra — sýn þeirra, fyrri verk og hvað laðaði þær að þessari sögu.]">[Director biographies — their visions, previous work, and what drew them to this story.]</p>
         </div>
 
-        <div class="team-member tm-director">
-          <div class="member-portrait">
-            <div class="portrait-fill">
-              <span class="portrait-initial">G</span>
-            </div>
-            <div class="portrait-glow" aria-hidden="true"></div>
-          </div>
-          <div class="member-info">
-            <p class="member-role" data-en="Director" data-is="Leikstjóri">Director</p>
-            <h3 class="member-name">Guðríður</h3>
-            <p class="member-bio" data-en="[Director biography — her approach to visual storytelling and the emotional world of Telpurnar.]" data-is="[Ævisaga leikstjóra — nálgun hennar við sjónrænar sögur og tilfinningaheim Telpurnar.]">[Director biography — her approach to visual storytelling and the emotional world of Telpurnar.]</p>
-          </div>
+        <div class="credits-rule" aria-hidden="true"></div>
+
+        <div class="credits-group">
+          <p class="credits-role" data-en="Producer" data-is="Framleiðandi">Producer</p>
+          <h3 class="credits-name">Hrannar Þór</h3>
         </div>
 
-      </div>
+        <div class="credits-rule" aria-hidden="true"></div>
 
-      <!-- Crew — secondary row -->
-      <div class="team-crew">
-
-        <div class="team-member tm-crew">
-          <div class="member-portrait small">
-            <div class="portrait-fill">
-              <span class="portrait-initial">H</span>
-            </div>
-          </div>
-          <div class="member-info">
-            <p class="member-role" data-en="Producer" data-is="Framleiðandi">Producer</p>
-            <h3 class="member-name">Hrannar Þór</h3>
-          </div>
-        </div>
-
-        <div class="team-member tm-crew">
-          <div class="member-portrait small">
-            <div class="portrait-fill">
-              <span class="portrait-initial">H</span>
-            </div>
-          </div>
-          <div class="member-info">
-            <p class="member-role" data-en="Web Design" data-is="Vefhönnun">Web Design</p>
-            <h3 class="member-name">Hilmir Karlsson</h3>
-          </div>
+        <div class="credits-group">
+          <p class="credits-role" data-en="Web Design" data-is="Vefhönnun">Web Design</p>
+          <h3 class="credits-name">Hilmir Karlsson</h3>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- ─── FOOTER ───────────────────────────────────────────────────── -->
+  <!-- ─── FOOTER ────────────────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand" aria-hidden="true">Telpurnar</div>
-      <div class="footer-center">
-        <p class="footer-meta" data-en="© 2026 · All rights reserved · Iceland" data-is="© 2026 · Öll réttindi áskilin · Ísland">© 2026 · All rights reserved · Iceland</p>
-      </div>
+      <p class="footer-meta" data-en="© 2026 · All rights reserved · Iceland" data-is="© 2026 · Öll réttindi áskilin · Ísland">© 2026 · All rights reserved · Iceland</p>
       <p class="footer-credit" data-en="Website by Hilmir Karlsson" data-is="Vefsíða eftir Hilmir Karlsson">Website by Hilmir Karlsson</p>
     </div>
   </footer>
 
-  <!-- ─── SCRIPTS ──────────────────────────────────────────────────── -->
+  <!-- ─── SCRIPTS ───────────────────────────────────────────────────────── -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="script.js" defer></script>
