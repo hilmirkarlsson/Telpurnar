@@ -1,437 +1,200 @@
 /* ═══════════════════════════════════════════════════════════════════
-   TELPURNAR — Main Script v2
-   Modules: Grain · Cursor · Loader · Nav · Hero GSAP · Parallax
-            Gallery · Music · Lang · ScrollReveal
+   TELPURNAR — Script v3
+   Grain · Nav · Lang · Reveals · Music
 ═══════════════════════════════════════════════════════════════════ */
 
 'use strict';
 
 /* ─── GRAIN ──────────────────────────────────────────────────────── */
-(function initGrain() {
-  const grainEl = document.getElementById('grain');
-  if (!grainEl) return;
+(function () {
+  const el = document.getElementById('grain');
+  if (!el) return;
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 200;
+  const ctx = cv.getContext('2d');
 
-  const canvas = document.createElement('canvas');
-  canvas.width  = 256;
-  canvas.height = 256;
-  const ctx = canvas.getContext('2d');
-
-  function drawNoise() {
-    const img = ctx.createImageData(256, 256);
-    const d = img.data;
-    for (let i = 0; i < d.length; i += 4) {
+  function tick() {
+    const d = ctx.createImageData(200, 200).data.constructor
+      ? ctx.createImageData(200, 200)
+      : null;
+    if (!d) return;
+    const px = d.data;
+    for (let i = 0; i < px.length; i += 4) {
       const v = (Math.random() * 255) | 0;
-      d[i] = d[i + 1] = d[i + 2] = v;
-      d[i + 3] = 255;
+      px[i] = px[i + 1] = px[i + 2] = v;
+      px[i + 3] = 255;
     }
-    ctx.putImageData(img, 0, 0);
-    grainEl.style.backgroundImage = `url(${canvas.toDataURL()})`;
+    ctx.putImageData(d, 0, 0);
+    el.style.backgroundImage = `url(${cv.toDataURL()})`;
   }
-
-  drawNoise();
-  setInterval(drawNoise, 80);
+  tick();
+  setInterval(tick, 100);
 })();
 
-/* ─── CUSTOM CURSOR ──────────────────────────────────────────────── */
-(function initCursor() {
-  const dot  = document.getElementById('cursorDot');
-  const ring = document.getElementById('cursorRing');
-  if (!dot || !ring) return;
-  if (window.matchMedia('(pointer: coarse)').matches) return;
-
-  let mx = window.innerWidth  / 2;
-  let my = window.innerHeight / 2;
-  let rx = mx, ry = my;
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX;
-    my = e.clientY;
-    dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+/* ─── NAV ────────────────────────────────────────────────────────── */
+(function () {
+  const nav = document.getElementById('nav');
+  if (!nav) return;
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 80);
   }, { passive: true });
-
-  (function moveCursor() {
-    rx += (mx - rx) * 0.12;
-    ry += (my - ry) * 0.12;
-    ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
-    requestAnimationFrame(moveCursor);
-  })();
-
-  document.querySelectorAll('a, button, .tl-track, .gallery-item, .gallery-arrow, .film-poster-art').forEach(el => {
-    el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
-    el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
-  });
 })();
 
 /* ─── LANGUAGE ───────────────────────────────────────────────────── */
 const Lang = (function () {
-  let current = 'en';
+  let lang = 'en';
 
-  function apply(lang) {
-    current = lang;
-    document.documentElement.lang = lang === 'is' ? 'is' : 'en';
+  function apply(l) {
+    lang = l;
+    document.documentElement.lang = l === 'is' ? 'is' : 'en';
 
     document.querySelectorAll('[data-en][data-is]').forEach(el => {
-      el.textContent = el.getAttribute(`data-${lang}`);
+      const val = el.getAttribute(`data-${l}`);
+      if (val !== null) el.innerHTML = val;
     });
 
-    const enEl = document.querySelector('.lt-en');
-    const isEl = document.querySelector('.lt-is');
-    if (enEl) enEl.classList.toggle('active', lang === 'en');
-    if (isEl) isEl.classList.toggle('active', lang === 'is');
+    document.querySelector('.lt-en')?.classList.toggle('active', l === 'en');
+    document.querySelector('.lt-is')?.classList.toggle('active', l === 'is');
   }
 
-  function toggle() { apply(current === 'en' ? 'is' : 'en'); }
-  function get()    { return current; }
+  function toggle() { apply(lang === 'en' ? 'is' : 'en'); }
 
-  return { apply, toggle, get };
+  return { toggle };
 })();
 
-document.getElementById('langToggle').addEventListener('click', Lang.toggle);
+document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
 
-/* ─── WAIT FOR GSAP ─────────────────────────────────────────────── */
+/* ─── SCROLL REVEALS ─────────────────────────────────────────────── */
 window.addEventListener('load', function () {
+  if (typeof gsap === 'undefined') return;
+  gsap.registerPlugin(ScrollTrigger);
 
-  /* ── Loader ──────────────────────────────────────────────────── */
-  const loader = document.getElementById('loader');
+  /* Mark elements as reveal targets */
+  const targets = [
+    '.film-copy > *',
+    '.film-art-wrap',
+    '.stills-label',
+    '.still',
+    '.filmmaker-text',
+    '.filmmaker-portrait',
+    '.score-inner > *',
+  ].join(', ');
 
-  function revealPage() {
-    if (loader) {
-      loader.style.transition = 'opacity 0.7s ease';
-      loader.style.opacity = '0';
-      setTimeout(() => { loader.style.display = 'none'; }, 800);
-    }
-    startHeroAnimation();
-  }
-
-  /* ── Nav scroll ──────────────────────────────────────────────── */
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', function () {
-    nav.classList.toggle('scrolled', window.scrollY > 60);
-  }, { passive: true });
-
-  /* ── Hero GSAP animation ─────────────────────────────────────── */
-  function startHeroAnimation() {
-    if (typeof gsap === 'undefined') {
-      document.querySelectorAll('.hl').forEach(el => {
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-      });
-      document.querySelectorAll('.hero-eyebrow,.hero-line,.hero-meta,.hero-scroll').forEach(el => {
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-      });
-      return;
-    }
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const tl = gsap.timeline({ delay: 0.15 });
-
-    tl.to('.hl', {
-      y: 0,
-      scaleY: 1,
-      opacity: 1,
-      duration: 0.9,
-      stagger: 0.045,
-      ease: 'expo.out',
-    })
-
-    .to('.hero-eyebrow', {
-      opacity: 1,
-      y: 0,
-      duration: 0.7,
-      ease: 'expo.out',
-    }, '-=0.85')
-
-    .to('.hero-line', {
-      scaleX: 1,
-      duration: 0.9,
-      ease: 'expo.out',
-    }, '-=0.4')
-
-    .to('.hero-meta', {
-      opacity: 1,
-      y: 0,
-      duration: 0.7,
-      ease: 'expo.out',
-    }, '-=0.55')
-
-    .to('.hero-scroll', {
-      opacity: 1,
-      duration: 0.5,
-      ease: 'power2.out',
-    }, '-=0.3')
-
-    .call(() => {
-      setTimeout(() => {
-        const title = document.querySelector('.hero-title');
-        if (title) {
-          title.classList.add('glitch-once');
-          setTimeout(() => title.classList.remove('glitch-once'), 600);
-        }
-      }, 1000);
-    }, null, '+=0.2');
-
-    initHeroParallax();
-    initScrollReveal();
-  }
-
-  /* ── Orb parallax ────────────────────────────────────────────── */
-  function initHeroParallax() {
-    if (typeof ScrollTrigger === 'undefined') return;
-
-    gsap.to('.orb-1', {
-      y: -120,
-      ease: 'none',
-      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2 },
-    });
-    gsap.to('.orb-2', {
-      y: -80,
-      ease: 'none',
-      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 3 },
-    });
-    gsap.to('.orb-3', {
-      y: -60,
-      x: 30,
-      ease: 'none',
-      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2.5 },
-    });
-
-    gsap.to('.hero-title', {
-      y: 80,
-      opacity: 0.4,
-      ease: 'none',
-      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
-    });
-  }
-
-  /* ── Scroll reveals ──────────────────────────────────────────── */
-  function initScrollReveal() {
-    if (typeof ScrollTrigger === 'undefined') return;
-
-    /* Film poster — clip-path wipe */
-    gsap.set('.film-poster-wrap', { clipPath: 'inset(0 100% 0 0)', opacity: 1 });
-    ScrollTrigger.batch('.film-poster-wrap', {
-      start: 'top 80%',
-      onEnter: els => gsap.to(els, { clipPath: 'inset(0 0% 0 0)', duration: 1.1, ease: 'expo.out' }),
-    });
-
-    /* Film info */
-    gsap.set('.film-info > *', { opacity: 0, y: 36 });
-    ScrollTrigger.batch('.film-info > *', {
-      start: 'top 84%',
-      onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: 0.9, stagger: 0.11, ease: 'expo.out' }),
-    });
-
-    /* Gallery header */
-    gsap.set('.gallery-header > *', { opacity: 0, y: 20 });
-    ScrollTrigger.batch('.gallery-header > *', {
-      start: 'top 88%',
-      onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08, ease: 'expo.out' }),
-    });
-
-    /* Director cards — stagger in */
-    gsap.set('.director-card', { opacity: 0, y: 50 });
-    ScrollTrigger.batch('.director-card', {
-      start: 'top 82%',
-      onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: 1.0, stagger: 0.18, ease: 'expo.out' }),
-    });
-
-    /* Filmmakers eyebrow */
-    gsap.set('.filmmakers-inner > .section-eyebrow', { opacity: 0, y: 20 });
-    ScrollTrigger.batch('.filmmakers-inner > .section-eyebrow', {
-      start: 'top 86%',
-      onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: 0.7, ease: 'expo.out' }),
-    });
-
-    /* Tracklist rows */
-    gsap.set('.tl-track', { opacity: 0, x: -20 });
-    ScrollTrigger.batch('.tl-track', {
-      start: 'top 88%',
-      onEnter: els => gsap.to(els, { opacity: 1, x: 0, duration: 0.65, stagger: 0.07, ease: 'expo.out' }),
-    });
-
-    /* Music heading + composer */
-    gsap.set('.music-heading, .music-composer', { opacity: 0, y: 24 });
-    ScrollTrigger.batch('.music-heading, .music-composer', {
-      start: 'top 86%',
-      onEnter: els => gsap.to(els, { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'expo.out' }),
-    });
-  }
-
-  /* ── Gallery — arrow navigation ──────────────────────────────── */
-  (function initGallery() {
-    const track = document.getElementById('galleryTrack');
-    const prev  = document.getElementById('galleryPrev');
-    const next  = document.getElementById('galleryNext');
-    const progress = document.getElementById('galleryProgress');
-    if (!track) return;
-
-    function itemWidth() {
-      const item = track.querySelector('.gallery-item');
-      if (!item) return track.clientWidth * 0.8;
-      const gap = parseInt(getComputedStyle(track).gap) || 24;
-      return item.offsetWidth + gap;
-    }
-
-    if (prev) {
-      prev.addEventListener('click', () => {
-        track.scrollBy({ left: -itemWidth(), behavior: 'smooth' });
-      });
-    }
-    if (next) {
-      next.addEventListener('click', () => {
-        track.scrollBy({ left: itemWidth(), behavior: 'smooth' });
-      });
-    }
-
-    function updateProgress() {
-      if (!progress) return;
-      const max = track.scrollWidth - track.clientWidth;
-      const pct = max > 0 ? (track.scrollLeft / max) * 100 : 0;
-      progress.style.width = pct + '%';
-    }
-
-    track.addEventListener('scroll', updateProgress, { passive: true });
-    updateProgress();
-  })();
-
-  /* ── Music Player ────────────────────────────────────────────── */
-  (function initMusicPlayer() {
-    const TRACK_PRESETS = [
-      [{ f: 55,    g: 0.040 }, { f: 110,   g: 0.028 }, { f: 165,   g: 0.018 }, { f: 220,   g: 0.010 }],
-      [{ f: 73.4,  g: 0.038 }, { f: 146.8, g: 0.026 }, { f: 220.0, g: 0.016 }, { f: 293.7, g: 0.010 }],
-      [{ f: 82.4,  g: 0.040 }, { f: 164.8, g: 0.028 }, { f: 247.1, g: 0.016 }, { f: 329.6, g: 0.008 }],
-      [{ f: 98.0,  g: 0.038 }, { f: 196.0, g: 0.026 }, { f: 294.0, g: 0.018 }, { f: 392.0, g: 0.010 }],
-    ];
-
-    let audioCtx    = null;
-    let oscs        = [];
-    let gainNodes   = [];
-    let masterGain  = null;
-    let lfoOsc      = null;
-    let lfoGain     = null;
-    let isPlaying   = false;
-    let currentTrack = -1;
-
-    function ensureContext() {
-      if (audioCtx) return;
-      audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 1;
-      masterGain.connect(audioCtx.destination);
-
-      lfoOsc  = audioCtx.createOscillator();
-      lfoGain = audioCtx.createGain();
-      lfoOsc.frequency.value = 0.08;
-      lfoGain.gain.value     = 0.008;
-      lfoOsc.connect(lfoGain);
-      lfoGain.connect(masterGain.gain);
-      lfoOsc.start();
-    }
-
-    function stopTones() {
-      gainNodes.forEach(g => {
-        if (!audioCtx) return;
-        g.gain.setValueAtTime(g.gain.value, audioCtx.currentTime);
-        g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-      });
-      const snapshot = oscs.slice();
-      setTimeout(() => snapshot.forEach(o => { try { o.stop(); } catch (_) {} }), 450);
-      oscs      = [];
-      gainNodes = [];
-    }
-
-    function playTones(idx) {
-      ensureContext();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      stopTones();
-
-      const preset = TRACK_PRESETS[idx] || TRACK_PRESETS[0];
-      preset.forEach(({ f, g }) => {
-        const osc   = audioCtx.createOscillator();
-        const gNode = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = f;
-        gNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gNode.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 2.0);
-        osc.connect(gNode);
-        gNode.connect(masterGain);
-        osc.start();
-        oscs.push(osc);
-        gainNodes.push(gNode);
-      });
-    }
-
-    function setTrackState(idx, playing) {
-      document.querySelectorAll('.tl-track').forEach((el, i) => {
-        el.classList.toggle('active', i === idx);
-        el.classList.toggle('playing', i === idx && playing);
-      });
-    }
-
-    function selectTrack(idx) {
-      /* Clicking the active playing track pauses; clicking again resumes */
-      if (idx === currentTrack) {
-        if (isPlaying) {
-          isPlaying = false;
-          stopTones();
-          setTrackState(idx, false);
-        } else {
-          isPlaying = true;
-          playTones(idx);
-          setTrackState(idx, true);
-        }
-        return;
+  gsap.utils.toArray(targets).forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 14 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.4,
+        ease: 'power1.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          once: true,
+        },
       }
-
-      currentTrack = idx;
-      isPlaying = true;
-      playTones(idx);
-      setTrackState(idx, true);
-    }
-
-    document.querySelectorAll('.tl-track').forEach((el, i) => {
-      el.addEventListener('click', () => selectTrack(i));
-      el.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTrack(i); }
-      });
-    });
-  })();
-
-  /* ── Ambient section-color shift on scroll ───────────────────── */
-  (function initAmbientShift() {
-    if (typeof ScrollTrigger === 'undefined') return;
-
-    const sections = [
-      { el: document.querySelector('.film'),        bg: '#0c0822' },
-      { el: document.querySelector('.gallery'),     bg: '#07060e' },
-      { el: document.querySelector('.filmmakers'),  bg: '#0a0720' },
-      { el: document.querySelector('.music'),       bg: '#060d18' },
-    ];
-
-    sections.forEach(({ el, bg }) => {
-      if (!el) return;
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top 55%',
-        end: 'bottom 55%',
-        onEnter:     () => document.body.style.setProperty('--ambient-bg', bg),
-        onEnterBack: () => document.body.style.setProperty('--ambient-bg', bg),
-        onLeaveBack: () => document.body.style.removeProperty('--ambient-bg'),
-      });
-    });
-  })();
-
-  /* ── Nav logo hover ──────────────────────────────────────────── */
-  document.querySelector('.nav-logo')?.addEventListener('mouseenter', () => {
-    const letter = document.querySelector('.nav-logo-letter');
-    if (letter && typeof gsap !== 'undefined') {
-      gsap.fromTo(letter, { rotation: -8 }, { rotation: 0, duration: 0.45, ease: 'back.out(2)' });
-    }
+    );
   });
 
-  /* ── Start page reveal ───────────────────────────────────────── */
-  setTimeout(revealPage, 320);
-
+  /* Stills stagger */
+  gsap.utils.toArray('.still').forEach((el, i) => {
+    gsap.fromTo(el,
+      { opacity: 0 },
+      {
+        opacity: 1,
+        duration: 1.6,
+        delay: i * 0.08,
+        ease: 'power1.out',
+        scrollTrigger: {
+          trigger: '.stills-grid',
+          start: 'top 85%',
+          once: true,
+        },
+      }
+    );
+  });
 });
+
+/* ─── MUSIC PLAYER ───────────────────────────────────────────────── */
+(function () {
+  const PRESETS = [
+    [{ f: 55,   g: 0.038 }, { f: 110,  g: 0.024 }, { f: 165,  g: 0.015 }],
+    [{ f: 73.4, g: 0.036 }, { f: 146.8,g: 0.022 }, { f: 220,  g: 0.013 }],
+    [{ f: 82.4, g: 0.038 }, { f: 164.8,g: 0.024 }, { f: 247.1,g: 0.012 }],
+    [{ f: 98,   g: 0.036 }, { f: 196,  g: 0.022 }, { f: 294,  g: 0.014 }],
+  ];
+
+  let ctx = null, master = null, lfo = null;
+  let oscs = [], gains = [];
+  let playing = false, current = -1;
+
+  function boot() {
+    if (ctx) return;
+    ctx    = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain();
+    master.gain.value = 1;
+    master.connect(ctx.destination);
+    lfo = ctx.createOscillator();
+    const lfoG = ctx.createGain();
+    lfo.frequency.value = 0.07;
+    lfoG.gain.value = 0.007;
+    lfo.connect(lfoG);
+    lfoG.connect(master.gain);
+    lfo.start();
+  }
+
+  function stop() {
+    gains.forEach(g => {
+      g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+    });
+    const snap = oscs.slice();
+    setTimeout(() => snap.forEach(o => { try { o.stop(); } catch (_) {} }), 550);
+    oscs = []; gains = [];
+  }
+
+  function play(idx) {
+    boot();
+    if (ctx.state === 'suspended') ctx.resume();
+    stop();
+    PRESETS[idx].forEach(({ f, g }) => {
+      const o = ctx.createOscillator();
+      const gn = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = f;
+      gn.gain.setValueAtTime(0, ctx.currentTime);
+      gn.gain.linearRampToValueAtTime(g, ctx.currentTime + 2.5);
+      o.connect(gn); gn.connect(master);
+      o.start();
+      oscs.push(o); gains.push(gn);
+    });
+  }
+
+  function setState(idx, isPlaying) {
+    document.querySelectorAll('.tl-track').forEach((el, i) => {
+      el.classList.toggle('active',  i === idx);
+      el.classList.toggle('playing', i === idx && isPlaying);
+    });
+  }
+
+  function select(idx) {
+    if (idx === current) {
+      playing = !playing;
+      if (playing) play(idx); else stop();
+      setState(idx, playing);
+      return;
+    }
+    current = idx;
+    playing = true;
+    play(idx);
+    setState(idx, true);
+  }
+
+  document.querySelectorAll('.tl-track').forEach((el, i) => {
+    el.addEventListener('click', () => select(i));
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i); }
+    });
+  });
+})();
