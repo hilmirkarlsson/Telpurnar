@@ -636,12 +636,11 @@ body::after {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  cursor: grab;
+  cursor: default;
   padding: 0 var(--pad-x);
   background: #030207;
 }
 .gallery-track::-webkit-scrollbar { display: none; }
-.gallery-track.is-dragging { cursor: grabbing; }
 
 .gallery-item {
   flex: 0 0 clamp(240px, 52vw, 640px);
@@ -739,308 +738,272 @@ body::after {
   transition: width 0.08s linear;
 }
 
-/* ─── MUSIC SECTION ──────────────────────────────────────────────── */
-.music {
-  position: relative;
-  padding: clamp(var(--sp-24), 8vw, var(--sp-40)) var(--pad-x);
-  background: #060d18;
-  background-image: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(34,211,238,0.06) 0%, transparent 70%);
-  clip-path: polygon(0 60px, 100% 0, 100% 100%, 0 100%);
-  margin-top: -60px;
-}
-
-.music-inner {
-  max-width: var(--max-w);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(var(--sp-10), 6vw, var(--sp-24));
-  align-items: start;
-}
-
-.music-heading {
-  font-family: var(--font-serif);
-  font-size: clamp(2rem, 4.5vw, 6rem);
-  font-weight: 300;
-  font-style: italic;
-  line-height: 0.95;
-  color: var(--white);
-  margin-bottom: var(--sp-4);
-}
-.music-sub {
-  font-size: 0.85rem;
-  color: var(--w25);
-  margin-bottom: var(--sp-8);
-  font-style: italic;
-}
-
-/* Track list */
-.track-list { display: flex; flex-direction: column; gap: var(--sp-1); }
-
-.track {
+/* ─── GALLERY ARROWS ─────────────────────────────────────────────── */
+.gallery-nav-row {
   display: flex;
   align-items: center;
   gap: var(--sp-4);
-  padding: var(--sp-4);
-  border: 1px solid transparent;
-  border-left: 2px solid transparent;
-  border-radius: 2px;
-  transition: background 0.3s ease, border-color 0.3s ease;
-  position: relative;
 }
-.track:hover { background: var(--cyan-06); border-left-color: var(--w12); }
-.track.active { background: rgba(34,211,238,0.05); border-left-color: var(--cyan); }
-
-.track-num {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  letter-spacing: 0.06em;
-  color: var(--w25);
-  flex-shrink: 0;
-  min-width: 1.8rem;
-  transition: color 0.3s ease;
-}
-.track.active .track-num { color: var(--cyan); }
-
-.track-text { flex: 1; min-width: 0; }
-.track-name {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: var(--w80);
-  transition: color 0.3s ease;
-}
-.track.active .track-name { color: var(--white); }
-.track-dur { font-size: 0.72rem; color: var(--w25); letter-spacing: 0.06em; }
-
-.track-bar {
-  height: 2px;
-  width: 56px;
-  background: var(--w06);
-  border-radius: 1px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.track-bar-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--grad-cyan);
-  transition: width 0.2s linear;
-}
-
-/* Player display */
-.player-display {
-  background: rgba(6,13,24,0.92);
-  border: 1px solid var(--cyan-12);
-  border-radius: 4px;
-  padding: var(--sp-8);
-  box-shadow: 0 0 60px rgba(34,211,238,0.06), inset 0 0 40px rgba(34,211,238,0.02);
-  position: sticky;
-  top: var(--sp-24);
-}
-
-.player-now-playing {
+.gallery-arrows {
   display: flex;
-  flex-direction: column;
-  gap: var(--sp-1);
-  margin-bottom: var(--sp-6);
+  gap: var(--sp-2);
 }
-.player-np-label {
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--cyan);
-}
-.player-np-track {
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  font-style: italic;
-  color: var(--white);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.player-np-track.marquee {
-  animation: marquee-slide 10s linear infinite;
-}
-@keyframes marquee-slide {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.waveform-wrap {
-  height: 64px;
-  border-radius: 2px;
-  margin-bottom: var(--sp-5);
-  overflow: hidden;
-  background: rgba(34,211,238,0.02);
-  border: 1px solid var(--cyan-06);
-}
-.waveform { width: 100%; height: 100%; display: block; }
-
-.player-progress { margin-bottom: var(--sp-6); }
-.player-progress-bar {
-  height: 2px;
-  background: var(--w06);
-  border-radius: 1px;
-  position: relative;
-  cursor: pointer;
-  margin-bottom: var(--sp-3);
-  transition: background 0.2s ease;
-}
-.player-progress-bar:hover { background: var(--w12); }
-.player-progress-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--grad-cyan);
-  border-radius: 1px;
-  transition: width 0.2s linear;
-}
-.player-progress-thumb {
-  position: absolute;
-  top: 50%;
-  left: 0%;
-  width: 10px;
-  height: 10px;
-  background: var(--cyan);
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  opacity: 0;
-  box-shadow: 0 0 8px rgba(34,211,238,0.6);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.player-time {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.7rem;
-  color: var(--w25);
-  letter-spacing: 0.06em;
-}
-
-.player-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-5);
-  margin-bottom: var(--sp-6);
-}
-.ctrl-btn {
+.gallery-arrow {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
+  border: 1px solid var(--w12);
   border-radius: 50%;
   color: var(--w50);
-  transition: color 0.25s ease, transform 0.2s ease;
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+  flex-shrink: 0;
 }
-.ctrl-btn:hover { color: var(--white); transform: scale(1.1); }
-.ctrl-btn svg { width: 18px; height: 18px; }
+.gallery-arrow:hover {
+  border-color: var(--purple-20);
+  color: var(--white);
+  background: var(--purple-06);
+}
+.gallery-arrow svg { width: 16px; height: 16px; }
 
-.ctrl-play {
-  width: 54px;
-  height: 54px;
-  border: 1.5px solid var(--cyan);
-  color: var(--cyan);
-  box-shadow: 0 0 22px rgba(34,211,238,0.24), inset 0 0 22px rgba(34,211,238,0.04);
-  transition: color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, transform 0.2s ease;
+/* ─── FILMMAKERS ─────────────────────────────────────────────────── */
+.filmmakers {
+  position: relative;
+  padding: clamp(var(--sp-24), 8vw, var(--sp-40)) var(--pad-x);
+  background: #0a0720;
+  clip-path: polygon(0 60px, 100% 0, 100% 100%, 0 100%);
+  margin-top: -60px;
 }
-.ctrl-play:hover {
-  background: rgba(34,211,238,0.10);
-  box-shadow: 0 0 38px rgba(34,211,238,0.42), inset 0 0 30px rgba(34,211,238,0.08);
-  transform: scale(1.06);
-}
-.ctrl-play.playing {
-  background: rgba(34,211,238,0.12);
-  box-shadow: 0 0 32px rgba(34,211,238,0.52), inset 0 0 24px rgba(34,211,238,0.10);
-}
-.ctrl-play svg { width: 22px; height: 22px; }
-.icon-pause { display: none; }
-.ctrl-play.playing .icon-play  { display: none; }
-.ctrl-play.playing .icon-pause { display: block; }
 
-.player-preview-note {
+.filmmakers-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+.filmmakers-inner > .section-eyebrow { margin-bottom: var(--sp-12); }
+
+/* Directors grid — side by side, portrait-ready */
+.directors-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(var(--sp-8), 5vw, var(--sp-20));
+}
+
+.director-card { display: flex; flex-direction: column; }
+
+/* Portrait placeholder — swappable for a real <img> later */
+.director-portrait {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 40% 40%, rgba(124,58,237,0.40) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 70%, rgba(251,113,133,0.25) 0%, transparent 55%),
+    linear-gradient(160deg, #130a30 0%, #07060e 100%);
+  border: 1px solid var(--w06);
+  margin-bottom: var(--sp-5);
+  transition: border-color 0.35s ease;
+}
+.director-portrait:hover { border-color: var(--purple-20); }
+.director-portrait::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 55%, rgba(7,6,14,0.7) 100%);
+}
+
+.dp-initial {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 12vw, 12rem);
+  line-height: 1;
+  background: var(--grad-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(167,139,250,0.30));
+  position: relative;
+  z-index: 1;
+}
+
+.director-role {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: var(--sp-2);
+}
+
+.director-name {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 3.2rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.1;
+  color: var(--white);
+  margin-bottom: var(--sp-4);
+}
+
+.director-bio {
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--w50);
+  font-style: italic;
+  max-width: 36ch;
+}
+
+/* ─── MUSIC — CLEAN TRACKLIST ────────────────────────────────────── */
+.music {
+  position: relative;
+  padding: clamp(var(--sp-24), 8vw, var(--sp-40)) var(--pad-x);
+  background: #060d18;
+  clip-path: polygon(0 60px, 100% 0, 100% 100%, 0 100%);
+  margin-top: -60px;
+}
+
+.music-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.music-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 5.5rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 0.95;
+  color: var(--white);
+  margin-bottom: var(--sp-3);
+}
+.music-composer {
+  font-size: 0.85rem;
+  color: var(--w25);
+  font-style: italic;
+  margin-bottom: var(--sp-10);
+}
+
+/* Tracklist */
+.tracklist {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--w06);
+  margin-bottom: var(--sp-10);
+}
+
+.tl-track {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid var(--w03);
+  transition: background 0.25s ease;
+  position: relative;
+}
+.tl-track::before {
+  content: '';
+  position: absolute;
+  left: calc(-1 * var(--pad-x));
+  right: calc(-1 * var(--pad-x));
+  top: 0; bottom: 0;
+  background: var(--w03);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.tl-track:hover::before { opacity: 1; }
+.tl-track.active { border-bottom-color: var(--w06); }
+
+.tl-num {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  color: var(--w25);
+  flex-shrink: 0;
+  min-width: 1.6rem;
+  transition: color 0.25s ease;
+}
+.tl-track.active .tl-num { color: var(--cyan); }
+
+.tl-name {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 2vw, 1.4rem);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--w80);
+  transition: color 0.25s ease;
+}
+.tl-track.active .tl-name { color: var(--white); }
+
+/* Three-bar playing indicator — Spotify style */
+.tl-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  flex-shrink: 0;
+}
+.tl-track.active .tl-bars { opacity: 1; }
+
+.tl-bar {
+  width: 3px;
+  height: 4px;
+  background: var(--cyan);
+  border-radius: 1px;
+  transition: height 0.25s ease;
+}
+
+/* Animated when playing */
+.tl-track.active.playing .tl-bar:nth-child(1) {
+  animation: bar-bounce 0.85s ease-in-out infinite;
+}
+.tl-track.active.playing .tl-bar:nth-child(2) {
+  animation: bar-bounce 0.85s ease-in-out 0.18s infinite;
+}
+.tl-track.active.playing .tl-bar:nth-child(3) {
+  animation: bar-bounce 0.85s ease-in-out 0.36s infinite;
+}
+@keyframes bar-bounce {
+  0%, 100% { height: 4px; }
+  50%       { height: 16px; }
+}
+
+/* Paused but active: bars mid-height, static */
+.tl-track.active:not(.playing) .tl-bar { height: 8px; }
+
+/* Music credit line */
+.music-credit {
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--w06);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.music-produced {
+  font-size: 0.8rem;
+  color: var(--w50);
+  letter-spacing: 0.04em;
+}
+.mc-label { margin-right: var(--sp-2); }
+.mc-name {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--w80);
+}
+.music-note {
   font-size: 0.62rem;
   color: var(--w25);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  text-align: center;
-}
-
-/* ─── TEAM — FILM CREDITS ────────────────────────────────────────── */
-.team {
-  position: relative;
-  padding: clamp(var(--sp-24), 8vw, var(--sp-40)) var(--pad-x);
-  background: #060408;
-  clip-path: polygon(0 60px, 100% 0, 100% 100%, 0 100%);
-  margin-top: -60px;
-  overflow: hidden;
-}
-.team::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.18;
-  pointer-events: none;
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(124,58,237,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(251,113,133,0.08) 0%, transparent 60%);
-}
-
-.team-inner {
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-.team-inner > .section-eyebrow { margin-bottom: var(--sp-16); }
-
-.credits-block { display: flex; flex-direction: column; }
-
-.credits-group { padding: var(--sp-10) 0; }
-.credits-role {
-  font-family: var(--font-body);
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--purple);
-  margin-bottom: var(--sp-4);
-  display: block;
-  background: none;
-  -webkit-text-fill-color: var(--purple);
-}
-.credits-name {
-  display: block;
-  font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 6vw, 8rem);
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.0;
-  color: var(--white);
-  letter-spacing: -0.01em;
-}
-.credits-name + .credits-name { margin-top: var(--sp-2); }
-
-.credits-bio {
-  margin-top: var(--sp-5);
-  font-size: 0.85rem;
-  font-weight: 300;
-  line-height: 1.75;
-  color: var(--w25);
-  font-style: italic;
-  max-width: 48ch;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.credits-rule {
-  width: 1px;
-  height: 72px;
-  background: linear-gradient(to bottom, transparent, rgba(167,139,250,0.35), transparent);
-  margin: 0 auto;
 }
 
 /* ─── FOOTER ─────────────────────────────────────────────────────── */
