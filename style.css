@@ -482,6 +482,50 @@ strong { font-weight: 500; }
   user-select: none;
 }
 
+/* Secondary credit row (producer, composer, etc.) */
+.credit-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  padding: var(--s8) var(--pad) var(--s12);
+  max-width: var(--max);
+  margin: 0 auto;
+  border-top: 1px solid rgba(74, 62, 48, 0.15);
+}
+
+.credit-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid rgba(74, 62, 48, 0.3);
+}
+
+.credit-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.credit-role {
+  font-size: 0.55rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--t-accent);
+  margin-bottom: 0.3rem;
+}
+
+.credit-name {
+  font-family: var(--serif);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--sand);
+}
+
 /* ─── SCORE ──────────────────────────────────────────────────────── */
 .score {
   background: var(--ink);
