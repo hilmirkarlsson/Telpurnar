@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════
-   TELPURNAR — Script v4
-   Grain · Dust · Nav · Lang · Lenis · Parallax · Reveals · Music
+   TELPURNAR — Script v5
+   Grain · Dust · Nav · Lang · Lenis · Parallax · Reveals · Gallery · Music
 ═══════════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -33,51 +33,36 @@
   if (!cv) return;
   const ctx = cv.getContext('2d');
   let W, H;
-
   function resize() {
     W = cv.width  = window.innerWidth;
     H = cv.height = window.innerHeight;
   }
   resize();
   window.addEventListener('resize', resize, { passive: true });
-
   const COLORS = [
-    'rgba(212,184,150,0.052)',
-    'rgba(184,134,90,0.038)',
-    'rgba(237,230,217,0.044)',
-    'rgba(158,144,128,0.036)',
+    'rgba(212,184,150,0.052)', 'rgba(184,134,90,0.038)',
+    'rgba(237,230,217,0.044)', 'rgba(158,144,128,0.036)',
   ];
-
   function spawn() {
     return {
-      x:     Math.random() * W,
-      y:     H + Math.random() * 80,
-      r:     Math.random() * 1.4 + 0.3,
+      x: Math.random() * W, y: H + Math.random() * 80,
+      r: Math.random() * 1.4 + 0.3,
       speed: Math.random() * 0.20 + 0.08,
-      dx:    (Math.random() - 0.5) * 0.12,
-      wave:  Math.random() * Math.PI * 2,
+      dx: (Math.random() - 0.5) * 0.12,
+      wave: Math.random() * Math.PI * 2,
       color: COLORS[(Math.random() * COLORS.length) | 0],
     };
   }
-
-  const pts = Array.from({ length: 20 }, () => {
-    const p = spawn();
-    p.y = Math.random() * H;
-    return p;
-  });
-
+  const pts = Array.from({ length: 20 }, () => { const p = spawn(); p.y = Math.random() * H; return p; });
   (function tick() {
     ctx.clearRect(0, 0, W, H);
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i];
-      p.y -= p.speed;
-      p.wave += 0.009;
+      p.y -= p.speed; p.wave += 0.009;
       p.x += Math.sin(p.wave) * 0.26 + p.dx;
       if (p.y < -6) pts[i] = spawn();
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
-      ctx.fillStyle = p.color;
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = p.color; ctx.fill();
     }
     requestAnimationFrame(tick);
   })();
@@ -113,15 +98,15 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
 /* ─── SCROLL ENGINE ──────────────────────────────────────────────── */
 window.addEventListener('load', function () {
   if (typeof gsap === 'undefined') return;
-
   gsap.registerPlugin(ScrollTrigger);
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const desktop = window.innerWidth >= 768;
 
-  /* ── Lenis smooth scroll ─────────────────────────────────────── */
+  /* ── Lenis smooth scroll ──────────────────────────────────────── */
   if (typeof Lenis !== 'undefined' && !reduced) {
     const lenis = new Lenis({
-      duration:    1.15,
+      duration:    1.2,
       easing:      t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       smoothTouch: false,
@@ -133,106 +118,99 @@ window.addEventListener('load', function () {
 
   if (reduced) return;
 
-  /* ── Easing tokens ───────────────────────────────────────────── */
   const E = { enter: 'power3.out', soft: 'power2.out' };
 
-  /* Helper: clip-path wipe-up reveal (text rises from bottom) */
+  /* Helper: text wipes up from below a mask line */
   function wipeUp(el, opts = {}) {
-    const { trigger, delay = 0, duration = 1.0, yStart = 10 } = opts;
+    const { trigger, delay = 0, duration = 1.0, yStart = 12 } = opts;
     gsap.fromTo(el,
       { clipPath: 'inset(100% 0 0 0)', y: yStart },
       {
-        clipPath:   'inset(0% 0 0 0)',
-        y:          0,
-        duration,
-        ease:       E.enter,
-        delay,
-        scrollTrigger: {
-          trigger: trigger || el,
-          start:   'top 86%',
-          once:    true,
-        },
+        clipPath: 'inset(0% 0 0 0)', y: 0,
+        duration, ease: E.enter, delay,
+        scrollTrigger: { trigger: trigger || el, start: 'top 86%', once: true },
       }
     );
   }
 
   /* ══════════════════════════════════════════════════════════════
-     HERO — parallax layers move at different rates as you scroll
+     HERO PARALLAX — layers move at drastically different rates.
+     The title-page is position:sticky so the film section
+     physically slides over it as a card as you scroll.
   ══════════════════════════════════════════════════════════════ */
-  const heroST = {
-    trigger: '.title-page',
-    start:   'top top',
-    end:     'bottom top',
-    scrub:   1.1,
-  };
-  gsap.to('.title-kicker',  { y: -28,  ease: 'none', scrollTrigger: heroST });
-  gsap.to('.title-word',    { y: -72,  ease: 'none', scrollTrigger: heroST });
-  gsap.to('.title-logline', { y: -18,  ease: 'none', scrollTrigger: heroST });
-  gsap.to('.scroll-cue',    { y: -48, opacity: 0, ease: 'none', scrollTrigger: heroST });
+  const heroST = { trigger: '.title-page', start: 'top top', end: 'bottom top', scrub: 1 };
+  gsap.to('.title-kicker',  { y: -50,  ease: 'none', scrollTrigger: heroST });
+  gsap.to('.title-word',    { y: -130, ease: 'none', scrollTrigger: heroST });
+  gsap.to('.title-logline', { y: -30,  ease: 'none', scrollTrigger: heroST });
+  gsap.to('.scroll-cue',    { y: -80, opacity: 0, ease: 'none', scrollTrigger: heroST });
 
   /* ══════════════════════════════════════════════════════════════
      FILM SECTION
   ══════════════════════════════════════════════════════════════ */
-
-  /* Art slides in from right as section enters */
   gsap.from('.film-art-wrap', {
-    x: 40, opacity: 0, duration: 1.6, ease: E.enter,
-    scrollTrigger: { trigger: '.film', start: 'top 80%', once: true },
+    x: 50, opacity: 0, duration: 1.7, ease: E.enter,
+    scrollTrigger: { trigger: '.film', start: 'top 78%', once: true },
   });
-
-  /* Art parallax depth — desktop only */
-  if (window.innerWidth > 900) {
+  if (desktop) {
     gsap.to('.film-art-wrap', {
-      y: -65, ease: 'none',
-      scrollTrigger: {
-        trigger: '.film',
-        start:   'top bottom',
-        end:     'bottom top',
-        scrub:   1.6,
-      },
+      y: -70, ease: 'none',
+      scrollTrigger: { trigger: '.film', start: 'top bottom', end: 'bottom top', scrub: 1.6 },
     });
   }
-
-  /* Label wipe-up */
   wipeUp('.film-copy .label', { trigger: '.film-copy', duration: 0.85 });
-
-  /* Synopsis fades + drifts up */
   gsap.from('.film-synopsis', {
-    opacity: 0, y: 22, duration: 1.3, ease: E.soft, delay: 0.12,
+    opacity: 0, y: 24, duration: 1.3, ease: E.soft, delay: 0.12,
     scrollTrigger: { trigger: '.film-synopsis', start: 'top 84%', once: true },
   });
-
-  /* Facts stagger in from left */
   gsap.from('.fact', {
-    opacity: 0, x: -16, duration: 0.85, ease: E.soft, stagger: 0.08,
+    opacity: 0, x: -18, duration: 0.85, ease: E.soft, stagger: 0.08,
     scrollTrigger: { trigger: '.film-facts', start: 'top 82%', once: true },
   });
 
   /* ══════════════════════════════════════════════════════════════
-     STILLS — parallax depth on each cell + stagger reveal
+     STILLS — horizontal pinned gallery on desktop,
+     vertical stagger + parallax on mobile
   ══════════════════════════════════════════════════════════════ */
   wipeUp('.stills-label', { trigger: '.stills', duration: 0.9 });
 
-  gsap.utils.toArray('.still').forEach((still, i) => {
-    /* Stagger reveal */
-    gsap.from(still, {
-      opacity: 0, y: 32, duration: 1.1, ease: E.soft, delay: (i % 3) * 0.08,
-      scrollTrigger: { trigger: '.stills-grid', start: 'top 80%', once: true },
+  if (desktop) {
+    const grid = document.querySelector('.stills-grid');
+    if (grid) {
+      /* Wait one frame so flex layout is calculated */
+      requestAnimationFrame(() => {
+        const dist = grid.scrollWidth - window.innerWidth;
+        if (dist <= 0) return;
+
+        gsap.to(grid, {
+          x: () => -(grid.scrollWidth - window.innerWidth),
+          ease: 'none',
+          scrollTrigger: {
+            trigger: '.stills',
+            pin: true,
+            scrub: 1,
+            start: 'top top',
+            end:   () => `+=${grid.scrollWidth - window.innerWidth}`,
+            invalidateOnRefresh: true,
+          },
+        });
+      });
+    }
+  } else {
+    gsap.utils.toArray('.still').forEach((still, i) => {
+      gsap.from(still, {
+        opacity: 0, y: 32, duration: 1.1, ease: E.soft, delay: (i % 3) * 0.08,
+        scrollTrigger: { trigger: '.stills-grid', start: 'top 80%', once: true },
+      });
+      gsap.to(still, {
+        y: i % 2 === 0 ? -14 : 14, ease: 'none',
+        scrollTrigger: { trigger: still, start: 'top bottom', end: 'bottom top', scrub: 1.3 },
+      });
     });
-    /* Alternate up/down parallax — creates depth across the grid */
-    gsap.to(still, {
-      y: i % 2 === 0 ? -14 : 14, ease: 'none',
-      scrollTrigger: {
-        trigger: still,
-        start:   'top bottom',
-        end:     'bottom top',
-        scrub:   1.3,
-      },
-    });
-  });
+  }
 
   /* ══════════════════════════════════════════════════════════════
-     FILMMAKERS — portraits slide from sides, text wipes up
+     FILMMAKERS — portraits slide in from opposing sides,
+     names wipe up, parallax depth on portraits
   ══════════════════════════════════════════════════════════════ */
   wipeUp('.filmmakers-label', { trigger: '.filmmakers', duration: 0.9 });
 
@@ -245,42 +223,26 @@ window.addEventListener('load', function () {
     const ST       = { trigger: fm, start: 'top 78%', once: true };
 
     if (portrait) {
-      gsap.from(portrait, {
-        x: 55 * dir, opacity: 0, duration: 1.55, ease: E.enter,
-        scrollTrigger: ST,
-      });
-      /* Subtle depth parallax on portraits */
+      gsap.from(portrait, { x: 65 * dir, opacity: 0, duration: 1.6, ease: E.enter, scrollTrigger: ST });
       gsap.to(portrait, {
-        y: -24, ease: 'none',
-        scrollTrigger: {
-          trigger: fm,
-          start:   'top bottom',
-          end:     'bottom top',
-          scrub:   1.4,
-        },
+        y: -30, ease: 'none',
+        scrollTrigger: { trigger: fm, start: 'top bottom', end: 'bottom top', scrub: 1.4 },
       });
     }
     if (role) wipeUp(role, { trigger: fm, duration: 0.8 });
-    if (name) wipeUp(name, { trigger: fm, delay: 0.1, duration: 1.25, yStart: 18 });
-    if (bio) {
-      gsap.from(bio, {
-        opacity: 0, y: 18, duration: 1.2, ease: E.soft, delay: 0.22,
-        scrollTrigger: ST,
-      });
-    }
+    if (name) wipeUp(name, { trigger: fm, delay: 0.1, duration: 1.3, yStart: 20 });
+    if (bio)  gsap.from(bio, { opacity: 0, y: 20, duration: 1.2, ease: E.soft, delay: 0.22, scrollTrigger: ST });
   });
 
   /* ══════════════════════════════════════════════════════════════
-     SCORE — heading wipe + tracklist stagger from right
+     SCORE
   ══════════════════════════════════════════════════════════════ */
   wipeUp('.score-inner .label', { trigger: '.score', duration: 0.85 });
-  wipeUp('.score-heading', { trigger: '.score-heading', delay: 0.1, duration: 1.35, yStart: 20 });
-
+  wipeUp('.score-heading', { trigger: '.score-heading', delay: 0.1, duration: 1.4, yStart: 22 });
   gsap.from('.tl-track', {
-    opacity: 0, x: 20, duration: 0.85, ease: E.soft, stagger: 0.075,
+    opacity: 0, x: 22, duration: 0.85, ease: E.soft, stagger: 0.07,
     scrollTrigger: { trigger: '.tracklist', start: 'top 82%', once: true },
   });
-
   gsap.from('.score-credit', {
     opacity: 0, y: 12, duration: 1.0, ease: E.soft,
     scrollTrigger: { trigger: '.score-credit', start: 'top 86%', once: true },
@@ -303,77 +265,49 @@ window.addEventListener('load', function () {
     [{ f: 82.4, g: 0.038 }, { f: 164.8,g: 0.024 }, { f: 247.1,g: 0.012 }],
     [{ f: 98,   g: 0.036 }, { f: 196,  g: 0.022 }, { f: 294,  g: 0.014 }],
   ];
-
   let ctx = null, master = null, lfo = null;
   let oscs = [], gains = [];
   let playing = false, current = -1;
-
   function boot() {
     if (ctx) return;
     ctx    = new (window.AudioContext || window.webkitAudioContext)();
-    master = ctx.createGain();
-    master.gain.value = 1;
-    master.connect(ctx.destination);
-    lfo = ctx.createOscillator();
+    master = ctx.createGain(); master.gain.value = 1; master.connect(ctx.destination);
+    lfo    = ctx.createOscillator();
     const lfoG = ctx.createGain();
-    lfo.frequency.value = 0.07;
-    lfoG.gain.value = 0.007;
-    lfo.connect(lfoG);
-    lfoG.connect(master.gain);
-    lfo.start();
+    lfo.frequency.value = 0.07; lfoG.gain.value = 0.007;
+    lfo.connect(lfoG); lfoG.connect(master.gain); lfo.start();
   }
-
   function stop() {
-    gains.forEach(g => {
-      g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-    });
+    gains.forEach(g => { g.gain.setValueAtTime(g.gain.value, ctx.currentTime); g.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5); });
     const snap = oscs.slice();
     setTimeout(() => snap.forEach(o => { try { o.stop(); } catch (_) {} }), 550);
     oscs = []; gains = [];
   }
-
   function play(idx) {
     boot();
     if (ctx.state === 'suspended') ctx.resume();
     stop();
     PRESETS[idx].forEach(({ f, g }) => {
-      const o  = ctx.createOscillator();
-      const gn = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = f;
+      const o = ctx.createOscillator(), gn = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
       gn.gain.setValueAtTime(0, ctx.currentTime);
       gn.gain.linearRampToValueAtTime(g, ctx.currentTime + 2.5);
-      o.connect(gn); gn.connect(master);
-      o.start();
+      o.connect(gn); gn.connect(master); o.start();
       oscs.push(o); gains.push(gn);
     });
   }
-
   function setState(idx, isPlaying) {
     document.querySelectorAll('.tl-track').forEach((el, i) => {
       el.classList.toggle('active',  i === idx);
       el.classList.toggle('playing', i === idx && isPlaying);
     });
   }
-
   function select(idx) {
-    if (idx === current) {
-      playing = !playing;
-      if (playing) play(idx); else stop();
-      setState(idx, playing);
-      return;
-    }
-    current = idx;
-    playing = true;
-    play(idx);
-    setState(idx, true);
+    if (idx === current) { playing = !playing; if (playing) play(idx); else stop(); setState(idx, playing); return; }
+    current = idx; playing = true; play(idx); setState(idx, true);
   }
-
   document.querySelectorAll('.tl-track').forEach((el, i) => {
     el.addEventListener('click', () => select(i));
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i); }
-    });
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i); } });
   });
 })();

@@ -151,7 +151,9 @@ strong { font-weight: 500; }
   flex-direction: column;
   justify-content: center;
   padding: var(--s12) var(--pad) var(--s8);
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 0;
   background: var(--ink);
 }
 
@@ -226,6 +228,10 @@ strong { font-weight: 500; }
   padding: var(--s16) var(--pad);
   background: var(--deep);
   border-top: 1px solid rgba(74, 62, 48, 0.3);
+  position: relative;
+  z-index: 1;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.5);
 }
 
 .film-inner {
@@ -306,6 +312,9 @@ strong { font-weight: 500; }
   padding: var(--s16) 0 0;
   background: var(--ink);
   border-top: 1px solid rgba(74, 62, 48, 0.25);
+  position: relative;
+  z-index: 2;
+  overflow: hidden; /* clips horizontal track on desktop */
 }
 
 .stills-label {
@@ -389,6 +398,8 @@ strong { font-weight: 500; }
   background: var(--deep);
   border-top: 1px solid rgba(74, 62, 48, 0.3);
   padding-top: var(--s12);
+  position: relative;
+  z-index: 3;
 }
 
 .filmmakers-label {
@@ -656,6 +667,35 @@ strong { font-weight: 500; }
     grid-row: auto;
   }
   .footer-inner { flex-direction: column; align-items: flex-start; gap: var(--s2); }
+}
+
+/* ─── STILLS HORIZONTAL GALLERY (desktop) ────────────────────────── */
+@media (min-width: 768px) {
+  .stills-label { position: relative; z-index: 1; }
+  .stills-grid {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: max-content;
+    gap: 4px;
+    height: 65vh;
+    align-items: stretch;
+  }
+  .still {
+    flex: none;
+    width: 50vw;
+    height: 100%;
+  }
+  .s-wide  { width: 60vw; }
+  .s-tall  { width: 36vw; }
+  .s-mid   { width: 42vw; }
+  .s-wide2 { width: 58vw; }
+  /* grid-column / grid-row are ignored in flex context */
+  .still-art {
+    width: 100%;
+    height: 100%;
+    min-height: unset;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
