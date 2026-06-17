@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════
-   TELPURNAR — Script v3
-   Grain · Nav · Lang · Reveals · Music
+   TELPURNAR — Script v4
+   Grain · Dust · Nav · Lang · Lenis · Parallax · Reveals · Music
 ═══════════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -12,12 +12,8 @@
   const cv = document.createElement('canvas');
   cv.width = cv.height = 200;
   const ctx = cv.getContext('2d');
-
   function tick() {
-    const d = ctx.createImageData(200, 200).data.constructor
-      ? ctx.createImageData(200, 200)
-      : null;
-    if (!d) return;
+    const d = ctx.createImageData(200, 200);
     const px = d.data;
     for (let i = 0; i < px.length; i += 4) {
       const v = (Math.random() * 255) | 0;
@@ -29,6 +25,62 @@
   }
   tick();
   setInterval(tick, 100);
+})();
+
+/* ─── DUST PARTICLES ─────────────────────────────────────────────── */
+(function () {
+  const cv = document.getElementById('dust');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = cv.width  = window.innerWidth;
+    H = cv.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const COLORS = [
+    'rgba(212,184,150,0.052)',
+    'rgba(184,134,90,0.038)',
+    'rgba(237,230,217,0.044)',
+    'rgba(158,144,128,0.036)',
+  ];
+
+  function spawn() {
+    return {
+      x:     Math.random() * W,
+      y:     H + Math.random() * 80,
+      r:     Math.random() * 1.4 + 0.3,
+      speed: Math.random() * 0.20 + 0.08,
+      dx:    (Math.random() - 0.5) * 0.12,
+      wave:  Math.random() * Math.PI * 2,
+      color: COLORS[(Math.random() * COLORS.length) | 0],
+    };
+  }
+
+  const pts = Array.from({ length: 20 }, () => {
+    const p = spawn();
+    p.y = Math.random() * H;
+    return p;
+  });
+
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i];
+      p.y -= p.speed;
+      p.wave += 0.009;
+      p.x += Math.sin(p.wave) * 0.26 + p.dx;
+      if (p.y < -6) pts[i] = spawn();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
 })();
 
 /* ─── NAV ────────────────────────────────────────────────────────── */
@@ -43,76 +95,203 @@
 /* ─── LANGUAGE ───────────────────────────────────────────────────── */
 const Lang = (function () {
   let lang = 'en';
-
   function apply(l) {
     lang = l;
     document.documentElement.lang = l === 'is' ? 'is' : 'en';
-
     document.querySelectorAll('[data-en][data-is]').forEach(el => {
       const val = el.getAttribute(`data-${l}`);
       if (val !== null) el.innerHTML = val;
     });
-
     document.querySelector('.lt-en')?.classList.toggle('active', l === 'en');
     document.querySelector('.lt-is')?.classList.toggle('active', l === 'is');
   }
-
   function toggle() { apply(lang === 'en' ? 'is' : 'en'); }
-
   return { toggle };
 })();
-
 document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
 
-/* ─── SCROLL REVEALS ─────────────────────────────────────────────── */
+/* ─── SCROLL ENGINE ──────────────────────────────────────────────── */
 window.addEventListener('load', function () {
   if (typeof gsap === 'undefined') return;
+
   gsap.registerPlugin(ScrollTrigger);
 
-  /* Mark elements as reveal targets */
-  const targets = [
-    '.film-copy > *',
-    '.film-art-wrap',
-    '.stills-label',
-    '.still',
-    '.filmmaker-text',
-    '.filmmaker-portrait',
-    '.score-inner > *',
-  ].join(', ');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  gsap.utils.toArray(targets).forEach(el => {
+  /* ── Lenis smooth scroll ─────────────────────────────────────── */
+  if (typeof Lenis !== 'undefined' && !reduced) {
+    const lenis = new Lenis({
+      duration:    1.15,
+      easing:      t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      smoothTouch: false,
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  if (reduced) return;
+
+  /* ── Easing tokens ───────────────────────────────────────────── */
+  const E = { enter: 'power3.out', soft: 'power2.out' };
+
+  /* Helper: clip-path wipe-up reveal (text rises from bottom) */
+  function wipeUp(el, opts = {}) {
+    const { trigger, delay = 0, duration = 1.0, yStart = 10 } = opts;
     gsap.fromTo(el,
-      { opacity: 0, y: 14 },
+      { clipPath: 'inset(100% 0 0 0)', y: yStart },
       {
-        opacity: 1,
-        y: 0,
-        duration: 1.4,
-        ease: 'power1.out',
+        clipPath:   'inset(0% 0 0 0)',
+        y:          0,
+        duration,
+        ease:       E.enter,
+        delay,
         scrollTrigger: {
-          trigger: el,
-          start: 'top 88%',
-          once: true,
+          trigger: trigger || el,
+          start:   'top 86%',
+          once:    true,
         },
       }
     );
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     HERO — parallax layers move at different rates as you scroll
+  ══════════════════════════════════════════════════════════════ */
+  const heroST = {
+    trigger: '.title-page',
+    start:   'top top',
+    end:     'bottom top',
+    scrub:   1.1,
+  };
+  gsap.to('.title-kicker',  { y: -28,  ease: 'none', scrollTrigger: heroST });
+  gsap.to('.title-word',    { y: -72,  ease: 'none', scrollTrigger: heroST });
+  gsap.to('.title-logline', { y: -18,  ease: 'none', scrollTrigger: heroST });
+  gsap.to('.scroll-cue',    { y: -48, opacity: 0, ease: 'none', scrollTrigger: heroST });
+
+  /* ══════════════════════════════════════════════════════════════
+     FILM SECTION
+  ══════════════════════════════════════════════════════════════ */
+
+  /* Art slides in from right as section enters */
+  gsap.from('.film-art-wrap', {
+    x: 40, opacity: 0, duration: 1.6, ease: E.enter,
+    scrollTrigger: { trigger: '.film', start: 'top 80%', once: true },
   });
 
-  /* Stills stagger */
-  gsap.utils.toArray('.still').forEach((el, i) => {
-    gsap.fromTo(el,
-      { opacity: 0 },
-      {
-        opacity: 1,
-        duration: 1.6,
-        delay: i * 0.08,
-        ease: 'power1.out',
+  /* Art parallax depth — desktop only */
+  if (window.innerWidth > 900) {
+    gsap.to('.film-art-wrap', {
+      y: -65, ease: 'none',
+      scrollTrigger: {
+        trigger: '.film',
+        start:   'top bottom',
+        end:     'bottom top',
+        scrub:   1.6,
+      },
+    });
+  }
+
+  /* Label wipe-up */
+  wipeUp('.film-copy .label', { trigger: '.film-copy', duration: 0.85 });
+
+  /* Synopsis fades + drifts up */
+  gsap.from('.film-synopsis', {
+    opacity: 0, y: 22, duration: 1.3, ease: E.soft, delay: 0.12,
+    scrollTrigger: { trigger: '.film-synopsis', start: 'top 84%', once: true },
+  });
+
+  /* Facts stagger in from left */
+  gsap.from('.fact', {
+    opacity: 0, x: -16, duration: 0.85, ease: E.soft, stagger: 0.08,
+    scrollTrigger: { trigger: '.film-facts', start: 'top 82%', once: true },
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     STILLS — parallax depth on each cell + stagger reveal
+  ══════════════════════════════════════════════════════════════ */
+  wipeUp('.stills-label', { trigger: '.stills', duration: 0.9 });
+
+  gsap.utils.toArray('.still').forEach((still, i) => {
+    /* Stagger reveal */
+    gsap.from(still, {
+      opacity: 0, y: 32, duration: 1.1, ease: E.soft, delay: (i % 3) * 0.08,
+      scrollTrigger: { trigger: '.stills-grid', start: 'top 80%', once: true },
+    });
+    /* Alternate up/down parallax — creates depth across the grid */
+    gsap.to(still, {
+      y: i % 2 === 0 ? -14 : 14, ease: 'none',
+      scrollTrigger: {
+        trigger: still,
+        start:   'top bottom',
+        end:     'bottom top',
+        scrub:   1.3,
+      },
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     FILMMAKERS — portraits slide from sides, text wipes up
+  ══════════════════════════════════════════════════════════════ */
+  wipeUp('.filmmakers-label', { trigger: '.filmmakers', duration: 0.9 });
+
+  document.querySelectorAll('.filmmaker').forEach((fm, i) => {
+    const dir      = i === 0 ? -1 : 1;
+    const portrait = fm.querySelector('.filmmaker-portrait');
+    const role     = fm.querySelector('.filmmaker-role');
+    const name     = fm.querySelector('.filmmaker-name');
+    const bio      = fm.querySelector('.filmmaker-bio');
+    const ST       = { trigger: fm, start: 'top 78%', once: true };
+
+    if (portrait) {
+      gsap.from(portrait, {
+        x: 55 * dir, opacity: 0, duration: 1.55, ease: E.enter,
+        scrollTrigger: ST,
+      });
+      /* Subtle depth parallax on portraits */
+      gsap.to(portrait, {
+        y: -24, ease: 'none',
         scrollTrigger: {
-          trigger: '.stills-grid',
-          start: 'top 85%',
-          once: true,
+          trigger: fm,
+          start:   'top bottom',
+          end:     'bottom top',
+          scrub:   1.4,
         },
-      }
-    );
+      });
+    }
+    if (role) wipeUp(role, { trigger: fm, duration: 0.8 });
+    if (name) wipeUp(name, { trigger: fm, delay: 0.1, duration: 1.25, yStart: 18 });
+    if (bio) {
+      gsap.from(bio, {
+        opacity: 0, y: 18, duration: 1.2, ease: E.soft, delay: 0.22,
+        scrollTrigger: ST,
+      });
+    }
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     SCORE — heading wipe + tracklist stagger from right
+  ══════════════════════════════════════════════════════════════ */
+  wipeUp('.score-inner .label', { trigger: '.score', duration: 0.85 });
+  wipeUp('.score-heading', { trigger: '.score-heading', delay: 0.1, duration: 1.35, yStart: 20 });
+
+  gsap.from('.tl-track', {
+    opacity: 0, x: 20, duration: 0.85, ease: E.soft, stagger: 0.075,
+    scrollTrigger: { trigger: '.tracklist', start: 'top 82%', once: true },
+  });
+
+  gsap.from('.score-credit', {
+    opacity: 0, y: 12, duration: 1.0, ease: E.soft,
+    scrollTrigger: { trigger: '.score-credit', start: 'top 86%', once: true },
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════════════════════════════ */
+  gsap.from('.footer-inner > *', {
+    opacity: 0, y: 10, duration: 0.9, ease: E.soft, stagger: 0.08,
+    scrollTrigger: { trigger: '.footer', start: 'top 88%', once: true },
   });
 });
 
@@ -159,7 +338,7 @@ window.addEventListener('load', function () {
     if (ctx.state === 'suspended') ctx.resume();
     stop();
     PRESETS[idx].forEach(({ f, g }) => {
-      const o = ctx.createOscillator();
+      const o  = ctx.createOscillator();
       const gn = ctx.createGain();
       o.type = 'sine';
       o.frequency.value = f;
