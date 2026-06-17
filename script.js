@@ -79,7 +79,7 @@
 
 /* ─── LANGUAGE ───────────────────────────────────────────────────── */
 const Lang = (function () {
-  let lang = 'en';
+  let lang = 'is';
   function apply(l) {
     lang = l;
     document.documentElement.lang = l === 'is' ? 'is' : 'en';
@@ -91,6 +91,7 @@ const Lang = (function () {
     document.querySelector('.lt-is')?.classList.toggle('active', l === 'is');
   }
   function toggle() { apply(lang === 'en' ? 'is' : 'en'); }
+  apply('is');
   return { toggle };
 })();
 document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
