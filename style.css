@@ -151,9 +151,7 @@ strong { font-weight: 500; }
   flex-direction: column;
   justify-content: center;
   padding: var(--s12) var(--pad) var(--s8);
-  position: sticky;
-  top: 0;
-  z-index: 0;
+  position: relative;
   background: var(--ink);
 }
 
@@ -228,8 +226,6 @@ strong { font-weight: 500; }
   padding: var(--s16) var(--pad);
   background: var(--deep);
   border-top: 1px solid rgba(74, 62, 48, 0.3);
-  position: relative;
-  z-index: 1;
   border-radius: 28px 28px 0 0;
   box-shadow: 0 -10px 60px rgba(0, 0, 0, 0.5);
 }
@@ -312,8 +308,6 @@ strong { font-weight: 500; }
   padding: var(--s16) 0 0;
   background: var(--ink);
   border-top: 1px solid rgba(74, 62, 48, 0.25);
-  position: relative;
-  z-index: 2;
   overflow: hidden; /* clips horizontal track on desktop */
 }
 
@@ -398,8 +392,6 @@ strong { font-weight: 500; }
   background: var(--deep);
   border-top: 1px solid rgba(74, 62, 48, 0.3);
   padding-top: var(--s12);
-  position: relative;
-  z-index: 3;
 }
 
 .filmmakers-label {
@@ -487,8 +479,6 @@ strong { font-weight: 500; }
   background: var(--ink);
   border-top: 1px solid rgba(74, 62, 48, 0.25);
   padding: var(--s16) var(--pad);
-  position: relative;
-  z-index: 4;
 }
 
 .score-inner {
@@ -593,8 +583,6 @@ strong { font-weight: 500; }
   background: var(--ink);
   border-top: 1px solid rgba(74, 62, 48, 0.25);
   padding: var(--s6) var(--pad);
-  position: relative;
-  z-index: 5;
 }
 .footer-inner {
   max-width: var(--max);
