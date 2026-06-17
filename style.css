@@ -487,6 +487,8 @@ strong { font-weight: 500; }
   background: var(--ink);
   border-top: 1px solid rgba(74, 62, 48, 0.25);
   padding: var(--s16) var(--pad);
+  position: relative;
+  z-index: 4;
 }
 
 .score-inner {
@@ -591,6 +593,8 @@ strong { font-weight: 500; }
   background: var(--ink);
   border-top: 1px solid rgba(74, 62, 48, 0.25);
   padding: var(--s6) var(--pad);
+  position: relative;
+  z-index: 5;
 }
 .footer-inner {
   max-width: var(--max);
