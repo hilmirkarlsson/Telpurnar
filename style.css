@@ -7,10 +7,10 @@
 /* ─── TOKENS ─────────────────────────────────────────────────────── */
 :root {
   /* Natural Iceland-summer palette */
-  --bg:          #EFE6D3;   /* gentle warm cream */
-  --surface:     #F8F1E2;   /* soft cream, not stark white */
-  --surface-soft:#E9DEC7;   /* deeper cream for alternating sections */
-  --surface-2:   #E2D5B9;
+  --bg:          #E6D8B8;   /* oatmeal cream — unmistakably warm, not white */
+  --surface:     #F0E4C2;   /* soft cream card surface */
+  --surface-soft:#DECBA0;   /* deeper cream for alternating sections */
+  --surface-2:   #D3BD8F;
 
   --ink:         #232826;   /* warm near-black (text) */
   --ink-soft:    #555C54;   /* secondary text */
@@ -21,11 +21,11 @@
   --fjord:       #6E8E95;   /* muted fjord blue-green */
   --sand:        #C2A063;   /* warm sun / sand */
 
-  --line:        #D9CCAC;   /* soft border */
-  --line-soft:   #E1D5B7;
+  --line:        #C7B485;   /* soft border */
+  --line-soft:   #D2C093;
 
   --scrim:       rgba(30,36,30,0.30);
-  --nav-bg:      rgba(239,230,211,0.82);
+  --nav-bg:      rgba(230,216,184,0.82);
 
   --font-serif:  'Lora', Georgia, serif;
   --font-body:   'Raleway', system-ui, sans-serif;
