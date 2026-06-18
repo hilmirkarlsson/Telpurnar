@@ -638,6 +638,50 @@ a { color: inherit; text-decoration: none; }
   color: rgba(255,255,255,0.85);
   text-shadow: 0 2px 20px rgba(69,83,61,0.35);
 }
+
+/* Real portrait photo fills the frame */
+.director-portrait.has-photo { background: var(--surface-2); }
+.dp-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s var(--ease-soft);
+}
+.director-card:hover .dp-photo { transform: scale(1.04); }
+
+/* Producer credit row */
+.producer-credit {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-top: clamp(var(--sp-10), 5vw, var(--sp-16));
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--line);
+}
+.producer-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 8px 22px -12px rgba(45,53,40,0.5);
+}
+.producer-role {
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--moss);
+  margin-bottom: 2px;
+}
+.producer-name {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.3rem;
+  color: var(--ink);
+}
 .director-role {
   font-size: 0.64rem;
   font-weight: 600;
