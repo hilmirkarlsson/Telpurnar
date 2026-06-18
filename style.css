@@ -25,6 +25,7 @@
   --line-soft:   #EDE7DA;
 
   --scrim:       rgba(30,36,30,0.30);
+  --nav-bg:      rgba(246,243,236,0.82);
 
   --font-serif:  'Lora', Georgia, serif;
   --font-body:   'Raleway', system-ui, sans-serif;
@@ -40,6 +41,38 @@
 
   --max-w: 1280px;
   --pad-x: clamp(1.25rem, 5vw, 4rem);
+}
+
+/* ─── DARK THEME — old earthy palette remapped onto the same design ── */
+[data-theme="dark"] {
+  --bg:          #161310;   /* warm near-black */
+  --surface:     #1f1b15;
+  --surface-soft:#1a1712;
+  --surface-2:   #2a241b;
+
+  --ink:         #ede6d9;   /* cream */
+  --ink-soft:    #cdbfa6;   /* sand */
+  --ink-faint:   #9e9080;   /* fog */
+
+  --moss:        #8fa07e;   /* sage — brighter accent for dark */
+  --moss-deep:   #6b7c5e;
+  --fjord:       #7d97a0;
+  --sand:        #d4b896;
+
+  --line:        #3a3026;
+  --line-soft:   #2a2319;
+
+  --scrim:       rgba(10,9,7,0.45);
+  --nav-bg:      rgba(22,19,16,0.90);
+}
+
+/* Smooth fade when switching themes */
+body, .nav, .film, .gallery, .filmmakers, .music, .footer, .loader,
+.gallery-arrow, .tl-track, .film-detail {
+  transition:
+    background-color 0.6s var(--ease-soft),
+    border-color 0.6s var(--ease-soft),
+    color 0.6s var(--ease-soft);
 }
 
 /* ─── RESET ──────────────────────────────────────────────────────── */
@@ -100,7 +133,7 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid transparent;
 }
 .nav.scrolled {
-  background: rgba(246,243,236,0.82);
+  background: var(--nav-bg);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom-color: var(--line);
@@ -164,6 +197,29 @@ a { color: inherit; text-decoration: none; }
 .lt-is, .lt-en { opacity: 0.55; transition: opacity 0.3s ease, color 0.3s ease; }
 .lt-is.active, .lt-en.active { opacity: 1; color: #fff; }
 .nav.scrolled .lt-is.active, .nav.scrolled .lt-en.active { color: var(--moss); }
+
+/* Nav actions group (theme + language) */
+.nav-actions { display: flex; align-items: center; gap: var(--sp-3); }
+
+/* Theme toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.35);
+  text-shadow: 0 1px 10px rgba(0,0,0,0.3);
+  transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease, transform 0.4s var(--ease-soft);
+}
+.nav.scrolled .theme-toggle { color: var(--ink-soft); border-color: var(--line); text-shadow: none; }
+.theme-toggle:hover { border-color: var(--moss); color: var(--moss); transform: rotate(-18deg); }
+.theme-toggle svg { width: 17px; height: 17px; }
+.theme-toggle .icon-sun { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun  { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
 /* ─── SECTION EYEBROW ────────────────────────────────────────────── */
 .section-eyebrow {
