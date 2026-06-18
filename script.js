@@ -54,6 +54,94 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   btn?.addEventListener('click', () => apply(current() === 'dark' ? 'light' : 'dark'));
 })();
 
+/* ─── SMOOTH SCROLL (Lenis — inertia feel from v3) ───────────────── */
+(function initLenis() {
+  if (REDUCE || typeof Lenis === 'undefined') return;   // CDN blocked → native scroll
+  const lenis = new Lenis({
+    duration: 1.2,
+    easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+    smoothTouch: false,
+  });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+
+  // Anchor links glide via Lenis instead of jumping
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    const id = a.getAttribute('href');
+    if (!id || id.length < 2) return;
+    a.addEventListener('click', e => {
+      const target = document.querySelector(id);
+      if (target) { e.preventDefault(); lenis.scrollTo(target); }
+    });
+  });
+})();
+
+/* ─── HERO PARALLAX (content drifts up + fades on scroll) ────────── */
+(function initParallax() {
+  if (REDUCE) return;
+  const hero = document.querySelector('.hero');
+  const content = document.querySelector('.hero-content');
+  const cue = document.querySelector('.hero-scroll');
+  if (!hero || !content) return;
+  let ticking = false;
+  function update() {
+    const y = window.scrollY || window.pageYOffset || 0;
+    const h = hero.offsetHeight || window.innerHeight;
+    const p = Math.min(y / h, 1);
+    content.style.transform = `translate3d(0, ${y * -0.18}px, 0)`;
+    content.style.opacity = String(Math.max(0, 1 - p * 1.15));
+    if (cue) cue.style.opacity = String(Math.max(0, 1 - y / 220));
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  // No initial call — let the hero intro animation play first; parallax
+  // engages on the first scroll.
+})();
+
+/* ─── DRIFTING DUST (ambient particles, theme-aware) ─────────────── */
+(function initDust() {
+  if (REDUCE) return;
+  const cv = document.getElementById('dust');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  let W, H;
+  function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+  const PAL = {
+    dark:  ['rgba(212,184,150,0.055)', 'rgba(184,134,90,0.040)', 'rgba(237,230,217,0.045)', 'rgba(158,144,128,0.038)'],
+    light: ['rgba(94,115,85,0.060)',  'rgba(120,100,70,0.050)', 'rgba(70,84,61,0.045)',    'rgba(110,120,108,0.045)'],
+  };
+  const pal = () => document.documentElement.getAttribute('data-theme') === 'dark' ? PAL.dark : PAL.light;
+  function spawn() {
+    const c = pal();
+    return {
+      x: Math.random() * W, y: H + Math.random() * 80,
+      r: Math.random() * 1.4 + 0.3,
+      speed: Math.random() * 0.20 + 0.08,
+      dx: (Math.random() - 0.5) * 0.12,
+      wave: Math.random() * Math.PI * 2,
+      color: c[(Math.random() * c.length) | 0],
+    };
+  }
+  const pts = Array.from({ length: 20 }, () => { const p = spawn(); p.y = Math.random() * H; return p; });
+  (function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i];
+      p.y -= p.speed; p.wave += 0.009;
+      p.x += Math.sin(p.wave) * 0.26 + p.dx;
+      if (p.y < -6) pts[i] = spawn();
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+      ctx.fillStyle = p.color; ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
+})();
+
 /* ─── HERO DOTS (shared by both renderers) ───────────────────────── */
 function buildHeroDots(count, onSelect) {
   const wrap = document.getElementById('heroDots');

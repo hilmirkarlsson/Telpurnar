@@ -14,7 +14,7 @@
   <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
   <script>(function(){try{var t=localStorage.getItem('telpurnar-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
 
@@ -22,6 +22,9 @@
   <div class="loader" id="loader" aria-hidden="true">
     <span class="loader-mark">Telpurnar</span>
   </div>
+
+  <!-- ─── DRIFTING DUST (ambient, from v3) ───────────────────────── -->
+  <canvas class="dust" id="dust" aria-hidden="true"></canvas>
 
   <!-- ─── NAVIGATION ─────────────────────────────────────────────── -->
   <nav class="nav" id="nav">
@@ -157,7 +160,7 @@
       </div>
     </div>
 
-    <div class="gallery-track" id="galleryTrack">
+    <div class="gallery-track" id="galleryTrack" data-lenis-prevent>
       <figure class="gallery-item">
         <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=1400')">
           <span class="still-num" aria-hidden="true">01</span>
@@ -290,7 +293,9 @@
   </footer>
 
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
-  <script src="script.js?v=7" defer></script>
+  <!-- Lenis — smooth inertia scroll (same lib as the v3 earthy build) -->
+  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
+  <script src="script.js?v=8" defer></script>
 
 </body>
 </html>
