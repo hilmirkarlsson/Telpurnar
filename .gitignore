@@ -1,0 +1,11 @@
+# Local-only Claude Code settings (contains secrets like API keys — never commit)
+.claude/settings.local.json
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
