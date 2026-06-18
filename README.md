@@ -12,5 +12,9 @@ Promotional website for **Telpurnar** — an Icelandic short film, 2026 · 14 mi
 
 ---
 
-Built with vanilla HTML, CSS, and JavaScript.  
-Animations via [GSAP](https://gsap.com/) · Music previews via Web Audio API · Bilingual IS/EN.
+Built with vanilla HTML, CSS, and JavaScript — no framework, no build step.  
+Light, nature-focused design (summer in Iceland) · pure-CSS image transitions
+(crossfade + Ken Burns + clip-path wipe) · Web Audio score previews ·
+bilingual with **Icelandic as the default** language (IS/EN toggle).
+
+Photography: iconic Icelandic landscapes via [Wikimedia Commons](https://commons.wikimedia.org/).
