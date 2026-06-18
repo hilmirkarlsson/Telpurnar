@@ -39,6 +39,21 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   onScroll();
 })();
 
+/* ─── THEME (light default · dark = earthy) ──────────────────────── */
+(function initTheme() {
+  const KEY = 'telpurnar-theme';
+  const root = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  // The inline <head> script already applied any saved theme before paint.
+  function current() { return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
+  function apply(theme) {
+    if (theme === 'light') root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', 'dark');
+    try { localStorage.setItem(KEY, theme); } catch (_) {}
+  }
+  btn?.addEventListener('click', () => apply(current() === 'dark' ? 'light' : 'dark'));
+})();
+
 /* ─── HERO DOTS (shared by both renderers) ───────────────────────── */
 function buildHeroDots(count, onSelect) {
   const wrap = document.getElementById('heroDots');
