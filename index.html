@@ -14,7 +14,7 @@
   <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
   <script>(function(){try{var t=localStorage.getItem('telpurnar-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
 
@@ -155,7 +155,7 @@
     <!-- Stills emptied — AWAITING SHORT-FILM IMAGERY.
          Restore by adding the background image back to each .gallery-still:
          <div class="gallery-still" style="background-image:url('IMG_URL')"> ... -->
-    <div class="gallery-track" id="galleryTrack" data-lenis-prevent>
+    <div class="gallery-track" id="galleryTrack">
       <figure class="gallery-item">
         <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">01</span></div>
       </figure>
@@ -278,9 +278,11 @@
   </footer>
 
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
-  <!-- Lenis — smooth inertia scroll (same lib as the v3 earthy build) -->
+  <!-- Lenis (smooth scroll) + GSAP ScrollTrigger (pinned horizontal stills) -->
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
-  <script src="script.js?v=9" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+  <script src="script.js?v=10" defer></script>
 
 </body>
 </html>

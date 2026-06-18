@@ -630,6 +630,15 @@ html.lenis, html.lenis body { height: auto; }
   flex: 0 0 clamp(260px, 50vw, 580px);
   scroll-snap-align: start;
 }
+
+/* Pinned mode: row is moved by ScrollTrigger (vertical scroll → sideways) */
+.gallery-pinned .gallery-track {
+  overflow: visible;
+  scroll-snap-type: none;
+  will-change: transform;
+  cursor: grab;
+}
+.gallery-pinned .gallery-arrows { display: none; }   /* page scroll drives it */
 .gallery-still {
   aspect-ratio: 16/10;
   border-radius: 4px;
