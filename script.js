@@ -54,7 +54,7 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   btn?.addEventListener('click', () => apply(current() === 'dark' ? 'light' : 'dark'));
 })();
 
-/* ─── SMOOTH SCROLL (Lenis — inertia feel from v3) ───────────────── */
+/* ─── SMOOTH SCROLL (Lenis) + ScrollTrigger integration ──────────── */
 (function initLenis() {
   if (REDUCE || typeof Lenis === 'undefined') return;   // CDN blocked → native scroll
   const lenis = new Lenis({
@@ -63,8 +63,18 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
     smoothWheel: true,
     smoothTouch: false,
   });
-  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-  requestAnimationFrame(raf);
+
+  // Drive Lenis from GSAP's ticker and keep ScrollTrigger in sync (as v3 did)
+  if (typeof gsap !== 'undefined' && gsap.ticker) {
+    if (typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+      lenis.on('scroll', ScrollTrigger.update);
+    }
+    gsap.ticker.add(time => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+  } else {
+    (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
+  }
 
   // Anchor links glide via Lenis instead of jumping
   document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -73,6 +83,38 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
     a.addEventListener('click', e => {
       const target = document.querySelector(id);
       if (target) { e.preventDefault(); lenis.scrollTo(target); }
+    });
+  });
+})();
+
+/* ─── STILLS — horizontal scroll driven by vertical scroll (v3) ──── */
+(function initStillsScroll() {
+  if (REDUCE) return;
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  const track = document.getElementById('galleryTrack');
+  const gallery = document.querySelector('.gallery');
+  if (!track || !gallery) return;
+  if (!window.matchMedia('(min-width: 768px)').matches) return; // mobile keeps swipe
+
+  gallery.classList.add('gallery-pinned');
+  const fill = document.getElementById('galleryProgress');
+  const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
+
+  // Wait a frame so flex widths are measured, then pin + scrub the row left
+  requestAnimationFrame(() => {
+    if (dist() <= 0) { gallery.classList.remove('gallery-pinned'); return; }
+    gsap.to(track, {
+      x: () => -dist(),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: gallery,
+        pin: true,
+        scrub: 1,
+        start: 'top top',
+        end: () => '+=' + dist(),
+        invalidateOnRefresh: true,
+        onUpdate: self => { if (fill) fill.style.width = (self.progress * 100) + '%'; },
+      },
     });
   });
 })();
@@ -461,7 +503,7 @@ window.setTimeout(() => {
 (function initReveal() {
   const groups = [
     '.film-poster-wrap', '.film-info > *', '.gallery-header > *',
-    '.gallery-item', '.filmmakers-inner > .section-eyebrow',
+    '.filmmakers-inner > .section-eyebrow',
     '.director-card', '.music-inner > *',
   ];
   const targets = [];
