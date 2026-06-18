@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=4" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
@@ -37,18 +37,22 @@
 
   <!-- ─── HERO ───────────────────────────────────────────────────── -->
   <section class="hero" id="hero">
-    <!-- Photo slideshow — real Iceland summer nature (Wikimedia Commons) -->
+    <!-- WebGL displacement canvas (progressive enhancement) -->
+    <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+
+    <!-- Photo slideshow — real Iceland summer nature (Wikimedia Commons).
+         Also the no-WebGL fallback; data-src is read by the WebGL renderer. -->
     <div class="hero-slides" id="heroSlides" aria-hidden="true">
-      <div class="hero-slide is-active">
+      <div class="hero-slide is-active" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=2400">
         <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=2400')"></div>
       </div>
-      <div class="hero-slide">
+      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=2400">
         <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=2400')"></div>
       </div>
-      <div class="hero-slide">
+      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=2400">
         <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=2400')"></div>
       </div>
-      <div class="hero-slide">
+      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=2400">
         <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=2400')"></div>
       </div>
     </div>
@@ -262,7 +266,7 @@
   </footer>
 
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
-  <script src="script.js?v=4" defer></script>
+  <script src="script.js?v=5" defer></script>
 
 </body>
 </html>

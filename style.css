@@ -200,7 +200,21 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(160deg, #8fae9b 0%, #6e8e95 45%, #45533d 100%);
 }
 
-/* Slideshow layers */
+/* WebGL displacement canvas — sits behind the scrim, above the gradient */
+.hero-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.9s var(--ease-soft);
+}
+.hero.gl-active .hero-canvas { opacity: 1; }
+.hero.gl-active .hero-slides { display: none; }
+
+/* Slideshow layers (CSS fallback) */
 .hero-slides { position: absolute; inset: 0; z-index: 0; }
 .hero-slide {
   position: absolute;

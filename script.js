@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
-   TELPURNAR — Main Script v4
-   Light · Natural. Modules: Lang (IS default) · Loader · Nav ·
-   Hero slideshow · Scroll reveal · Gallery · Music
+   TELPURNAR — Main Script v5
+   Light · Natural · Orano-style cinematic transitions
+   Hero: WebGL displacement reveal (progressive) → CSS slideshow fallback
 ═══════════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -39,74 +39,316 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   onScroll();
 })();
 
-/* ─── HERO SLIDESHOW — crossfade + clip wipe + Ken Burns ─────────── */
-(function initSlideshow() {
-  const slides = Array.from(document.querySelectorAll('.hero-slide'));
-  const dotsWrap = document.getElementById('heroDots');
-  if (slides.length < 2) return;
-
-  let active = 0;
-  let timer = null;
-  const DWELL = 6500;
-
-  // Build dots
-  const dots = slides.map((_, i) => {
+/* ─── HERO DOTS (shared by both renderers) ───────────────────────── */
+function buildHeroDots(count, onSelect) {
+  const wrap = document.getElementById('heroDots');
+  if (!wrap) return { set: () => {} };
+  wrap.innerHTML = '';
+  const dots = [];
+  for (let i = 0; i < count; i++) {
     const d = document.createElement('button');
     d.className = 'hero-dot' + (i === 0 ? ' active' : '');
     d.setAttribute('role', 'tab');
     d.setAttribute('aria-label', 'Mynd ' + (i + 1));
-    d.addEventListener('click', () => { go(i); restart(); });
-    dotsWrap.appendChild(d);
-    return d;
+    d.addEventListener('click', () => onSelect(i));
+    wrap.appendChild(d);
+    dots.push(d);
+  }
+  return {
+    set(active) { dots.forEach((d, i) => d.classList.toggle('active', i === active)); }
+  };
+}
+
+const DWELL = 6500;        // ms a slide rests
+const TRANSITION = 1500;   // ms of the swap
+
+/* ─── HERO — WebGL displacement renderer ─────────────────────────── */
+function initHeroGL() {
+  const hero = document.querySelector('.hero');
+  const canvas = document.getElementById('heroCanvas');
+  const slideEls = Array.from(document.querySelectorAll('.hero-slide'));
+  if (!hero || !canvas || slideEls.length < 2) return false;
+
+  const sources = slideEls.map(el => el.getAttribute('data-src')).filter(Boolean);
+  if (sources.length < 2) return false;
+
+  let gl;
+  try {
+    gl = canvas.getContext('webgl', { antialias: true, alpha: false, premultipliedAlpha: false })
+      || canvas.getContext('experimental-webgl');
+  } catch (_) { return false; }
+  if (!gl) return false;
+
+  const VERT = `
+    attribute vec2 aPos;
+    varying vec2 vUv;
+    void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+  const FRAG = `
+    precision highp float;
+    varying vec2 vUv;
+    uniform sampler2D uTexA;
+    uniform sampler2D uTexB;
+    uniform vec2  uRes;
+    uniform vec2  uImgA;
+    uniform vec2  uImgB;
+    uniform float uProgress;
+    uniform float uTime;
+    uniform float uZoomA;
+    uniform float uZoomB;
+    uniform vec2  uPar;
+
+    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+    float noise(vec2 p){
+      vec2 i = floor(p), f = fract(p);
+      float a = hash(i), b = hash(i+vec2(1.0,0.0)), c = hash(i+vec2(0.0,1.0)), d = hash(i+vec2(1.0,1.0));
+      vec2 u = f*f*(3.0-2.0*f);
+      return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
+    }
+
+    // background-cover mapping + zoom (Ken Burns) around centre
+    vec2 cover(vec2 uv, vec2 img, float zoom){
+      float ar = uRes.x / uRes.y;
+      float ir = img.x / img.y;
+      vec2 r = vec2(min(ar/ir, 1.0), min(ir/ar, 1.0));
+      vec2 cuv = vec2(uv.x*r.x + (1.0-r.x)*0.5, uv.y*r.y + (1.0-r.y)*0.5);
+      return (cuv - 0.5) / zoom + 0.5;
+    }
+
+    void main(){
+      vec2 uv = vUv + uPar;
+      float n = noise(uv * 2.6 + uTime * 0.05);
+
+      // subtle liquid displacement that peaks mid-transition
+      float bell = uProgress * (1.0 - uProgress) * 4.0;   // 0→1→0
+      vec2 dir = vec2(n - 0.5, noise(uv*2.6 - uTime*0.04) - 0.5);
+      vec2 uvA = uv + dir * 0.05 * bell;
+      vec2 uvB = uv - dir * 0.05 * bell;
+
+      vec4 colA = texture2D(uTexA, cover(uvA, uImgA, uZoomA));
+      vec4 colB = texture2D(uTexB, cover(uvB, uImgB, uZoomB));
+
+      // organic, noise-jittered crossfade (soft Orano-style reveal)
+      float jitter = (n - 0.5) * 0.28;
+      float m = smoothstep(0.0, 1.0, clamp(uProgress * 1.3 - 0.15 + jitter, 0.0, 1.0));
+      gl_FragColor = mix(colA, colB, m);
+    }`;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { gl.deleteShader(s); return null; }
+    return s;
+  }
+  const vs = compile(gl.VERTEX_SHADER, VERT);
+  const fs = compile(gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs) return false;
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+  gl.useProgram(prog);
+
+  // full-screen triangle pair
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+  const aPos = gl.getAttribLocation(prog, 'aPos');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  const U = {};
+  ['uTexA','uTexB','uRes','uImgA','uImgB','uProgress','uTime','uZoomA','uZoomB','uPar']
+    .forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+  // textures (1px placeholder until loaded)
+  function makeTex() {
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([110,130,120,255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    return t;
+  }
+
+  const textures = sources.map(makeTex);
+  const sizes = sources.map(() => [1, 1]);
+  const loaded = sources.map(() => false);
+
+  sources.forEach((src, i) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';   // required for WebGL upload (Wikimedia sends CORS)
+    img.onload = () => {
+      try {
+        gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);   // match screen orientation
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        sizes[i] = [img.naturalWidth || 1, img.naturalHeight || 1];
+        loaded[i] = true;
+        if (!started && loaded[0]) start();
+      } catch (_) { /* tainted/CORS → leave placeholder; fallback handles UX */ }
+    };
+    img.src = src;
   });
 
-  function go(next) {
-    if (next === active) return;
-    const current = slides[active];
-    const incoming = slides[next];
+  // sizing
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize() {
+    const w = hero.clientWidth, h = hero.clientHeight;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
 
-    current.classList.remove('is-active');
-    current.classList.add('is-leaving');           // hold fully revealed, fade only
-    void incoming.offsetWidth;                      // reflow → restart Ken Burns
-    incoming.classList.add('is-active');
+  // state
+  let current = 0;
+  let next = 0;
+  let progress = 0;
+  let transitioning = false;
+  let lastSwap = performance.now();
+  let started = false;
+  const dots = buildHeroDots(sources.length, (i) => go(i));
 
-    window.setTimeout(() => current.classList.remove('is-leaving'), 1700);
+  // pointer + scroll parallax
+  const par = { x: 0, y: 0, tx: 0, ty: 0 };
+  window.addEventListener('pointermove', (e) => {
+    par.tx = ((e.clientX / window.innerWidth) - 0.5) * 0.016;
+    par.ty = ((e.clientY / window.innerHeight) - 0.5) * 0.016;
+  }, { passive: true });
 
-    dots[active].classList.remove('active');
-    dots[next].classList.add('active');
-    active = next;
+  function go(target) {
+    if (transitioning || target === current) return;
+    next = target;
+    transitioning = true;
+    progress = 0;
+    transStart = performance.now();
+    dots.set(next);
+  }
+  function advance() { go((current + 1) % sources.length); }
+
+  let transStart = 0;
+  const easeInOut = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+
+  function render(now) {
+    // parallax smoothing
+    par.x += (par.tx - par.x) * 0.06;
+    par.y += (par.ty - par.y) * 0.06;
+
+    // transition progress
+    if (transitioning) {
+      const t = Math.min((now - transStart) / TRANSITION, 1);
+      progress = easeInOut(t);
+      if (t >= 1) {
+        transitioning = false;
+        current = next;
+        progress = 0;
+        lastSwap = now;
+      }
+    } else if (!REDUCE && now - lastSwap > DWELL && loaded[(current + 1) % sources.length]) {
+      advance();
+    }
+
+    // Ken Burns zoom per slide (reset on swap)
+    const since = (now - lastSwap) / (DWELL + TRANSITION);
+    const kb = REDUCE ? 1.02 : 1.0 + Math.min(Math.max(since, 0), 1.3) * 0.085;
+    const zoomCur = kb;
+    const zoomNext = 1.0 + 0.02;
+
+    gl.useProgram(prog);
+    gl.uniform2f(U.uRes, canvas.width, canvas.height);
+    gl.uniform1f(U.uTime, now * 0.001);
+    gl.uniform1f(U.uProgress, transitioning ? progress : 0.0);
+    gl.uniform2f(U.uPar, par.x, par.y);
+
+    // bind current → A, incoming → B
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textures[current]);
+    gl.uniform1i(U.uTexA, 0);
+    gl.uniform2f(U.uImgA, sizes[current][0], sizes[current][1]);
+    gl.uniform1f(U.uZoomA, zoomCur);
+
+    const b = transitioning ? next : current;
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, textures[b]);
+    gl.uniform1i(U.uTexB, 1);
+    gl.uniform2f(U.uImgB, sizes[b][0], sizes[b][1]);
+    gl.uniform1f(U.uZoomB, zoomNext);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    raf = requestAnimationFrame(render);
   }
 
-  function advance() { go((active + 1) % slides.length); }
-
-  function restart() {
-    if (timer) clearInterval(timer);
-    if (!REDUCE) timer = setInterval(advance, DWELL);
+  let raf = 0;
+  let dead = false;
+  function start() {
+    if (started || dead) return;
+    started = true;
+    hero.classList.add('gl-active');
+    lastSwap = performance.now();
+    raf = requestAnimationFrame(render);
   }
 
-  // Pause when tab hidden; resume when visible
+  // Watchdog: if textures haven't uploaded in time (e.g. CORS), abandon
+  // WebGL and let the CSS slideshow take over so the hero never sits static.
+  window.setTimeout(() => {
+    if (!started) { dead = true; initHeroCSS(); }
+  }, 3500);
+
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { if (timer) clearInterval(timer); }
-    else restart();
+    if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
+    else if (started && !raf) { lastSwap = performance.now(); raf = requestAnimationFrame(render); }
   });
 
+  return true;
+}
+
+/* ─── HERO — CSS fallback slideshow ──────────────────────────────── */
+function initHeroCSS() {
+  const slides = Array.from(document.querySelectorAll('.hero-slide'));
+  if (slides.length < 2) return;
+  let active = 0, timer = null;
+  const dots = buildHeroDots(slides.length, (i) => { go(i); restart(); });
+
+  function go(nextIdx) {
+    if (nextIdx === active) return;
+    const cur = slides[active], inc = slides[nextIdx];
+    cur.classList.remove('is-active');
+    cur.classList.add('is-leaving');
+    void inc.offsetWidth;
+    inc.classList.add('is-active');
+    window.setTimeout(() => cur.classList.remove('is-leaving'), 1700);
+    dots.set(nextIdx);
+    active = nextIdx;
+  }
+  function advance() { go((active + 1) % slides.length); }
+  function restart() { if (timer) clearInterval(timer); if (!REDUCE) timer = setInterval(advance, DWELL); }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (timer) clearInterval(timer); } else restart();
+  });
   restart();
+}
+
+/* Choose renderer: WebGL if possible, else CSS */
+(function initHero() {
+  let ok = false;
+  try { ok = initHeroGL(); } catch (_) { ok = false; }
+  if (!ok) initHeroCSS();
 })();
 
 /* ─── HERO intro reveal ──────────────────────────────────────────── */
-function playHeroIntro() {
-  document.querySelector('.hero')?.classList.add('is-ready');
-}
+function playHeroIntro() { document.querySelector('.hero')?.classList.add('is-ready'); }
 
 /* ─── LOADER ─────────────────────────────────────────────────────── */
 window.addEventListener('load', () => {
   const loader = document.getElementById('loader');
-  window.setTimeout(() => {
-    loader?.classList.add('done');
-    playHeroIntro();
-  }, 350);
+  window.setTimeout(() => { loader?.classList.add('done'); playHeroIntro(); }, 350);
 });
-// Safety net: never let the loader trap the page
 window.setTimeout(() => {
   document.getElementById('loader')?.classList.add('done');
   playHeroIntro();
@@ -115,43 +357,31 @@ window.setTimeout(() => {
 /* ─── SCROLL REVEAL — gentle, staggered ──────────────────────────── */
 (function initReveal() {
   const groups = [
-    ['.film-poster-wrap'],
-    ['.film-info > *'],
-    ['.gallery-header > *'],
-    ['.gallery-item'],
-    ['.filmmakers-inner > .section-eyebrow'],
-    ['.director-card'],
-    ['.music-inner > *'],
+    '.film-poster-wrap', '.film-info > *', '.gallery-header > *',
+    '.gallery-item', '.filmmakers-inner > .section-eyebrow',
+    '.director-card', '.music-inner > *',
   ];
-
   const targets = [];
   groups.forEach(sel => {
-    const els = Array.from(document.querySelectorAll(sel[0]));
-    els.forEach((el, i) => {
+    Array.from(document.querySelectorAll(sel)).forEach((el, i) => {
       el.classList.add('reveal');
       el.style.transitionDelay = (i * 90) + 'ms';
       targets.push(el);
     });
   });
-
   if (REDUCE || !('IntersectionObserver' in window)) {
     targets.forEach(el => el.classList.add('in'));
     return;
   }
-
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-      }
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
     });
   }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-
   targets.forEach(el => io.observe(el));
 })();
 
-/* ─── GALLERY — arrows + progress ────────────────────────────────── */
+/* ─── GALLERY — arrows, progress + subtle parallax drift ─────────── */
 (function initGallery() {
   const track = document.getElementById('galleryTrack');
   const prev = document.getElementById('galleryPrev');
@@ -165,17 +395,28 @@ window.setTimeout(() => {
     const gap = parseInt(getComputedStyle(track).gap) || 16;
     return item.offsetWidth + gap;
   }
-
   prev?.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
   next?.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
 
-  function updateProgress() {
-    if (!progress) return;
-    const max = track.scrollWidth - track.clientWidth;
-    progress.style.width = (max > 0 ? (track.scrollLeft / max) * 100 : 0) + '%';
+  const stills = Array.from(track.querySelectorAll('.gallery-still'));
+  function update() {
+    if (progress) {
+      const max = track.scrollWidth - track.clientWidth;
+      progress.style.width = (max > 0 ? (track.scrollLeft / max) * 100 : 0) + '%';
+    }
+    // refined parallax: background drifts opposite to scroll within each frame
+    if (!REDUCE) {
+      const vw = track.clientWidth;
+      stills.forEach(s => {
+        const r = s.getBoundingClientRect();
+        const rel = (r.left + r.width / 2 - vw / 2) / vw;     // -1..1
+        s.style.backgroundPosition = (50 + rel * 12) + '% center';
+      });
+    }
   }
-  track.addEventListener('scroll', updateProgress, { passive: true });
-  updateProgress();
+  track.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  update();
 })();
 
 /* ─── MUSIC — ambient Web Audio preview ──────────────────────────── */
@@ -186,25 +427,17 @@ window.setTimeout(() => {
     [{ f: 82.4, g: 0.040 }, { f: 164.8, g: 0.028 }, { f: 247.1, g: 0.016 }, { f: 329.6, g: 0.008 }],
     [{ f: 98.0, g: 0.038 }, { f: 196.0, g: 0.026 }, { f: 294.0, g: 0.018 }, { f: 392.0, g: 0.010 }],
   ];
-
   let audioCtx = null, oscs = [], gains = [], master = null, lfo = null, lfoGain = null;
   let isPlaying = false, currentTrack = -1;
 
   function ensureContext() {
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    master = audioCtx.createGain();
-    master.gain.value = 1;
-    master.connect(audioCtx.destination);
-    lfo = audioCtx.createOscillator();
-    lfoGain = audioCtx.createGain();
-    lfo.frequency.value = 0.08;
-    lfoGain.gain.value = 0.008;
-    lfo.connect(lfoGain);
-    lfoGain.connect(master.gain);
-    lfo.start();
+    master = audioCtx.createGain(); master.gain.value = 1; master.connect(audioCtx.destination);
+    lfo = audioCtx.createOscillator(); lfoGain = audioCtx.createGain();
+    lfo.frequency.value = 0.08; lfoGain.gain.value = 0.008;
+    lfo.connect(lfoGain); lfoGain.connect(master.gain); lfo.start();
   }
-
   function stopTones() {
     gains.forEach(g => {
       if (!audioCtx) return;
@@ -215,30 +448,25 @@ window.setTimeout(() => {
     setTimeout(() => snap.forEach(o => { try { o.stop(); } catch (_) {} }), 450);
     oscs = []; gains = [];
   }
-
   function playTones(idx) {
     ensureContext();
     if (audioCtx.state === 'suspended') audioCtx.resume();
     stopTones();
     (TRACK_PRESETS[idx] || TRACK_PRESETS[0]).forEach(({ f, g }) => {
-      const osc = audioCtx.createOscillator();
-      const gn = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = f;
+      const osc = audioCtx.createOscillator(); const gn = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = f;
       gn.gain.setValueAtTime(0, audioCtx.currentTime);
       gn.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 2.0);
       osc.connect(gn); gn.connect(master); osc.start();
       oscs.push(osc); gains.push(gn);
     });
   }
-
   function setState(idx, playing) {
     document.querySelectorAll('.tl-track').forEach((el, i) => {
       el.classList.toggle('active', i === idx);
       el.classList.toggle('playing', i === idx && playing);
     });
   }
-
   function select(idx) {
     if (idx === currentTrack) {
       isPlaying = !isPlaying;
@@ -246,10 +474,8 @@ window.setTimeout(() => {
       else { stopTones(); setState(idx, false); }
       return;
     }
-    currentTrack = idx; isPlaying = true;
-    playTones(idx); setState(idx, true);
+    currentTrack = idx; isPlaying = true; playTones(idx); setState(idx, true);
   }
-
   document.querySelectorAll('.tl-track').forEach((el, i) => {
     el.addEventListener('click', () => select(i));
     el.addEventListener('keydown', e => {
