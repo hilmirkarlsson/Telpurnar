@@ -269,7 +269,8 @@ html.lenis, html.lenis body { height: auto; }
   padding: var(--sp-32) var(--pad-x) var(--sp-24);
   overflow: hidden;
   /* natural gradient fallback behind photos */
-  background: linear-gradient(160deg, #8fae9b 0%, #6e8e95 45%, #45533d 100%);
+  /* Neutral placeholder backdrop while awaiting short-film imagery */
+  background: linear-gradient(155deg, #2c302d 0%, #232826 55%, #191c1a 100%);
 }
 
 /* WebGL displacement canvas — sits behind the scrim, above the gradient */
@@ -490,6 +491,13 @@ html.lenis, html.lenis body { height: auto; }
   overflow: hidden;
   position: relative;
   box-shadow: 0 24px 60px -28px rgba(45,53,40,0.5);
+}
+/* Empty media placeholder (awaiting short-film imagery) */
+.film-poster-art.is-empty,
+.gallery-still.is-empty {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 14px, rgba(0,0,0,0.018) 14px 28px),
+    linear-gradient(140deg, var(--surface-2), var(--surface-soft));
 }
 .film-poster-img {
   position: absolute;

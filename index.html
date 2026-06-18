@@ -14,7 +14,7 @@
   <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
   <script>(function(){try{var t=localStorage.getItem('telpurnar-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 
-  <link rel="stylesheet" href="style.css?v=8" />
+  <link rel="stylesheet" href="style.css?v=9" />
 </head>
 <body>
 
@@ -57,22 +57,13 @@
     <!-- WebGL displacement canvas (progressive enhancement) -->
     <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
 
-    <!-- Photo slideshow — real Iceland summer nature (Wikimedia Commons).
-         Also the no-WebGL fallback; data-src is read by the WebGL renderer. -->
-    <div class="hero-slides" id="heroSlides" aria-hidden="true">
-      <div class="hero-slide is-active" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=2400">
-        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=2400')"></div>
-      </div>
-      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=2400">
-        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=2400')"></div>
-      </div>
-      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=2400">
-        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=2400')"></div>
-      </div>
-      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=2400">
-        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=2400')"></div>
-      </div>
-    </div>
+    <!-- Hero photos removed — AWAITING SHORT-FILM IMAGERY.
+         To restore, add one .hero-slide per image (2+ re-enables the
+         slideshow + WebGL transitions automatically), e.g.:
+         <div class="hero-slide is-active" data-src="IMG_URL">
+           <div class="hero-slide-img" style="background-image:url('IMG_URL')"></div>
+         </div> -->
+    <div class="hero-slides" id="heroSlides" aria-hidden="true"></div>
     <div class="hero-scrim" aria-hidden="true"></div>
 
     <div class="hero-content">
@@ -103,8 +94,9 @@
 
       <div class="film-poster-wrap">
         <div class="film-poster">
-          <div class="film-poster-art">
-            <div class="film-poster-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=1200')"></div>
+          <div class="film-poster-art is-empty">
+            <!-- Poster art awaiting short-film image; restore with:
+                 <div class="film-poster-img" style="background-image:url('IMG_URL')"></div> -->
             <div class="poster-veil"></div>
             <span class="poster-title">Telpurnar</span>
           </div>
@@ -160,31 +152,24 @@
       </div>
     </div>
 
+    <!-- Stills emptied — AWAITING SHORT-FILM IMAGERY.
+         Restore by adding the background image back to each .gallery-still:
+         <div class="gallery-still" style="background-image:url('IMG_URL')"> ... -->
     <div class="gallery-track" id="galleryTrack" data-lenis-prevent>
       <figure class="gallery-item">
-        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=1400')">
-          <span class="still-num" aria-hidden="true">01</span>
-        </div>
+        <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">01</span></div>
       </figure>
       <figure class="gallery-item">
-        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=1400')">
-          <span class="still-num" aria-hidden="true">02</span>
-        </div>
+        <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">02</span></div>
       </figure>
       <figure class="gallery-item">
-        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=1400')">
-          <span class="still-num" aria-hidden="true">03</span>
-        </div>
+        <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">03</span></div>
       </figure>
       <figure class="gallery-item">
-        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=1400')">
-          <span class="still-num" aria-hidden="true">04</span>
-        </div>
+        <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">04</span></div>
       </figure>
       <figure class="gallery-item">
-        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=1400');background-position:left center">
-          <span class="still-num" aria-hidden="true">05</span>
-        </div>
+        <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">05</span></div>
       </figure>
     </div>
 
@@ -295,7 +280,7 @@
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
   <!-- Lenis — smooth inertia scroll (same lib as the v3 earthy build) -->
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
-  <script src="script.js?v=8" defer></script>
+  <script src="script.js?v=9" defer></script>
 
 </body>
 </html>
