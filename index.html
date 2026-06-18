@@ -3,211 +3,280 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Telpurnar — íslensk stuttmynd, 2026. 14 mínútur. Leikstjórn: Hanna Álfheiður &amp; Guðríður." />
+  <meta name="description" content="Telpurnar — íslensk stuttmynd, 2026. 14 mínútur." />
   <title>Telpurnar — Stuttmynd 2026</title>
 
+  <!-- Fonts: Lora (serif) + Raleway (sans) — calm, natural pairing -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
-  <div class="grain" id="grain" aria-hidden="true"></div>
-  <canvas class="dust" id="dust" aria-hidden="true"></canvas>
+  <!-- ─── LOADER ─────────────────────────────────────────────────── -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <span class="loader-mark">Telpurnar</span>
+  </div>
 
-  <!-- ─── NAV ───────────────────────────────────────────────────────── -->
+  <!-- ─── NAVIGATION ─────────────────────────────────────────────── -->
   <nav class="nav" id="nav">
-    <a class="nav-logo" href="#top" aria-label="Telpurnar — back to top">T</a>
-    <ul class="nav-links" role="list">
-      <li><a href="#film"   data-en="Film"        data-is="Kvikmyndin">Kvikmyndin</a></li>
-      <li><a href="#stills" data-en="Stills"      data-is="Myndir">Myndir</a></li>
-      <li><a href="#people" data-en="Filmmakers"  data-is="Leikstjórar">Leikstjórar</a></li>
-      <li><a href="#music"  data-en="Score"       data-is="Tónlist">Tónlist</a></li>
-    </ul>
-    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
-      <span class="lt-en">EN</span><span class="lt-sep" aria-hidden="true"> / </span><span class="lt-is active">IS</span>
+    <a class="nav-logo" href="#hero" aria-label="Telpurnar — efst á síðu">Telpurnar</a>
+    <div class="nav-links">
+      <a href="#film"   data-is="Myndin"      data-en="Film">Myndin</a>
+      <a href="#people" data-is="Leikstjórar" data-en="Filmmakers">Leikstjórar</a>
+      <a href="#music"  data-is="Tónlist"     data-en="Score">Tónlist</a>
+    </div>
+    <button class="lang-toggle" id="langToggle" aria-label="Skipta um tungumál / Switch language">
+      <span class="lt-is active">IS</span>
+      <span class="lt-dot" aria-hidden="true">·</span>
+      <span class="lt-en">EN</span>
     </button>
   </nav>
 
-  <!-- ─── TITLE PAGE ────────────────────────────────────────────────── -->
-  <section class="title-page" id="top">
-    <div class="title-inner">
-      <p class="title-kicker" data-en="Iceland · 2026 · 14 min" data-is="Ísland · 2026 · 14 mín">Ísland · 2026 · 14 mín</p>
-      <h1 class="title-word">Telpurnar</h1>
+  <!-- ─── HERO ───────────────────────────────────────────────────── -->
+  <section class="hero" id="hero">
+    <!-- WebGL displacement canvas (progressive enhancement) -->
+    <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+
+    <!-- Photo slideshow — real Iceland summer nature (Wikimedia Commons).
+         Also the no-WebGL fallback; data-src is read by the WebGL renderer. -->
+    <div class="hero-slides" id="heroSlides" aria-hidden="true">
+      <div class="hero-slide is-active" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=2400">
+        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=2400')"></div>
+      </div>
+      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=2400">
+        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=2400')"></div>
+      </div>
+      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=2400">
+        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=2400')"></div>
+      </div>
+      <div class="hero-slide" data-src="https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=2400">
+        <div class="hero-slide-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=2400')"></div>
+      </div>
     </div>
-    <a class="scroll-cue" href="#film" aria-label="Continue">
-      <span aria-hidden="true">↓</span>
-    </a>
+    <div class="hero-scrim" aria-hidden="true"></div>
+
+    <div class="hero-content">
+      <p class="hero-eyebrow" data-is="Stuttmynd" data-en="A Short Film">Stuttmynd</p>
+      <h1 class="hero-title">Telpurnar</h1>
+      <div class="hero-line" aria-hidden="true"></div>
+      <div class="hero-meta">
+        <span data-is="Ísland" data-en="Iceland">Ísland</span>
+        <span class="hero-meta-dot" aria-hidden="true"></span>
+        <span>2026</span>
+        <span class="hero-meta-dot" aria-hidden="true"></span>
+        <span data-is="14 mínútur" data-en="14 minutes">14 mínútur</span>
+      </div>
+    </div>
+
+    <!-- Slideshow dots -->
+    <div class="hero-dots" id="heroDots" role="tablist" aria-label="Myndir"></div>
+
+    <div class="hero-scroll" aria-hidden="true">
+      <div class="hero-scroll-line"></div>
+      <span class="hero-scroll-label" data-is="Skrunaðu" data-en="Scroll">Skrunaðu</span>
+    </div>
   </section>
 
-  <!-- ─── THE FILM ──────────────────────────────────────────────────── -->
+  <!-- ─── FILM ─────────────────────────────────────────────────────── -->
   <section class="film" id="film">
     <div class="film-inner">
 
-      <div class="film-copy">
-        <p class="label" data-en="The Film" data-is="Kvikmyndin">Kvikmyndin</p>
-        <p class="film-synopsis"
-          data-en="[Film description — a story about women, friendship, and the quiet light between people. Shot in Iceland in winter, Telpurnar asks what we carry for one another and what we leave behind.]"
-          data-is="[Lýsing á myndinni — saga um konur, vináttu og það þögla ljós sem er milli fólks. Tökur fóru fram á Íslandi að vetri til og spyr Telpurnar hvað við berum fyrir hvert annað og hvað við skilum eftir.]"
-        >[Lýsing á myndinni — saga um konur, vináttu og það þögla ljós sem er milli fólks. Tökur fóru fram á Íslandi að vetri til og spyr Telpurnar hvað við berum fyrir hvert annað og hvað við skilum eftir.]</p>
-
-        <dl class="film-facts">
-          <div class="fact">
-            <dt data-en="Directors" data-is="Leikstjórar">Leikstjórar</dt>
-            <dd>Hanna Álfheiður &amp; Guðríður</dd>
+      <div class="film-poster-wrap">
+        <div class="film-poster">
+          <div class="film-poster-art">
+            <div class="film-poster-img" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=1200')"></div>
+            <div class="poster-veil"></div>
+            <span class="poster-title">Telpurnar</span>
           </div>
-          <div class="fact">
-            <dt data-en="Producer" data-is="Framleiðandi">Framleiðandi</dt>
-            <dd>Hrannar Þór</dd>
-          </div>
-          <div class="fact">
-            <dt data-en="Year" data-is="Ár">Ár</dt>
-            <dd>2026</dd>
-          </div>
-          <div class="fact">
-            <dt data-en="Runtime" data-is="Lengd">Lengd</dt>
-            <dd data-en="14 minutes" data-is="14 mínútur">14 mínútur</dd>
-          </div>
-          <div class="fact">
-            <dt data-en="Language" data-is="Tungumál">Tungumál</dt>
-            <dd data-en="Icelandic" data-is="Íslenska">Íslenska</dd>
-          </div>
-        </dl>
+          <p class="poster-caption" data-is="Kvikmyndaplakat · 2026" data-en="Film poster · 2026">Kvikmyndaplakat · 2026</p>
+        </div>
       </div>
 
-      <div class="film-art-wrap">
-        <div class="film-art" role="img" aria-label="Film visual — Telpurnar 2026"></div>
+      <div class="film-info">
+        <p class="section-eyebrow" data-is="Myndin" data-en="The Film">Myndin</p>
+        <h2 class="film-heading">Telpurnar</h2>
+        <p class="film-description"
+          data-is="Saga um konur, vináttu og þá þöglu birtu sem býr á milli fólks. Telpurnar var tekin upp á Íslandi að sumri til og spyr hvað við berum hvert fyrir annað — og hvað við skiljum eftir."
+          data-en="A story about women, friendship, and the quiet light that lives between people. Filmed in Iceland during summer, Telpurnar asks what we carry for one another — and what we leave behind."
+        >Saga um konur, vináttu og þá þöglu birtu sem býr á milli fólks. Telpurnar var tekin upp á Íslandi að sumri til og spyr hvað við berum hvert fyrir annað — og hvað við skiljum eftir.</p>
+
+        <div class="film-details">
+          <div class="film-detail">
+            <span class="detail-label" data-is="Lengd" data-en="Duration">Lengd</span>
+            <span class="detail-value" data-is="14 mínútur" data-en="14 minutes">14 mínútur</span>
+          </div>
+          <div class="film-detail">
+            <span class="detail-label" data-is="Ár" data-en="Year">Ár</span>
+            <span class="detail-value">2026</span>
+          </div>
+          <div class="film-detail">
+            <span class="detail-label" data-is="Tungumál" data-en="Language">Tungumál</span>
+            <span class="detail-value" data-is="Íslenska" data-en="Icelandic">Íslenska</span>
+          </div>
+        </div>
       </div>
 
     </div>
   </section>
 
-  <!-- ─── STILLS ────────────────────────────────────────────────────── -->
-  <section class="stills" id="stills">
-    <p class="label stills-label" data-en="Production Stills" data-is="Myndir af tökum">Myndir af tökum</p>
-    <div class="stills-grid">
-      <figure class="still s-wide">
-        <div class="still-art" data-mood="mist"></div>
-        <figcaption class="still-cap">01</figcaption>
+  <!-- ─── GALLERY ──────────────────────────────────────────────────── -->
+  <section class="gallery">
+    <div class="gallery-header">
+      <p class="section-eyebrow" data-is="Svipmyndir" data-en="Stills">Svipmyndir</p>
+      <div class="gallery-nav-row">
+        <p class="gallery-hint" data-is="Skrunaðu til að skoða" data-en="Scroll to explore">Skrunaðu til að skoða</p>
+        <div class="gallery-arrows">
+          <button class="gallery-arrow" id="galleryPrev" aria-label="Fyrri mynd">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <button class="gallery-arrow" id="galleryNext" aria-label="Næsta mynd">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="gallery-track" id="galleryTrack">
+      <figure class="gallery-item">
+        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=1400')">
+          <span class="still-num" aria-hidden="true">01</span>
+        </div>
       </figure>
-      <figure class="still s-tall">
-        <div class="still-art" data-mood="warm"></div>
-        <figcaption class="still-cap">02</figcaption>
+      <figure class="gallery-item">
+        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Skogafoss,%20Iceland.jpg?width=1400')">
+          <span class="still-num" aria-hidden="true">02</span>
+        </div>
       </figure>
-      <figure class="still s-mid">
-        <div class="still-art" data-mood="shadow"></div>
-        <figcaption class="still-cap">03</figcaption>
+      <figure class="gallery-item">
+        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Gullfoss,%20an%20iconic%20waterfall%20of%20Iceland.jpg?width=1400')">
+          <span class="still-num" aria-hidden="true">03</span>
+        </div>
       </figure>
-      <figure class="still s-mid">
-        <div class="still-art" data-mood="sky"></div>
-        <figcaption class="still-cap">04</figcaption>
+      <figure class="gallery-item">
+        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/038%20Svartifoss%20waterfall%20(Iceland)%20Photo%20by%20Giles%20Laurent.jpg?width=1400')">
+          <span class="still-num" aria-hidden="true">04</span>
+        </div>
       </figure>
-      <figure class="still s-wide2">
-        <div class="still-art" data-mood="gold"></div>
-        <figcaption class="still-cap">05</figcaption>
+      <figure class="gallery-item">
+        <div class="gallery-still" style="background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Seljalandsfoss%20waterfall%20(Iceland)%20(16096296723).jpg?width=1400');background-position:left center">
+          <span class="still-num" aria-hidden="true">05</span>
+        </div>
       </figure>
+    </div>
+
+    <div class="gallery-progress-wrap" aria-hidden="true">
+      <div class="gallery-progress-track">
+        <div class="gallery-progress-fill" id="galleryProgress"></div>
+      </div>
     </div>
   </section>
 
-  <!-- ─── FILMMAKERS ────────────────────────────────────────────────── -->
+  <!-- ─── FILMMAKERS ─────────────────────────────────────────────── -->
   <section class="filmmakers" id="people">
-    <p class="label filmmakers-label" data-en="The Filmmakers" data-is="Leikstjórar">Leikstjórar</p>
+    <div class="filmmakers-inner">
 
-    <div class="filmmaker">
-      <div class="filmmaker-text">
-        <p class="filmmaker-role" data-en="Director" data-is="Leikstjóri">Leikstjóri</p>
-        <h2 class="filmmaker-name">Hanna<br>Álfheiður</h2>
-        <p class="filmmaker-bio"
-          data-en="[Biography — her vision, previous work, and what drew her to this story.]"
-          data-is="[Ævisaga — sýn hennar, fyrri verk og hvað laðaði hana að þessari sögu.]"
-        >[Ævisaga — sýn hennar, fyrri verk og hvað laðaði hana að þessari sögu.]</p>
+      <p class="section-eyebrow" data-is="Leikstjórar" data-en="The Filmmakers">Leikstjórar</p>
+
+      <div class="directors-grid">
+
+        <article class="director-card">
+          <div class="director-portrait has-photo" aria-label="Hanna Álfheiður">
+            <img class="dp-photo" src="hanna.jpg" alt="Hanna Álfheiður, leikstjóri" loading="lazy" decoding="async" />
+          </div>
+          <p class="director-role" data-is="Leikstjóri" data-en="Director">Leikstjóri</p>
+          <h3 class="director-name">Hanna Álfheiður</h3>
+          <p class="director-bio"
+            data-is="Sýn hennar, fyrri verk og það sem dró hana að þessari sögu."
+            data-en="Her vision, previous work, and what drew her to this story."
+          >Sýn hennar, fyrri verk og það sem dró hana að þessari sögu.</p>
+        </article>
+
+        <article class="director-card">
+          <div class="director-portrait" aria-label="Guðríður">
+            <span class="dp-initial">G</span>
+          </div>
+          <p class="director-role" data-is="Leikstjóri" data-en="Director">Leikstjóri</p>
+          <h3 class="director-name">Guðríður</h3>
+          <p class="director-bio"
+            data-is="Nálgun hennar við sjónræna frásögn og tilfinningaheim Telpurnar."
+            data-en="Her approach to visual storytelling and the emotional world of Telpurnar."
+          >Nálgun hennar við sjónræna frásögn og tilfinningaheim Telpurnar.</p>
+        </article>
+
       </div>
-      <div class="filmmaker-portrait" aria-label="Portrait of Hanna Álfheiður">
-        <img src="hanna.jpg" alt="Hanna Álfheiður, Leikstjóri" />
+
+      <!-- Producer credit -->
+      <div class="producer-credit">
+        <img class="producer-photo" src="hrannar.jpg" alt="Hrannar Þór, framleiðandi" loading="lazy" decoding="async" />
+        <div class="producer-meta">
+          <p class="producer-role" data-is="Framleiðandi" data-en="Producer">Framleiðandi</p>
+          <p class="producer-name">Hrannar Þór</p>
+        </div>
       </div>
+
     </div>
-
-    <div class="filmmaker filmmaker--flip">
-      <div class="filmmaker-portrait" aria-label="Portrait placeholder — Guðríður">
-        <span class="fp-initial" aria-hidden="true">G</span>
-      </div>
-      <div class="filmmaker-text">
-        <p class="filmmaker-role" data-en="Director" data-is="Leikstjóri">Leikstjóri</p>
-        <h2 class="filmmaker-name">Guðríður</h2>
-        <p class="filmmaker-bio"
-          data-en="[Biography — her approach to visual storytelling and the emotional world of Telpurnar.]"
-          data-is="[Ævisaga — nálgun hennar við sjónrænar sögur og tilfinningaheim Telpurnar.]"
-        >[Ævisaga — nálgun hennar við sjónrænar sögur og tilfinningaheim Telpurnar.]</p>
-      </div>
-    </div>
-
-    <div class="credit-row">
-      <div class="credit-avatar">
-        <img src="hrannar.jpg" alt="Hrannar Þór" />
-      </div>
-      <div class="credit-info">
-        <p class="credit-role" data-en="Producer &amp; Composer" data-is="Framleiðandi &amp; Tónskáld">Framleiðandi &amp; Tónskáld</p>
-        <p class="credit-name">Hrannar Þór</p>
-      </div>
-    </div>
-
   </section>
 
-  <!-- ─── SCORE ─────────────────────────────────────────────────────── -->
-  <section class="score" id="music">
-    <div class="score-inner">
+  <!-- ─── ORIGINAL SCORE ─────────────────────────────────────────── -->
+  <section class="music" id="music">
+    <div class="music-inner">
 
-      <p class="label" data-en="Original Score" data-is="Frumsamið Tónverk">Frumsamið Tónverk</p>
-      <h2 class="score-heading" data-en="The Soundtrack" data-is="Hljóðlistin">Hljóðlistin</h2>
+      <p class="section-eyebrow" data-is="Frumsamið tónverk" data-en="Original Score">Frumsamið tónverk</p>
+      <h2 class="music-heading" data-is="Hljóðrásin" data-en="The Soundtrack">Hljóðrásin</h2>
+      <p class="music-composer" data-is="[Tónskáld — óákveðið]" data-en="[Composer — TBD]">[Tónskáld — óákveðið]</p>
 
-      <ul class="tracklist" role="list" aria-label="Soundtrack">
-        <li class="tl-track" data-track="0" role="button" tabindex="0" aria-label="Play track 1">
+      <ul class="tracklist" role="list" aria-label="Hljóðrás">
+        <li class="tl-track" data-track="0" role="button" tabindex="0" aria-label="Spila lag 1">
           <span class="tl-num" aria-hidden="true">01</span>
-          <span class="tl-name" data-en="[Track 1]" data-is="[Lag 1]">[Lag 1]</span>
-          <span class="tl-dot" aria-hidden="true"></span>
+          <span class="tl-name" data-is="[Lag 1]" data-en="[Track 1]">[Lag 1]</span>
+          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
-        <li class="tl-track" data-track="1" role="button" tabindex="0" aria-label="Play track 2">
+        <li class="tl-track" data-track="1" role="button" tabindex="0" aria-label="Spila lag 2">
           <span class="tl-num" aria-hidden="true">02</span>
-          <span class="tl-name" data-en="[Track 2]" data-is="[Lag 2]">[Lag 2]</span>
-          <span class="tl-dot" aria-hidden="true"></span>
+          <span class="tl-name" data-is="[Lag 2]" data-en="[Track 2]">[Lag 2]</span>
+          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
-        <li class="tl-track" data-track="2" role="button" tabindex="0" aria-label="Play track 3">
+        <li class="tl-track" data-track="2" role="button" tabindex="0" aria-label="Spila lag 3">
           <span class="tl-num" aria-hidden="true">03</span>
-          <span class="tl-name" data-en="[Track 3]" data-is="[Lag 3]">[Lag 3]</span>
-          <span class="tl-dot" aria-hidden="true"></span>
+          <span class="tl-name" data-is="[Lag 3]" data-en="[Track 3]">[Lag 3]</span>
+          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
-        <li class="tl-track" data-track="3" role="button" tabindex="0" aria-label="Play track 4">
+        <li class="tl-track" data-track="3" role="button" tabindex="0" aria-label="Spila lag 4">
           <span class="tl-num" aria-hidden="true">04</span>
-          <span class="tl-name" data-en="[Track 4]" data-is="[Lag 4]">[Lag 4]</span>
-          <span class="tl-dot" aria-hidden="true"></span>
+          <span class="tl-name" data-is="[Lag 4]" data-en="[Track 4]">[Lag 4]</span>
+          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
       </ul>
 
-      <div class="score-credit">
-        <p class="score-by">
-          <span data-en="Music by" data-is="Tónlist eftir">Tónlist eftir</span>
-          <strong>Hrannar Þór</strong>
+      <div class="music-credit">
+        <p class="music-produced">
+          <span class="mc-label" data-is="Framleitt af" data-en="Produced by">Framleitt af</span>
+          <span class="mc-name">Hrannar Þór</span>
         </p>
+        <p class="music-note" data-is="Sýnishorn úr tónlist · endanleg útgáfa óákveðin" data-en="Ambient preview · final score TBD">Sýnishorn úr tónlist · endanleg útgáfa óákveðin</p>
       </div>
 
     </div>
   </section>
 
-  <!-- ─── FOOTER ────────────────────────────────────────────────────── -->
+  <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="footer-inner">
-      <p class="footer-title">Telpurnar</p>
-      <p class="footer-meta" data-en="© 2026 · Iceland · All rights reserved" data-is="© 2026 · Ísland · Öll réttindi áskilin">© 2026 · Ísland · Öll réttindi áskilin</p>
-      <p class="footer-credit">Website by Hilmir Karlsson</p>
+      <div class="footer-brand" aria-hidden="true">Telpurnar</div>
+      <p class="footer-meta" data-is="© 2026 · Öll réttindi áskilin · Ísland" data-en="© 2026 · All rights reserved · Iceland">© 2026 · Öll réttindi áskilin · Ísland</p>
+      <p class="footer-credit" data-is="Vefsíða: Hilmir Karlsson" data-en="Website by Hilmir Karlsson">Vefsíða: Hilmir Karlsson</p>
     </div>
   </footer>
 
-  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js" defer></script>
+  <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
+  <script src="script.js?v=6" defer></script>
 
 </body>
 </html>
