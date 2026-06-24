@@ -99,6 +99,9 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   gallery.classList.add('gallery-pinned');
   const fill = document.getElementById('galleryProgress');
   const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
+  // Pin duration is a fixed share of viewport height, independent of how
+  // wide the stills are — bigger stills shouldn't mean a longer scroll-jack.
+  const pinDistance = () => Math.round(window.innerHeight * 1.15);
 
   // Wait a frame so flex widths are measured, then pin + scrub the row left
   requestAnimationFrame(() => {
@@ -109,9 +112,9 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
       scrollTrigger: {
         trigger: gallery,
         pin: true,
-        scrub: 1,
+        scrub: 0.6,
         start: 'top top',
-        end: () => '+=' + dist(),
+        end: () => '+=' + pinDistance(),
         invalidateOnRefresh: true,
         onUpdate: self => { if (fill) fill.style.width = (self.progress * 100) + '%'; },
       },

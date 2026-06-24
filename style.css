@@ -399,6 +399,8 @@ html.lenis, html.lenis body { height: auto; }
   height: 1.5px;
   background: rgba(255,255,255,0.8);
 }
+[data-theme="dark"] .hero-eyebrow { color: var(--moss); }
+[data-theme="dark"] .hero-eyebrow::before { background: var(--moss); }
 .hero-title {
   font-family: var(--font-serif);
   font-weight: 500;
