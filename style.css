@@ -43,40 +43,41 @@
   --pad-x: clamp(1.25rem, 5vw, 4rem);
 }
 
-/* ─── DARK THEME — amber projector-glow, not just a recolored light theme ── */
+/* ─── DARK THEME — black & gold, cinema-marquee not caution-tape ───── */
 [data-theme="dark"] {
-  --bg:          #15110d;   /* warm near-black */
-  --surface:     #1f1a13;
-  --surface-soft:#1a1510;
-  --surface-2:   #2c2316;
+  --bg:          #0a0a09;   /* true near-black */
+  --surface:     #15140f;
+  --surface-soft:#100f0c;
+  --surface-2:   #1e1c15;
 
-  --ink:         #f1e6d4;   /* cream */
-  --ink-soft:    #cdbfa6;   /* sand */
-  --ink-faint:   #948571;   /* fog */
+  --ink:         #f5f2e6;   /* warm white */
+  --ink-soft:    #c8c3b0;
+  --ink-faint:   #8a8670;
 
-  --moss:        #e0a857;   /* warm amber glow — accent for dark (was sage) */
-  --moss-deep:   #a9763a;
+  --moss:        #f5c518;   /* marquee gold — accent for dark (was amber) */
+  --moss-deep:   #b8910f;
   --fjord:       #7d97a0;
   --sand:        #d4b896;
 
-  --line:        #3d3322;
-  --line-soft:   #2c2519;
+  --line:        #2c2a20;
+  --line-soft:   #1c1b15;
 
-  --scrim:       rgba(10,9,7,0.45);
-  --nav-bg:      rgba(21,17,13,0.90);
+  --scrim:       rgba(0,0,0,0.55);
+  --nav-bg:      rgba(10,10,9,0.92);
 
-  --glow: 0 0 26px rgba(224,168,87,0.28);
+  --glow: 0 0 28px rgba(245,197,24,0.32);
 }
+[data-theme="dark"] ::selection { color: #0a0a09; }
 
-/* Depth: faint amber-tinted vignette instead of flat panels */
+/* Depth: faint gold-tinted vignette instead of flat panels */
 [data-theme="dark"] .film,
 [data-theme="dark"] .filmmakers,
 [data-theme="dark"] .footer {
-  background: radial-gradient(ellipse 90% 70% at 50% 0%, #1d160e 0%, var(--bg) 65%);
+  background: radial-gradient(ellipse 90% 70% at 50% 0%, #16140e 0%, var(--bg) 65%);
 }
 [data-theme="dark"] .gallery,
 [data-theme="dark"] .music {
-  background: radial-gradient(ellipse 90% 70% at 50% 0%, #221a10 0%, var(--surface-soft) 65%);
+  background: radial-gradient(ellipse 90% 70% at 50% 0%, #1c1a12 0%, var(--surface-soft) 65%);
 }
 
 /* Glow on the display type that carries the film's mood */
@@ -84,7 +85,7 @@
 [data-theme="dark"] .director-name,
 [data-theme="dark"] .music-heading,
 [data-theme="dark"] .footer-brand {
-  text-shadow: 0 0 34px rgba(224,168,87,0.22);
+  text-shadow: 0 0 34px rgba(245,197,24,0.22);
 }
 
 /* Interactive accents pick up a soft glow on hover/focus */
@@ -94,7 +95,7 @@
   box-shadow: var(--glow);
 }
 [data-theme="dark"] .tl-track.active .tl-bar {
-  box-shadow: 0 0 8px rgba(224,168,87,0.5);
+  box-shadow: 0 0 8px rgba(245,197,24,0.55);
 }
 [data-theme="dark"] :focus-visible {
   box-shadow: var(--glow);
@@ -175,7 +176,7 @@ html.lenis, html.lenis body { height: auto; }
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 500;
-  padding: var(--sp-5) var(--pad-x);
+  padding: var(--sp-6) var(--pad-x);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -201,16 +202,17 @@ html.lenis, html.lenis body { height: auto; }
 }
 .nav.scrolled .nav-logo { color: var(--ink); text-shadow: none; }
 
-.nav-links { display: flex; gap: var(--sp-8); }
+.nav-links { display: flex; gap: var(--sp-10); }
 .nav-links a {
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.85);
   text-shadow: 0 1px 10px rgba(0,0,0,0.3);
   transition: color 0.3s ease, opacity 0.3s ease;
   position: relative;
+  padding: var(--sp-2) 0;
 }
 .nav.scrolled .nav-links a { color: var(--ink-soft); text-shadow: none; }
 .nav-links a::after {
@@ -230,15 +232,16 @@ html.lenis, html.lenis body { height: auto; }
 .lang-toggle {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  gap: 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   color: rgba(255,255,255,0.7);
   text-shadow: 0 1px 10px rgba(0,0,0,0.3);
-  padding: var(--sp-2) var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
   border: 1px solid rgba(255,255,255,0.35);
   border-radius: 100px;
+  min-height: 44px;
   transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease;
 }
 .nav.scrolled .lang-toggle { color: var(--ink-faint); border-color: var(--line); text-shadow: none; }
@@ -256,8 +259,8 @@ html.lenis, html.lenis body { height: auto; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   color: rgba(255,255,255,0.85);
   border: 1px solid rgba(255,255,255,0.35);
@@ -266,7 +269,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 .nav.scrolled .theme-toggle { color: var(--ink-soft); border-color: var(--line); text-shadow: none; }
 .theme-toggle:hover { border-color: var(--moss); color: var(--moss); transform: rotate(-18deg); }
-.theme-toggle svg { width: 17px; height: 17px; }
+.theme-toggle svg { width: 22px; height: 22px; }
 .theme-toggle .icon-sun { display: none; }
 [data-theme="dark"] .theme-toggle .icon-sun  { display: block; }
 [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
@@ -652,7 +655,7 @@ html.lenis, html.lenis body { height: auto; }
 
 .gallery-track {
   display: flex;
-  gap: clamp(10px, 1.4vw, 18px);
+  gap: clamp(14px, 2vw, 28px);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -661,7 +664,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 .gallery-track::-webkit-scrollbar { display: none; }
 .gallery-item {
-  flex: 0 0 clamp(260px, 50vw, 580px);
+  flex: 0 0 clamp(320px, 68vw, 860px);
   scroll-snap-align: start;
 }
 
@@ -698,12 +701,12 @@ html.lenis, html.lenis body { height: auto; }
 .gallery-item:hover .gallery-still::after { opacity: 0.3; }
 .still-num {
   position: absolute;
-  bottom: var(--sp-3);
-  left: var(--sp-4);
+  bottom: var(--sp-5);
+  left: var(--sp-6);
   z-index: 1;
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: 1.4rem;
+  font-size: clamp(1.6rem, 2.4vw, 2.4rem);
   color: rgba(255,255,255,0.95);
   text-shadow: 0 1px 10px rgba(0,0,0,0.4);
 }
