@@ -81,16 +81,18 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   if (!track || !gallery) return;
   if (!window.matchMedia('(min-width: 768px)').matches) return; // mobile keeps swipe
 
-  gallery.classList.add('gallery-pinned');
   const fill = document.getElementById('galleryProgress');
   const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
   // Pin duration is a fixed share of viewport height, independent of how
   // wide the stills are — bigger stills shouldn't mean a longer scroll-jack.
   const pinDistance = () => Math.round(window.innerHeight * 1.15);
 
-  // Wait a frame so flex widths are measured, then pin + scrub the row left
-  requestAnimationFrame(() => {
-    if (dist() <= 0) { gallery.classList.remove('gallery-pinned'); return; }
+  // Build the pin once, only when the row actually overflows the viewport.
+  let built = false;
+  function buildPin() {
+    if (built || dist() <= 0) return;
+    built = true;
+    gallery.classList.add('gallery-pinned');
     gsap.to(track, {
       x: () => -dist(),
       ease: 'none',
@@ -104,7 +106,19 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
         onUpdate: self => { if (fill) fill.style.width = (self.progress * 100) + '%'; },
       },
     });
-  });
+  }
+
+  // The pin's start/end are measured from the gallery's page position. Web
+  // fonts (Luckiest Guy / Fredoka) load asynchronously and reflow everything
+  // above the gallery downward — a pin measured before that ends up with stale
+  // (even negative) trigger positions and the horizontal scroll-jack silently
+  // dies. So build on the next frame, then refresh once fonts + page load
+  // settle the layout, plus a short delayed pass as a safety net.
+  function settle() { buildPin(); if (built) ScrollTrigger.refresh(); }
+  requestAnimationFrame(buildPin);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
+  window.addEventListener('load', settle);
+  window.setTimeout(settle, 1200);
 })();
 
 /* ─── HERO PARALLAX (content drifts up + fades on scroll) ────────── */
