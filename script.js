@@ -39,21 +39,6 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   onScroll();
 })();
 
-/* ─── THEME (light default · dark = earthy) ──────────────────────── */
-(function initTheme() {
-  const KEY = 'telpurnar-theme';
-  const root = document.documentElement;
-  const btn = document.getElementById('themeToggle');
-  // The inline <head> script already applied any saved theme before paint.
-  function current() { return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
-  function apply(theme) {
-    if (theme === 'light') root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', 'dark');
-    try { localStorage.setItem(KEY, theme); } catch (_) {}
-  }
-  btn?.addEventListener('click', () => apply(current() === 'dark' ? 'light' : 'dark'));
-})();
-
 /* ─── SMOOTH SCROLL (Lenis) + ScrollTrigger integration ──────────── */
 (function initLenis() {
   if (REDUCE || typeof Lenis === 'undefined') return;   // CDN blocked → native scroll
@@ -146,7 +131,7 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   // engages on the first scroll.
 })();
 
-/* ─── DRIFTING DUST (ambient particles, theme-aware) ─────────────── */
+/* ─── DRIFTING DUST (ambient particles) ──────────────────────────── */
 (function initDust() {
   if (REDUCE) return;
   const cv = document.getElementById('dust');
@@ -156,20 +141,15 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
   resize();
   window.addEventListener('resize', resize, { passive: true });
-  const PAL = {
-    dark:  ['rgba(212,184,150,0.055)', 'rgba(184,134,90,0.040)', 'rgba(237,230,217,0.045)', 'rgba(158,144,128,0.038)'],
-    light: ['rgba(94,115,85,0.060)',  'rgba(120,100,70,0.050)', 'rgba(70,84,61,0.045)',    'rgba(110,120,108,0.045)'],
-  };
-  const pal = () => document.documentElement.getAttribute('data-theme') === 'dark' ? PAL.dark : PAL.light;
+  const PAL = ['rgba(194,52,88,0.06)', 'rgba(244,199,64,0.07)', 'rgba(62,27,42,0.04)', 'rgba(255,248,230,0.06)'];
   function spawn() {
-    const c = pal();
     return {
       x: Math.random() * W, y: H + Math.random() * 80,
       r: Math.random() * 1.4 + 0.3,
       speed: Math.random() * 0.20 + 0.08,
       dx: (Math.random() - 0.5) * 0.12,
       wave: Math.random() * Math.PI * 2,
-      color: c[(Math.random() * c.length) | 0],
+      color: PAL[(Math.random() * PAL.length) | 0],
     };
   }
   const pts = Array.from({ length: 20 }, () => { const p = spawn(); p.y = Math.random() * H; return p; });
