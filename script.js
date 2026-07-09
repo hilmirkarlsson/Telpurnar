@@ -72,53 +72,60 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   });
 })();
 
-/* ─── STILLS — horizontal scroll driven by vertical scroll (v3) ──── */
+/* ─── STILLS — sticky horizontal scroll-jack (desktop) ───────────── */
+/* Deliberately NOT using GSAP ScrollTrigger pinning here. That approach
+   computes absolute trigger positions that are only correct when measured at
+   scroll-top with a fully settled layout — impossible to guarantee with
+   async web fonts + Lenis smooth scroll + an eager scroller, which left the
+   pin mis-placed (a big empty gap). CSS `position: sticky` instead lets the
+   browser hold the viewport, and we read the pin's LIVE getBoundingClientRect
+   each frame — always accurate, immune to font reflow and scroll desync. */
 (function initStillsScroll() {
   if (REDUCE) return;
-  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  const pin = document.getElementById('galleryPin');
+  const sticky = pin && pin.querySelector('.gallery-sticky');
   const track = document.getElementById('galleryTrack');
-  const gallery = document.querySelector('.gallery');
-  if (!track || !gallery) return;
-  if (!window.matchMedia('(min-width: 768px)').matches) return; // mobile keeps swipe
-
   const fill = document.getElementById('galleryProgress');
-  const dist = () => Math.max(0, track.scrollWidth - window.innerWidth);
-  // Pin duration is a fixed share of viewport height, independent of how
-  // wide the stills are — bigger stills shouldn't mean a longer scroll-jack.
-  const pinDistance = () => Math.round(window.innerHeight * 1.15);
+  if (!pin || !sticky || !track) return;
 
-  // Build the pin once, only when the row actually overflows the viewport.
-  let built = false;
-  function buildPin() {
-    if (built || dist() <= 0) return;
-    built = true;
-    gallery.classList.add('gallery-pinned');
-    gsap.to(track, {
-      x: () => -dist(),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: gallery,
-        pin: true,
-        scrub: 0.6,
-        start: 'top top',
-        end: () => '+=' + pinDistance(),
-        invalidateOnRefresh: true,
-        onUpdate: self => { if (fill) fill.style.width = (self.progress * 100) + '%'; },
-      },
-    });
+  const mq = window.matchMedia('(min-width: 768px)');
+  let travel = 0, active = false, ticking = false;
+
+  function measure() {
+    active = mq.matches;
+    if (!active) {                    // mobile → native swipe row; clear jack
+      pin.style.height = '';
+      track.style.transform = '';
+      return;
+    }
+    // How far the row must slide so its right edge reaches the viewport.
+    travel = Math.max(0, track.scrollWidth - sticky.clientWidth);
+    // Tall pin = one viewport of scroll (to reach/leave the sticky) + the
+    // horizontal travel, so vertical scroll maps 1:1 onto sideways motion.
+    pin.style.height = (window.innerHeight + travel) + 'px';
+    apply();
+  }
+  function apply() {
+    if (!active) return;
+    // While the sticky viewport is engaged, the pin's top edge travels from
+    // 0 down to -travel. Normalise that into 0→1 progress.
+    const rectTop = pin.getBoundingClientRect().top;
+    const p = travel > 0 ? Math.min(Math.max(-rectTop / travel, 0), 1) : 0;
+    track.style.transform = 'translate3d(' + (-travel * p).toFixed(1) + 'px,0,0)';
+    if (fill) fill.style.width = (p * 100).toFixed(2) + '%';
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { apply(); ticking = false; });
   }
 
-  // The pin's start/end are measured from the gallery's page position. Web
-  // fonts (Luckiest Guy / Fredoka) load asynchronously and reflow everything
-  // above the gallery downward — a pin measured before that ends up with stale
-  // (even negative) trigger positions and the horizontal scroll-jack silently
-  // dies. So build on the next frame, then refresh once fonts + page load
-  // settle the layout, plus a short delayed pass as a safety net.
-  function settle() { buildPin(); if (built) ScrollTrigger.refresh(); }
-  requestAnimationFrame(buildPin);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(settle);
-  window.addEventListener('load', settle);
-  window.setTimeout(settle, 1200);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', measure, { passive: true });
+  // Re-measure once the chunky fonts settle the row width (harmless if early).
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  window.addEventListener('load', measure);
+  requestAnimationFrame(measure);
 })();
 
 /* ─── HERO PARALLAX (content drifts up + fades on scroll) ────────── */
@@ -542,6 +549,9 @@ window.setTimeout(() => {
 
   const stills = Array.from(track.querySelectorAll('.gallery-still'));
   function update() {
+    // On desktop the sticky scroll-jack (initStillsScroll) owns the row
+    // transform + progress bar; this native-scroll path is mobile-only.
+    if (window.matchMedia('(min-width: 768px)').matches) return;
     if (progress) {
       const max = track.scrollWidth - track.clientWidth;
       progress.style.width = (max > 0 ? (track.scrollLeft / max) * 100 : 0) + '%';

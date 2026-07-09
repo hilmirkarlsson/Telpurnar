@@ -514,14 +514,19 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ─── GALLERY (gold band) ────────────────────────────────────────── */
+/* Base = mobile: a normal vertical section with a native horizontal swipe
+   row. The desktop scroll-jack is layered on in the @media block below. */
 .gallery {
   position: relative;
-  padding: clamp(var(--sp-20), 8vw, var(--sp-32)) 0;
+  padding: clamp(var(--sp-16), 8vw, var(--sp-24)) 0;
   background: var(--gold);
   border-top: 3px solid var(--crimson);
   border-bottom: 3px solid var(--crimson);
 }
+.gallery-pin { position: relative; }
+.gallery-sticky { display: flex; flex-direction: column; }
 .gallery-header {
+  width: 100%;   /* fill the sticky column so max-width + margin auto center it */
   max-width: var(--max-w);
   margin: 0 auto var(--sp-8);
   padding: 0 var(--pad-x);
@@ -583,15 +588,6 @@ html.lenis, html.lenis body { height: auto; }
   flex: 0 0 clamp(320px, 68vw, 860px);
   scroll-snap-align: start;
 }
-
-/* Pinned mode: row moved by ScrollTrigger (vertical scroll → sideways) */
-.gallery-pinned .gallery-track {
-  overflow: visible;
-  scroll-snap-type: none;
-  will-change: transform;
-  cursor: grab;
-}
-.gallery-pinned .gallery-arrows { display: none; }
 .gallery-still {
   aspect-ratio: 16/10;
   border: 4px solid var(--crimson);
@@ -627,6 +623,7 @@ html.lenis, html.lenis body { height: auto; }
   text-shadow: 2px 2px 0 var(--surface);
 }
 .gallery-progress-wrap {
+  width: 100%;
   max-width: var(--max-w);
   margin: var(--sp-8) auto 0;
   padding: 0 var(--pad-x);
@@ -643,6 +640,29 @@ html.lenis, html.lenis body { height: auto; }
   width: 0%;
   background: var(--crimson);
   transition: width 0.1s linear;
+}
+
+/* Desktop scroll-jack: the sticky viewport holds for the height of
+   .gallery-pin (set by JS) while JS translates .gallery-track sideways.
+   Pure CSS sticky + live getBoundingClientRect math — no ScrollTrigger,
+   so it can't desync with the smooth-scroll or mis-measure under late fonts. */
+@media (min-width: 768px) {
+  .gallery { padding: 0; }
+  .gallery-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    justify-content: center;
+    overflow: hidden;
+    padding: var(--sp-8) 0;
+  }
+  .gallery-track {
+    overflow: visible;
+    scroll-snap-type: none;
+    will-change: transform;
+    padding-bottom: 0;
+  }
+  .gallery-arrows { display: none; }   /* page scroll drives the row */
 }
 
 /* ─── FILMMAKERS (mint) ──────────────────────────────────────────── */
