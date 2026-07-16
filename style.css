@@ -513,6 +513,35 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--crimson);
 }
 
+/* Screening-dates highlight: sits above the detail stickers, centered */
+.film-highlight {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: var(--sp-5) var(--sp-6);
+  margin-bottom: var(--sp-4);
+  background: var(--gold);
+  border: 3px solid var(--crimson);
+  border-radius: 16px;
+  box-shadow: var(--sticker);
+}
+.highlight-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.highlight-dates {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 2.2vw, 2rem);
+  color: var(--crimson);
+  line-height: 1.1;
+}
+
 /* Compact sticker: Lengd / Ár / Tungumál share one small box in a row */
 .film-detail-compact {
   gap: var(--sp-4);
