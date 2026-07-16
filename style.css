@@ -159,11 +159,14 @@ html.lenis, html.lenis body { height: auto; }
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--gold);
-  transition: color 0.3s ease, border-color 0.3s ease;
+  text-shadow:
+    -1.5px -1.5px 0 var(--crimson),
+     1.5px -1.5px 0 var(--crimson),
+    -1.5px  1.5px 0 var(--crimson),
+     1.5px  1.5px 0 var(--crimson);
+  transition: color 0.3s ease;
   position: relative;
-  padding: var(--sp-2) var(--sp-4);
-  border: 2px solid #000;
-  border-radius: 10px;
+  padding: var(--sp-2) 0;
 }
 .nav-links a::after {
   content: '';
@@ -176,7 +179,7 @@ html.lenis, html.lenis body { height: auto; }
   transform-origin: left;
   transition: transform 0.35s var(--ease-soft);
 }
-.nav-links a:hover { color: var(--crimson); }
+.nav-links a:hover { color: var(--surface); }
 .nav-links a:hover::after { transform: scaleX(1); }
 
 .lang-toggle {
