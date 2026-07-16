@@ -61,11 +61,11 @@ Lang.apply('is');
     (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
   }
 
-  // Anchor links glide via Lenis instead of jumping.
-  // #people and #music sit past the gallery in document order, so those two
-  // get a slower glide — long enough that the gallery stills are actually
-  // visible mid-scroll instead of blurring past.
-  const SLOW_TARGETS = new Set(['#people', '#music']);
+  // Anchor links glide via Lenis instead of jumping. Nav clicks that cross
+  // the gallery section (in either direction) get a slower glide, long
+  // enough that the gallery stills are actually visible mid-scroll instead
+  // of blurring past.
+  const gallery = document.querySelector('#gallery');
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     const id = a.getAttribute('href');
     if (!id || id.length < 2) return;
@@ -73,7 +73,14 @@ Lang.apply('is');
       const target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
-      if (SLOW_TARGETS.has(id)) lenis.scrollTo(target, { duration: 2.6 });
+      let crossesGallery = false;
+      if (gallery) {
+        const galleryTop = gallery.offsetTop;
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        const targetY = target.offsetTop;
+        crossesGallery = (currentY < galleryTop) !== (targetY < galleryTop);
+      }
+      if (crossesGallery) lenis.scrollTo(target, { duration: 3.6 });
       else lenis.scrollTo(target);
     });
   });
