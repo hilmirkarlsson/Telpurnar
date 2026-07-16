@@ -145,7 +145,15 @@ html.lenis, html.lenis body { height: auto; }
 }
 .nav-logo:hover { transform: rotate(-3deg) scale(1.04); }
 
-.nav-links { display: flex; align-items: center; gap: var(--sp-8); }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-8);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
 .nav-links a {
   font-size: clamp(1.5rem, 2.4vw, 2rem);
   font-weight: 700;
@@ -215,7 +223,8 @@ html.lenis, html.lenis body { height: auto; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   padding: var(--sp-32) var(--pad-x) var(--sp-24);
   overflow: hidden;
   background: var(--bg);   /* flat mint — photo-ready (slides sit behind) */
@@ -300,7 +309,7 @@ html.lenis, html.lenis body { height: auto; }
   transform: translateY(-10px);
 }
 .hero-title {
-  font-size: clamp(4.4rem, 18vw, 17rem);
+  font-size: clamp(5rem, 21vw, 19rem);
   color: var(--crimson);
   text-shadow: 5px 7px 0 var(--gold);
   opacity: 0;
@@ -311,7 +320,7 @@ html.lenis, html.lenis body { height: auto; }
   display: block;
 }
 .hero-line {
-  margin-top: var(--sp-5);
+  margin: var(--sp-5) auto 0;
   width: 100%;
   max-width: 360px;
   height: 6px;
@@ -544,7 +553,7 @@ html.lenis, html.lenis body { height: auto; }
 .gallery-header .section-eyebrow {
   display: block;
   font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
   font-weight: 400;
   letter-spacing: 0.01em;
   text-transform: none;
@@ -665,7 +674,12 @@ html.lenis, html.lenis body { height: auto; }
     scroll-snap-type: none;
     will-change: transform;
     padding-bottom: 0;
+    align-items: center;
   }
+  /* Height-driven sizing so each still fills the sticky viewport from
+     top to bottom instead of being capped by a width-first aspect-ratio. */
+  .gallery-item { flex: 0 0 auto; }
+  .gallery-still { height: min(74vh, 760px); width: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
 }
 
