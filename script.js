@@ -61,13 +61,20 @@ Lang.apply('is');
     (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
   }
 
-  // Anchor links glide via Lenis instead of jumping
+  // Anchor links glide via Lenis instead of jumping.
+  // #people and #music sit past the gallery in document order, so those two
+  // get a slower glide — long enough that the gallery stills are actually
+  // visible mid-scroll instead of blurring past.
+  const SLOW_TARGETS = new Set(['#people', '#music']);
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     const id = a.getAttribute('href');
     if (!id || id.length < 2) return;
     a.addEventListener('click', e => {
       const target = document.querySelector(id);
-      if (target) { e.preventDefault(); lenis.scrollTo(target); }
+      if (!target) return;
+      e.preventDefault();
+      if (SLOW_TARGETS.has(id)) lenis.scrollTo(target, { duration: 2.6 });
+      else lenis.scrollTo(target);
     });
   });
 })();
