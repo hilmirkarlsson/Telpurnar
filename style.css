@@ -698,10 +698,10 @@ html.lenis, html.lenis body { height: auto; }
     overflow: hidden;
     padding: var(--sp-8) 0;
   }
-  /* Trailing space after the last still (once the track has slid all the
-     way over) should match the gap between stills, not the wider
-     section padding used everywhere else. */
-  .gallery-track { padding-right: var(--gallery-gap); }
+  /* Dedicated breathing room after the last still once the track has slid
+     all the way over — bigger than the inter-item gap so it reads as
+     deliberate trailing space, not just another gap. */
+  .gallery-track { padding-right: calc(var(--gallery-gap) * 3); }
   .gallery-track {
     overflow: visible;
     scroll-snap-type: none;
