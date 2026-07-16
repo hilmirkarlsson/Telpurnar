@@ -28,7 +28,7 @@ const Lang = (function () {
 })();
 
 Lang.apply('is');
-document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
+/* Lang toggle button hidden for now (index.html) — listener disabled until it's back. */
 
 /* ─── NAV scroll state ───────────────────────────────────────────── */
 (function initNav() {

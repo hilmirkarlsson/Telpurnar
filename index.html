@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=20" />
+  <link rel="stylesheet" href="style.css?v=21" />
 </head>
 <body>
 
@@ -31,7 +31,9 @@
       <a href="#people" data-is="Leikstjórar" data-en="Filmmakers">Leikstjórar</a>
       <a href="#music"  data-is="Tónlist"     data-en="Score">Tónlist</a>
     </div>
-    <div class="nav-actions">
+    <!-- Language toggle hidden for now — English copy stays in data-en
+         attributes in the background, unused until this is re-enabled. -->
+    <div class="nav-actions" hidden>
       <button class="lang-toggle" id="langToggle" aria-label="Skipta um tungumál / Switch language">
         <span class="lt-is active">IS</span>
         <span class="lt-dot" aria-hidden="true">·</span>
@@ -274,7 +276,7 @@
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js?v=20" defer></script>
+  <script src="script.js?v=21" defer></script>
 
 </body>
 </html>
