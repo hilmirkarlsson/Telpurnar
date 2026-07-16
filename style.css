@@ -159,9 +159,11 @@ html.lenis, html.lenis body { height: auto; }
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--gold);
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, border-color 0.3s ease;
   position: relative;
-  padding: var(--sp-2) 0;
+  padding: var(--sp-2) var(--sp-4);
+  border: 2px solid #000;
+  border-radius: 10px;
 }
 .nav-links a::after {
   content: '';
@@ -418,6 +420,28 @@ html.lenis, html.lenis body { height: auto; }
 .hero.is-ready .hero-dots { opacity: 1; transition: opacity 0.9s ease 0.8s; }
 .hero.is-ready .hero-scroll { opacity: 1; transition: opacity 0.9s ease 0.9s; }
 
+/* ─── ABOUT (Hanna & Guðríður) ───────────────────────────────────── */
+.duo {
+  position: relative;
+  background: var(--bg);
+  padding: clamp(var(--sp-20), 8vw, var(--sp-32)) var(--pad-x);
+  border-top: 3px solid var(--crimson);
+  text-align: center;
+}
+.duo-inner { max-width: 780px; margin: 0 auto; }
+.duo-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  color: var(--crimson);
+  text-shadow: 3px 4px 0 var(--gold);
+  margin: var(--sp-3) 0 var(--sp-6);
+}
+.duo-bio {
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
 /* ─── FILM SECTION ───────────────────────────────────────────────── */
 .film {
   position: relative;
@@ -589,7 +613,8 @@ html.lenis, html.lenis body { height: auto; }
 
 .gallery-track {
   display: flex;
-  gap: clamp(16px, 2vw, 28px);
+  --gallery-gap: clamp(16px, 2vw, 28px);
+  gap: var(--gallery-gap);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -669,6 +694,10 @@ html.lenis, html.lenis body { height: auto; }
     overflow: hidden;
     padding: var(--sp-8) 0;
   }
+  /* Trailing space after the last still (once the track has slid all the
+     way over) should match the gap between stills, not the wider
+     section padding used everywhere else. */
+  .gallery-track { padding-right: var(--gallery-gap); }
   .gallery-track {
     overflow: visible;
     scroll-snap-type: none;
