@@ -308,8 +308,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 .hero-title-sub {
   font-size: 0.34em;
-  display: inline-block;
-  vertical-align: middle;
+  display: block;
 }
 .hero-line {
   margin-top: var(--sp-5);
