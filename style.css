@@ -513,6 +513,26 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--crimson);
 }
 
+/* Compact sticker: Lengd / Ár / Tungumál share one small box in a row */
+.film-detail-compact {
+  gap: var(--sp-4);
+}
+.film-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.film-detail-item + .film-detail-item {
+  padding-left: var(--sp-4);
+  border-left: 2px solid var(--ink-faint);
+}
+.detail-value-sm {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--crimson);
+}
+
 /* ─── GALLERY (gold band) ────────────────────────────────────────── */
 /* Base = mobile: a normal vertical section with a native horizontal swipe
    row. The desktop scroll-jack is layered on in the @media block below. */
