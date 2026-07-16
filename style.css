@@ -690,7 +690,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 .directors-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: clamp(var(--sp-8), 5vw, var(--sp-16));
 }
 /* Whole card is a cream sticker card */
@@ -774,6 +774,15 @@ html.lenis, html.lenis body { height: auto; }
   object-fit: cover;
   flex-shrink: 0;
   border: 3px solid var(--crimson);
+}
+.producer-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--crimson);
 }
 .producer-role {
   font-size: 0.66rem;

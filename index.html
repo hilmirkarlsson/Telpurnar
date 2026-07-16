@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Telpurnar — íslensk stuttmynd, 2026. 14 mínútur." />
-  <title>Telpurnar — Stuttmynd 2026</title>
+  <meta name="description" content="Telpur — Telpurnar sýnd í Bíó Paradís 13. og 14. ágúst 2026." />
+  <title>Telpur</title>
 
   <!-- Fonts: Luckiest Guy (chunky display) + Fredoka (rounded body) — playful poster pairing -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=21" />
+  <link rel="stylesheet" href="style.css?v=22" />
 </head>
 <body>
 
   <!-- ─── LOADER ─────────────────────────────────────────────────── -->
   <div class="loader" id="loader" aria-hidden="true">
-    <span class="loader-mark">Telpurnar</span>
+    <span class="loader-mark">Telpur</span>
   </div>
 
   <!-- ─── DRIFTING DUST (ambient, from v3) ───────────────────────── -->
@@ -25,7 +25,7 @@
 
   <!-- ─── NAVIGATION ─────────────────────────────────────────────── -->
   <nav class="nav" id="nav">
-    <a class="nav-logo" href="#hero" aria-label="Telpurnar — efst á síðu">Telpurnar</a>
+    <a class="nav-logo" href="#hero" aria-label="Telpur — efst á síðu">Telpur</a>
     <div class="nav-links">
       <a href="#film"   data-is="Myndin"      data-en="Film">Myndin</a>
       <a href="#people" data-is="Leikstjórar" data-en="Filmmakers">Leikstjórar</a>
@@ -57,15 +57,12 @@
     <div class="hero-scrim" aria-hidden="true"></div>
 
     <div class="hero-content">
-      <p class="hero-eyebrow" data-is="Stuttmynd" data-en="A Short Film">Stuttmynd</p>
       <h1 class="hero-title">Telpurnar</h1>
       <div class="hero-line" aria-hidden="true"></div>
       <div class="hero-meta">
-        <span data-is="Ísland" data-en="Iceland">Ísland</span>
+        <span data-is="Sýnt 13. og 14. ágúst" data-en="Screening August 13 &amp; 14">Sýnt 13. og 14. ágúst</span>
         <span class="hero-meta-dot" aria-hidden="true"></span>
-        <span>2026</span>
-        <span class="hero-meta-dot" aria-hidden="true"></span>
-        <span data-is="14 mínútur" data-en="14 minutes">14 mínútur</span>
+        <span>Bíó Paradís</span>
       </div>
     </div>
 
@@ -186,7 +183,7 @@
           <div class="director-portrait has-photo" aria-label="Hanna Álfheiður Gunnarsdóttir">
             <img class="dp-photo" src="hanna.jpg" alt="Hanna Álfheiður Gunnarsdóttir, leikstjóri" loading="lazy" decoding="async" />
           </div>
-          <p class="director-role" data-is="Leikstjóri" data-en="Director">Leikstjóri</p>
+          <p class="director-role" data-is="Leikstjóri & leikari" data-en="Director & Actor">Leikstjóri & leikari</p>
           <h3 class="director-name">Hanna Álfheiður Gunnarsdóttir</h3>
           <p class="director-bio"
             data-is="Hanna er annar tveggja höfunda og leikstjóra Telpurnar. Verkið kannar samskipti, væntingar og valdahlutverk innan vinkonuhópa — með kímni sem afhjúpar það sem býr undir yfirborðinu."
@@ -198,7 +195,7 @@
           <div class="director-portrait" aria-label="Guðríður Jóhannsdóttir">
             <span class="dp-initial">G</span>
           </div>
-          <p class="director-role" data-is="Leikstjóri" data-en="Director">Leikstjóri</p>
+          <p class="director-role" data-is="Leikstjóri & leikari" data-en="Director & Actor">Leikstjóri & leikari</p>
           <h3 class="director-name">Guðríður Jóhannsdóttir</h3>
           <p class="director-bio"
             data-is="Guðríður er annar tveggja höfunda og leikstjóra Telpurnar. Hún og Hanna sækjast eftir sögum sem brjóta niður mörkin milli skáldskapar og raunveruleika — skondnar, ófyrirsjáanlegar og óþægilega kunnuglegar."
@@ -206,14 +203,32 @@
           >Guðríður er annar tveggja höfunda og leikstjóra Telpurnar. Hún og Hanna sækjast eftir sögum sem brjóta niður mörkin milli skáldskapar og raunveruleika — skondnar, ófyrirsjáanlegar og óþægilega kunnuglegar.</p>
         </article>
 
+        <article class="director-card">
+          <div class="director-portrait" aria-label="Leikari — ekki staðfestur">
+            <span class="dp-initial">?</span>
+          </div>
+          <p class="director-role" data-is="Leikari" data-en="Actor">Leikari</p>
+          <h3 class="director-name" data-is="[Ekki staðfest]" data-en="[TBD]">[Ekki staðfest]</h3>
+          <p class="director-bio" data-is="[Þriðji leikari — staðfestist síðar]" data-en="[Third cast member — TBD]">[Þriðji leikari — staðfestist síðar]</p>
+        </article>
+
       </div>
 
-      <!-- Producer credit -->
+      <!-- Composer credit -->
       <div class="producer-credit">
-        <img class="producer-photo" src="hrannar.jpg" alt="Hrannar Þór, framleiðandi" loading="lazy" decoding="async" />
+        <img class="producer-photo" src="hrannar.jpg" alt="Hrannar Þór, tónskáld" loading="lazy" decoding="async" />
         <div class="producer-meta">
-          <p class="producer-role" data-is="Framleiðandi" data-en="Producer">Framleiðandi</p>
+          <p class="producer-role" data-is="Tónskáld" data-en="Composer">Tónskáld</p>
           <p class="producer-name">Hrannar Þór</p>
+        </div>
+      </div>
+
+      <!-- Recording engineer credit — name TBD -->
+      <div class="producer-credit">
+        <div class="producer-photo producer-photo-placeholder" aria-hidden="true">?</div>
+        <div class="producer-meta">
+          <p class="producer-role" data-is="Upptökumaður" data-en="Recording Engineer">Upptökumaður</p>
+          <p class="producer-name" data-is="[Ekki staðfest]" data-en="[TBD]">[Ekki staðfest]</p>
         </div>
       </div>
 
@@ -224,9 +239,8 @@
   <section class="music" id="music">
     <div class="music-inner">
 
-      <p class="section-eyebrow" data-is="Frumsamið tónverk" data-en="Original Score">Frumsamið tónverk</p>
-      <h2 class="music-heading" data-is="Hljóðrásin" data-en="The Soundtrack">Hljóðrásin</h2>
-      <p class="music-composer" data-is="[Tónskáld — óákveðið]" data-en="[Composer — TBD]">[Tónskáld — óákveðið]</p>
+      <h2 class="music-heading" data-is="Frumsamið tónverk" data-en="Original Score">Frumsamið tónverk</h2>
+      <p class="music-composer">Hrannar Þór</p>
 
       <ul class="tracklist" role="list" aria-label="Hljóðrás">
         <li class="tl-track" data-track="0" role="button" tabindex="0" aria-label="Spila lag 1">
@@ -265,7 +279,7 @@
   <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-brand" aria-hidden="true">Telpurnar</div>
+      <div class="footer-brand" aria-hidden="true">Telpur</div>
       <p class="footer-meta" data-is="© 2026 · Öll réttindi áskilin · Ísland" data-en="© 2026 · All rights reserved · Iceland">© 2026 · Öll réttindi áskilin · Ísland</p>
       <p class="footer-credit" data-is="Vefsíða: Hilmir Karlsson" data-en="Website by Hilmir Karlsson">Vefsíða: Hilmir Karlsson</p>
     </div>
@@ -276,7 +290,7 @@
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js?v=21" defer></script>
+  <script src="script.js?v=22" defer></script>
 
 </body>
 </html>
