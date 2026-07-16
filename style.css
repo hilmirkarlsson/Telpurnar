@@ -145,12 +145,12 @@ html.lenis, html.lenis body { height: auto; }
 }
 .nav-logo:hover { transform: rotate(-3deg) scale(1.04); }
 
-.nav-links { display: flex; gap: var(--sp-8); }
+.nav-links { display: flex; align-items: center; gap: var(--sp-8); }
 .nav-links a {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--ink-soft);
+  color: var(--gold);
   transition: color 0.3s ease;
   position: relative;
   padding: var(--sp-2) 0;
@@ -300,7 +300,7 @@ html.lenis, html.lenis body { height: auto; }
   transform: translateY(-10px);
 }
 .hero-title {
-  font-size: clamp(3.6rem, 14vw, 13rem);
+  font-size: clamp(4.4rem, 18vw, 17rem);
   color: var(--crimson);
   text-shadow: 5px 7px 0 var(--gold);
   opacity: 0;
