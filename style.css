@@ -306,6 +306,11 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 0;
   transform: translateY(28px);
 }
+.hero-title-sub {
+  font-size: 0.34em;
+  display: inline-block;
+  vertical-align: middle;
+}
 .hero-line {
   margin-top: var(--sp-5);
   width: 100%;
