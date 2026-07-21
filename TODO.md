@@ -1,13 +1,14 @@
 # TODO — Telpurnar website
 
-## Site structure (from notebook sketch)
-- **Telpur** (site logo/home)
-  - **About Us** — about the company / about Hanna & Guðríður
-  - **Projects** — list of all projects
-    - **Telpurnar** — about the film
-      - Production stills
-      - The people (actors, camera, sound, music...)
-      - Contact (all contact info)
+## Site structure
+- [ ] Rebuild the site layout to match the structure below (from notebook sketch):
+  - **Telpur** (site logo/home)
+    - **About Us** — about the company / about Hanna & Guðríður
+    - **Projects** — list of all projects
+      - **Telpurnar** — about the film
+        - Production stills
+        - The people (actors, camera, sound, music...)
+        - Contact (all contact info)
 
 ## Domain
 - [ ] Buy a domain for Telpurnar and link it to the site (instead of `hilmirkarlsson.github.io/Telpurnar/`)
