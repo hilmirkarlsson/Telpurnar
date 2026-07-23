@@ -94,52 +94,63 @@ Lang.apply('is');
    pin mis-placed (a big empty gap). CSS `position: sticky` instead lets the
    browser hold the viewport, and we read the pin's LIVE getBoundingClientRect
    each frame — always accurate, immune to font reflow and scroll desync. */
+/* Runs for EVERY .gallery section (Framleiðslumyndir + Stillur úr myndinni),
+   so both bands get exactly the same scroll experience. */
 (function initStillsScroll() {
   if (REDUCE) return;
-  const pin = document.getElementById('galleryPin');
-  const sticky = pin && pin.querySelector('.gallery-sticky');
-  const track = document.getElementById('galleryTrack');
-  const fill = document.getElementById('galleryProgress');
-  if (!pin || !sticky || !track) return;
-
   const mq = window.matchMedia('(min-width: 768px)');
-  let travel = 0, active = false, ticking = false;
+  const jacks = [];
 
-  function measure() {
-    active = mq.matches;
-    if (!active) {                    // mobile → native swipe row; clear jack
-      pin.style.height = '';
-      track.style.transform = '';
-      return;
+  document.querySelectorAll('.gallery').forEach(section => {
+    const pin = section.querySelector('.gallery-pin');
+    const sticky = pin && pin.querySelector('.gallery-sticky');
+    const track = section.querySelector('.gallery-track');
+    const fill = section.querySelector('.gallery-progress-fill');
+    if (!pin || !sticky || !track) return;
+
+    let travel = 0, active = false;
+
+    function measure() {
+      active = mq.matches;
+      if (!active) {                    // mobile → native swipe row; clear jack
+        pin.style.height = '';
+        track.style.transform = '';
+        return;
+      }
+      // How far the row must slide so its right edge reaches the viewport.
+      travel = Math.max(0, track.scrollWidth - sticky.clientWidth);
+      // Tall pin = one viewport of scroll (to reach/leave the sticky) + the
+      // horizontal travel, so vertical scroll maps 1:1 onto sideways motion.
+      pin.style.height = (window.innerHeight + travel) + 'px';
+      apply();
     }
-    // How far the row must slide so its right edge reaches the viewport.
-    travel = Math.max(0, track.scrollWidth - sticky.clientWidth);
-    // Tall pin = one viewport of scroll (to reach/leave the sticky) + the
-    // horizontal travel, so vertical scroll maps 1:1 onto sideways motion.
-    pin.style.height = (window.innerHeight + travel) + 'px';
-    apply();
-  }
-  function apply() {
-    if (!active) return;
-    // While the sticky viewport is engaged, the pin's top edge travels from
-    // 0 down to -travel. Normalise that into 0→1 progress.
-    const rectTop = pin.getBoundingClientRect().top;
-    const p = travel > 0 ? Math.min(Math.max(-rectTop / travel, 0), 1) : 0;
-    track.style.transform = 'translate3d(' + (-travel * p).toFixed(1) + 'px,0,0)';
-    if (fill) fill.style.width = (p * 100).toFixed(2) + '%';
-  }
+    function apply() {
+      if (!active) return;
+      // While the sticky viewport is engaged, the pin's top edge travels from
+      // 0 down to -travel. Normalise that into 0→1 progress.
+      const rectTop = pin.getBoundingClientRect().top;
+      const p = travel > 0 ? Math.min(Math.max(-rectTop / travel, 0), 1) : 0;
+      track.style.transform = 'translate3d(' + (-travel * p).toFixed(1) + 'px,0,0)';
+      if (fill) fill.style.width = (p * 100).toFixed(2) + '%';
+    }
+    jacks.push({ measure, apply });
+  });
+  if (!jacks.length) return;
+
+  let ticking = false;
+  const measureAll = () => jacks.forEach(j => j.measure());
   function onScroll() {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(() => { apply(); ticking = false; });
+    requestAnimationFrame(() => { jacks.forEach(j => j.apply()); ticking = false; });
   }
 
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', measure, { passive: true });
+  window.addEventListener('resize', measureAll, { passive: true });
   // Re-measure once the chunky fonts settle the row width (harmless if early).
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-  window.addEventListener('load', measure);
-  requestAnimationFrame(measure);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureAll);
+  window.addEventListener('load', measureAll);
+  requestAnimationFrame(measureAll);
 })();
 
 /* ─── HERO PARALLAX (content drifts up + fades on scroll) ────────── */
@@ -545,7 +556,7 @@ window.setTimeout(() => {
     '.team-inner > .section-eyebrow', '.director-card',
     '.gallery-header > *',
     '.projects-inner > .section-eyebrow', '.project-card',
-    '.film-poster-wrap', '.film-info > *', '.stills-heading', '.stills-item',
+    '.film-poster-wrap', '.film-info > *',
     '.people-inner > *', '.music-inner > *', '.contact-inner > *',
   ];
   const targets = [];
@@ -569,11 +580,15 @@ window.setTimeout(() => {
 })();
 
 /* ─── GALLERY — arrows, progress + subtle parallax drift ─────────── */
-(function initGallery() {
-  const track = document.getElementById('galleryTrack');
-  const prev = document.getElementById('galleryPrev');
-  const next = document.getElementById('galleryNext');
-  const progress = document.getElementById('galleryProgress');
+(function initGalleries() {
+  document.querySelectorAll('.gallery').forEach(initGallery);
+})();
+
+function initGallery(section) {
+  const track = section.querySelector('.gallery-track');
+  const prev = section.querySelector('[data-gallery-prev]');
+  const next = section.querySelector('[data-gallery-next]');
+  const progress = section.querySelector('.gallery-progress-fill');
   if (!track) return;
 
   function step() {
@@ -607,7 +622,7 @@ window.setTimeout(() => {
   track.addEventListener('scroll', update, { passive: true });
   window.addEventListener('resize', update, { passive: true });
   update();
-})();
+}
 
 /* ─── MUSIC — ambient Web Audio preview ──────────────────────────── */
 (function initMusicPlayer() {

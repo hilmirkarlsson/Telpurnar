@@ -119,18 +119,18 @@
        getBoundingClientRect (live layout) so it's immune to font reflow /
        smooth-scroll desync. On mobile it falls back to a native swipe row. -->
   <section class="gallery" id="gallery">
-    <div class="gallery-pin" id="galleryPin">
+    <div class="gallery-pin">
       <div class="gallery-sticky">
         <div class="gallery-header">
           <p class="section-eyebrow" data-is="Framleiðslumyndir" data-en="Production Stills">Framleiðslumyndir</p>
           <div class="gallery-nav-row">
             <div class="gallery-arrows">
-              <button class="gallery-arrow" id="galleryPrev" aria-label="Fyrri mynd">
+              <button class="gallery-arrow" data-gallery-prev aria-label="Fyrri mynd">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                 </svg>
               </button>
-              <button class="gallery-arrow" id="galleryNext" aria-label="Næsta mynd">
+              <button class="gallery-arrow" data-gallery-next aria-label="Næsta mynd">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                 </svg>
@@ -142,7 +142,7 @@
         <!-- Stills emptied — AWAITING SHORT-FILM IMAGERY.
              Restore by adding the background image back to each .gallery-still:
              <div class="gallery-still" style="background-image:url('IMG_URL')"> ... -->
-        <div class="gallery-track" id="galleryTrack">
+        <div class="gallery-track">
           <figure class="gallery-item">
             <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">01</span></div>
           </figure>
@@ -162,7 +162,7 @@
 
         <div class="gallery-progress-wrap" aria-hidden="true">
           <div class="gallery-progress-track">
-            <div class="gallery-progress-fill" id="galleryProgress"></div>
+            <div class="gallery-progress-fill"></div>
           </div>
         </div>
       </div>
@@ -225,19 +225,54 @@
       </div>
 
     </div>
+  </section>
 
-    <!-- Stillur úr myndinni — film stills swipe row (awaiting imagery).
-         Restore by adding a background image to each .stills-item:
-         <div class="stills-item" style="background-image:url('IMG_URL')"> -->
-    <div class="stills">
-      <h3 class="stills-heading" data-is="Stillur úr myndinni" data-en="Stills from the film">Stillur úr myndinni</h3>
-      <!-- data-lenis-prevent: without it Lenis captures vertical wheel over
-           this horizontal scroller and page scrolling stalls -->
-      <div class="stills-row" data-lenis-prevent>
-        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">01</span></div>
-        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">02</span></div>
-        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">03</span></div>
-        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">04</span></div>
+  <!-- ─── 5b · STILLUR ÚR MYNDINNI — same scroll-jack band as Framleiðslumyndir ─── -->
+  <!-- Identical markup/behaviour to the gallery above: .gallery-pin sticks on
+       desktop while JS slides .gallery-track sideways; native swipe on mobile.
+       Stills emptied — AWAITING SHORT-FILM IMAGERY. Restore with:
+       <div class="gallery-still" style="background-image:url('IMG_URL')"> -->
+  <section class="gallery" id="stills">
+    <div class="gallery-pin">
+      <div class="gallery-sticky">
+        <div class="gallery-header">
+          <p class="section-eyebrow" data-is="Stillur úr myndinni" data-en="Stills from the film">Stillur úr myndinni</p>
+          <div class="gallery-nav-row">
+            <div class="gallery-arrows">
+              <button class="gallery-arrow" data-gallery-prev aria-label="Fyrri mynd">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
+              <button class="gallery-arrow" data-gallery-next aria-label="Næsta mynd">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-track">
+          <figure class="gallery-item">
+            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">01</span></div>
+          </figure>
+          <figure class="gallery-item">
+            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">02</span></div>
+          </figure>
+          <figure class="gallery-item">
+            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">03</span></div>
+          </figure>
+          <figure class="gallery-item">
+            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">04</span></div>
+          </figure>
+        </div>
+
+        <div class="gallery-progress-wrap" aria-hidden="true">
+          <div class="gallery-progress-track">
+            <div class="gallery-progress-fill"></div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -253,7 +288,7 @@
           <span class="crew-name">Hanna Álfheiður Gunnarsdóttir &amp; Guðríður Jóhannsdóttir</span>
         </li>
         <li class="crew-row">
-          <span class="crew-role" data-is="Leikur" data-en="Cast">Leikur</span>
+          <span class="crew-role" data-is="Leikarar" data-en="Cast">Leikarar</span>
           <span class="crew-name" data-is="Hanna, Guðríður & [ekki staðfest]" data-en="Hanna, Guðríður & [TBD]">Hanna, Guðríður & [ekki staðfest]</span>
         </li>
         <li class="crew-row">
@@ -265,8 +300,8 @@
           <span class="crew-name">Tómas Marshall</span>
         </li>
         <li class="crew-row">
-          <span class="crew-role" data-is="Vefsíða" data-en="Website">Vefsíða</span>
-          <span class="crew-name">Hilmir Karlsson</span>
+          <span class="crew-role" data-is="Hljóð" data-en="Sound">Hljóð</span>
+          <span class="crew-name" data-is="[ekki staðfest]" data-en="[TBD]">[ekki staðfest]</span>
         </li>
       </ul>
     </div>
@@ -343,6 +378,7 @@
       <div class="footer-brand" aria-hidden="true">Telpur</div>
       <p class="footer-meta" data-is="© 2026 · Öll réttindi áskilin · Ísland" data-en="© 2026 · All rights reserved · Iceland">© 2026 · Öll réttindi áskilin · Ísland</p>
       <p class="footer-credit" data-is="Vefsíða: Hilmir Karlsson" data-en="Website by Hilmir Karlsson">Vefsíða: Hilmir Karlsson</p>
+      <p class="footer-credit footer-email"><a href="mailto:hilmirkarlsson@gmail.com">hilmirkarlsson@gmail.com</a></p>
       <p class="footer-credit" data-is="Upptaka: Tómas Marshall" data-en="Recording: Tómas Marshall">Upptaka: Tómas Marshall</p>
     </div>
   </footer>
@@ -352,7 +388,7 @@
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js?v=39" defer></script>
+  <script src="script.js?v=40" defer></script>
 
 </body>
 </html>

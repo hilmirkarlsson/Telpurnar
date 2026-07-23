@@ -555,52 +555,9 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--crimson);
 }
 
-/* Stillur úr myndinni — native swipe row inside the film section */
-.stills {
-  max-width: var(--max-w);
-  margin: clamp(var(--sp-12), 5vw, var(--sp-20)) auto 0;
-}
-.stills-heading {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
-  color: var(--crimson);
-  text-shadow: 3px 4px 0 var(--gold);
-  margin-bottom: var(--sp-6);
-}
-.stills-row {
-  display: flex;
-  gap: clamp(16px, 2vw, 28px);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding-bottom: var(--sp-3);
-}
-.stills-row::-webkit-scrollbar { display: none; }
-.stills-item {
-  flex: 0 0 clamp(260px, 44vw, 520px);
-  aspect-ratio: 16/10;
-  scroll-snap-align: start;
-  border: 4px solid var(--crimson);
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  background: var(--bg);
-  background-size: cover;
-  background-position: center;
-  box-shadow: var(--sticker);
-  transition: transform 0.4s var(--ease-pop), box-shadow 0.4s var(--ease-pop);
-}
-.stills-item:hover { transform: translate(-2px,-3px); box-shadow: 8px 9px 0 var(--crimson); }
-.stills-item.is-empty {
-  background:
-    repeating-linear-gradient(45deg, transparent 0 18px, rgba(194,52,88,0.06) 18px 36px),
-    linear-gradient(150deg, var(--surface-2), var(--gold));
-}
-
 /* ─── GALLERY (gold band) ────────────────────────────────────────── */
-/* Base = mobile: a normal vertical section with a native horizontal swipe
+/* Used by BOTH horizontal bands — Framleiðslumyndir and Stillur úr myndinni.
+   Base = mobile: a normal vertical section with a native horizontal swipe
    row. The desktop scroll-jack is layered on in the @media block below. */
 .gallery {
   position: relative;
@@ -1080,6 +1037,15 @@ html.lenis, html.lenis body { height: auto; }
   letter-spacing: 0.02em;
 }
 .footer-credit { color: var(--crimson); font-weight: 600; }
+/* Email sits directly under the website credit — underline on hover only,
+   so it reads as part of the credit line rather than a loud link. */
+.footer-email a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+.footer-email a:hover { border-bottom-color: var(--crimson); }
 
 /* ─── FOCUS ──────────────────────────────────────────────────────── */
 :focus-visible {
