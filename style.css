@@ -156,7 +156,8 @@ html.lenis, html.lenis body { height: auto; }
 }
 .nav-links a {
   font-family: var(--font-serif);
-  font-size: clamp(1.7rem, 2.8vw, 2.3rem);
+  /* Bigger tap targets per the confirmed change list ("Stækka takkana efst") */
+  font-size: clamp(1.9rem, 3.2vw, 2.7rem);
   font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--gold);
@@ -167,7 +168,7 @@ html.lenis, html.lenis body { height: auto; }
      1.5px  1.5px 0 var(--crimson);
   transition: color 0.3s ease;
   position: relative;
-  padding: var(--sp-2) 0;
+  padding: var(--sp-2) var(--sp-2);
 }
 .nav-links a::after {
   content: '';
@@ -446,23 +447,9 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--ink-soft);
 }
 
-/* ─── FILM SECTION ───────────────────────────────────────────────── */
-.film {
-  position: relative;
-  background: var(--bg);
-  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
-  border-top: 3px solid var(--crimson);
-}
-.film-inner {
-  max-width: var(--max-w);
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 0.85fr 1.15fr;
-  gap: clamp(var(--sp-10), 6vw, var(--sp-24));
-  align-items: center;
-}
-.film-poster-wrap { position: relative; }
-.film-poster { display: flex; flex-direction: column; gap: var(--sp-4); }
+/* ─── FILM PIECES — poster art + detail cards ────────────────────── */
+/* The standalone film section is gone; these pieces are reused by the
+   Verkefni project card and the project popup. */
 .film-poster-art {
   aspect-ratio: 2/3;
   max-width: 380px;
@@ -502,13 +489,6 @@ html.lenis, html.lenis body { height: auto; }
   font-size: 2rem;
   color: var(--surface);
   text-shadow: 2px 3px 0 var(--crimson);
-}
-.poster-caption {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
 }
 .film-heading {
   font-size: clamp(2.8rem, 6.5vw, 6rem);
@@ -716,34 +696,18 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
 }
 
-/* ─── FILMMAKERS (mint) ──────────────────────────────────────────── */
-.filmmakers {
-  position: relative;
-  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
-  background: var(--bg);
-}
-.filmmakers-inner { max-width: var(--max-w); margin: 0 auto; }
-/* Filmmakers eyebrow reads as the big section heading (no pill) */
-.filmmakers-inner > .section-eyebrow {
-  display: block;
-  font-family: var(--font-serif);
-  font-size: clamp(2.4rem, 5.5vw, 4.5rem);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  text-transform: none;
-  color: var(--crimson);
-  background: none;
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  margin-bottom: var(--sp-12);
-  text-shadow: 3px 4px 0 var(--gold);
-}
-.directors-grid {
+/* ─── TEAM GRID (inside Um okkur) ────────────────────────────────── */
+.team-grid {
+  max-width: var(--max-w);
+  margin: clamp(var(--sp-12), 5vw, var(--sp-20)) auto 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(var(--sp-8), 5vw, var(--sp-16));
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(var(--sp-5), 2.5vw, var(--sp-8));
+  align-items: start;   /* only the open card grows, siblings keep their height */
+  text-align: left;
 }
+@media (max-width: 1100px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .team-grid { grid-template-columns: 1fr; gap: var(--sp-8); } }
 /* Whole card is a cream sticker card */
 .director-card {
   display: flex;
@@ -806,47 +770,192 @@ html.lenis, html.lenis body { height: auto; }
   padding: 0 var(--sp-6) var(--sp-6);
 }
 
-/* Producer credit — cream sticker card row */
-.producer-credit {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-5);
-  margin-top: clamp(var(--sp-10), 5vw, var(--sp-16));
+/* ─── TEAM CARD — click-to-reveal body ───────────────────────────── */
+/* Collapsed by default: photo + name only. .is-open grows the body via
+   the 0fr→1fr grid-row trick (animates to auto height, no magic numbers). */
+.team-card { cursor: pointer; }
+.team-card .director-name {
+  font-size: clamp(1.4rem, 1.8vw, 1.8rem);
   padding: var(--sp-5) var(--sp-6);
-  background: var(--gold);
-  border: 4px solid var(--crimson);
-  border-radius: 100px;
-  box-shadow: var(--sticker);
+  margin-bottom: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
 }
-.producer-photo {
-  width: 66px;
-  height: 66px;
-  border-radius: 50%;
-  object-fit: cover;
+/* Gold "+" affordance that turns into "×" when open */
+.team-card .director-name::after {
+  content: '+';
+  font-size: 1.2em;
+  color: var(--crimson);
+  text-shadow: 2px 2px 0 var(--gold);
+  transition: transform 0.4s var(--ease-pop);
   flex-shrink: 0;
-  border: 3px solid var(--crimson);
 }
-.producer-photo-placeholder {
+.team-card.is-open .director-name::after { transform: rotate(45deg); }
+.team-card-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s var(--ease-soft);
+}
+.team-card.is-open .team-card-body { grid-template-rows: 1fr; }
+.team-card-body-inner { overflow: hidden; min-height: 0; }
+.team-card .director-role { padding-top: 0; }
+
+/* ─── VERKEFNI — projects grid ───────────────────────────────────── */
+.projects {
+  position: relative;
+  background: var(--bg);
+  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
+  border-top: 3px solid var(--crimson);
+}
+.projects-inner { max-width: var(--max-w); margin: 0 auto; }
+/* Projects eyebrow reads as the big section heading (no pill) */
+.projects-inner > .section-eyebrow {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--crimson);
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: var(--sp-12);
+  text-shadow: 3px 4px 0 var(--gold);
+}
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 320px));
+  gap: clamp(var(--sp-8), 4vw, var(--sp-12));
+}
+.project-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  text-align: left;
+}
+.project-card .film-poster-art { width: 100%; }
+.project-sub {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--crimson);
+}
+
+/* ─── PROJECT POPUP ──────────────────────────────────────────────── */
+.project-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--sp-5);
+}
+.project-modal[hidden] { display: none; }
+.pm-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(62, 27, 42, 0.55);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.pm-sheet {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(86vh, 900px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--surface);
-  font-family: var(--font-serif);
-  font-size: 1.6rem;
-  color: var(--crimson);
+  border: 4px solid var(--crimson);
+  border-radius: 26px;
+  box-shadow: var(--sticker-lg);
+  padding: clamp(var(--sp-6), 4vw, var(--sp-10));
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  transition: opacity 0.45s var(--ease-soft), transform 0.45s var(--ease-pop);
 }
-.producer-role {
-  font-size: 0.66rem;
+.project-modal.is-open .pm-scrim { opacity: 1; }
+.project-modal.is-open .pm-sheet { opacity: 1; transform: none; }
+.pm-close {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px; height: 48px;
+  border: 3px solid var(--crimson);
+  border-radius: 50%;
+  color: var(--crimson);
+  background: var(--gold);
+  transition: transform 0.3s var(--ease-pop), background 0.3s ease, color 0.3s ease;
+}
+.pm-close:hover { background: var(--crimson); color: var(--surface); transform: rotate(90deg); }
+.pm-close svg { width: 20px; height: 20px; }
+.pm-head {
+  display: flex;
+  align-items: center;
+  gap: clamp(var(--sp-5), 3vw, var(--sp-8));
+  margin-bottom: var(--sp-6);
+}
+.pm-poster {
+  width: clamp(96px, 18vw, 140px);
+  flex-shrink: 0;
+  box-shadow: var(--sticker);
+}
+.pm-poster .poster-title { font-size: 1rem; left: var(--sp-3); bottom: var(--sp-3); }
+.pm-title {
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  margin: var(--sp-3) 0 0;
+}
+.pm-desc { margin-bottom: var(--sp-8); max-width: none; }
+.pm-details { margin-bottom: var(--sp-4); }
+.pm-subhead {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+  color: var(--crimson);
+  text-shadow: 2px 3px 0 var(--gold);
+  margin: var(--sp-8) 0 var(--sp-3);
+}
+.pm-crew, .pm-contact { display: flex; flex-direction: column; }
+.pm-crew-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: var(--sp-3) 0;
+  border-bottom: 2px dashed rgba(194, 52, 88, 0.35);
+}
+.pm-crew-row:last-child { border-bottom: none; }
+.pm-crew-role {
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--crimson);
-  margin-bottom: 2px;
+  color: var(--ink-faint);
 }
-.producer-name {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  color: var(--crimson);
+.pm-crew-name {
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-align: right;
+}
+/* Mobile: full-bleed bottom sheet */
+@media (max-width: 600px) {
+  .project-modal { padding: 0; align-items: flex-end; }
+  .pm-sheet {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 26px 26px 0 0;
+    border-bottom: none;
+    box-shadow: none;
+  }
 }
 
 /* ─── MUSIC (raspberry band) ─────────────────────────────────────── */
@@ -986,14 +1095,15 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .film-inner { grid-template-columns: 1fr; gap: var(--sp-12); }
-  .film-poster-art { max-width: 300px; }
-  .directors-grid { grid-template-columns: 1fr; gap: var(--sp-12); }
-  .producer-credit { flex-direction: row; }
-}
 @media (max-width: 600px) {
-  .nav-links { display: none; }
+  /* Only two links now — keep them visible on phones: drop the absolute
+     centering so they flow to the right of the logo instead of overlapping. */
+  .nav-links {
+    position: static;
+    transform: none;
+    gap: var(--sp-5);
+  }
+  .nav-links a { font-size: 1.35rem; }
   .hero { padding: var(--sp-24) var(--pad-x) var(--sp-20); }
   .hero-dots { bottom: var(--sp-6); }
 }
