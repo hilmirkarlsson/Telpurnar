@@ -48,7 +48,6 @@ Lang.apply('is');
     smoothWheel: true,
     smoothTouch: false,
   });
-  window.__lenis = lenis;   // let the project modal pause page scroll
 
   // Drive Lenis from GSAP's ticker and keep ScrollTrigger in sync (as v3 did)
   if (typeof gsap !== 'undefined' && gsap.ticker) {
@@ -540,58 +539,14 @@ window.setTimeout(() => {
   });
 })();
 
-/* ─── PROJECT POPUP — open from Verkefni cards ───────────────────── */
-(function initProjectModal() {
-  const modal = document.getElementById('projectModal');
-  const opener = document.getElementById('projectTelpurnar');
-  if (!modal || !opener) return;
-  const sheet = modal.querySelector('.pm-sheet');
-  const closeBtn = modal.querySelector('.pm-close');
-  let lastFocus = null;
-
-  function setScrollLock(locked) {
-    // Lenis owns page scroll when present; plain overflow lock otherwise.
-    if (window.__lenis) locked ? window.__lenis.stop() : window.__lenis.start();
-    document.body.style.overflow = locked ? 'hidden' : '';
-  }
-  function open() {
-    lastFocus = document.activeElement;
-    modal.hidden = false;
-    requestAnimationFrame(() => modal.classList.add('is-open'));
-    setScrollLock(true);
-    closeBtn?.focus();
-  }
-  function close() {
-    modal.classList.remove('is-open');
-    setScrollLock(false);
-    // let the exit transition play before display:none
-    window.setTimeout(() => { modal.hidden = true; }, 450);
-    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
-  }
-
-  opener.addEventListener('click', open);
-  modal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', close));
-  document.addEventListener('keydown', e => {
-    if (modal.hidden) return;
-    if (e.key === 'Escape') { close(); return; }
-    // minimal focus trap: keep Tab inside the sheet
-    if (e.key === 'Tab' && sheet) {
-      const focusables = sheet.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])');
-      if (!focusables.length) return;
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-  });
-})();
-
 /* ─── SCROLL REVEAL — gentle, staggered ──────────────────────────── */
 (function initReveal() {
   const groups = [
+    '.team-inner > .section-eyebrow', '.director-card',
     '.gallery-header > *',
     '.projects-inner > .section-eyebrow', '.project-card',
-    '.director-card', '.music-inner > *',
+    '.film-poster-wrap', '.film-info > *', '.stills-heading', '.stills-item',
+    '.people-inner > *', '.music-inner > *', '.contact-inner > *',
   ];
   const targets = [];
   groups.forEach(sel => {

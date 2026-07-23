@@ -447,9 +447,30 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--ink-soft);
 }
 
-/* ─── FILM PIECES — poster art + detail cards ────────────────────── */
-/* The standalone film section is gone; these pieces are reused by the
-   Verkefni project card and the project popup. */
+/* ─── TELPURNAR — film section (poster + info + stills row) ──────── */
+.film {
+  position: relative;
+  background: var(--bg);
+  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
+  border-top: 3px solid var(--crimson);
+}
+.film-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(var(--sp-10), 6vw, var(--sp-24));
+  align-items: center;
+}
+.film-poster-wrap { position: relative; }
+.film-poster { display: flex; flex-direction: column; gap: var(--sp-4); }
+.poster-caption {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
 .film-poster-art {
   aspect-ratio: 2/3;
   max-width: 380px;
@@ -532,6 +553,50 @@ html.lenis, html.lenis body { height: auto; }
 .detail-value {
   font-size: 1.4rem;
   color: var(--crimson);
+}
+
+/* Stillur úr myndinni — native swipe row inside the film section */
+.stills {
+  max-width: var(--max-w);
+  margin: clamp(var(--sp-12), 5vw, var(--sp-20)) auto 0;
+}
+.stills-heading {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(1.3rem, 2.4vw, 1.9rem);
+  color: var(--crimson);
+  text-shadow: 3px 4px 0 var(--gold);
+  margin-bottom: var(--sp-6);
+}
+.stills-row {
+  display: flex;
+  gap: clamp(16px, 2vw, 28px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: var(--sp-3);
+}
+.stills-row::-webkit-scrollbar { display: none; }
+.stills-item {
+  flex: 0 0 clamp(260px, 44vw, 520px);
+  aspect-ratio: 16/10;
+  scroll-snap-align: start;
+  border: 4px solid var(--crimson);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--sticker);
+  transition: transform 0.4s var(--ease-pop), box-shadow 0.4s var(--ease-pop);
+}
+.stills-item:hover { transform: translate(-2px,-3px); box-shadow: 8px 9px 0 var(--crimson); }
+.stills-item.is-empty {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 18px, rgba(194,52,88,0.06) 18px 36px),
+    linear-gradient(150deg, var(--surface-2), var(--gold));
 }
 
 /* ─── GALLERY (gold band) ────────────────────────────────────────── */
@@ -696,18 +761,24 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
 }
 
-/* ─── TEAM GRID (inside Um okkur) ────────────────────────────────── */
+/* ─── TEYMIÐ — H & G team section ────────────────────────────────── */
+.team {
+  position: relative;
+  background: var(--bg);
+  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
+  border-top: 3px solid var(--crimson);
+}
+.team-inner { max-width: var(--max-w); margin: 0 auto; }
 .team-grid {
-  max-width: var(--max-w);
-  margin: clamp(var(--sp-12), 5vw, var(--sp-20)) auto 0;
+  margin-top: var(--sp-12);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: clamp(var(--sp-5), 2.5vw, var(--sp-8));
+  /* Two directors — capped card width so 2-up doesn't balloon */
+  grid-template-columns: repeat(2, minmax(0, 420px));
+  gap: clamp(var(--sp-8), 4vw, var(--sp-12));
   align-items: start;   /* only the open card grows, siblings keep their height */
   text-align: left;
 }
-@media (max-width: 1100px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px)  { .team-grid { grid-template-columns: 1fr; gap: var(--sp-8); } }
+@media (max-width: 700px) { .team-grid { grid-template-columns: 1fr; max-width: 420px; } }
 /* Whole card is a cream sticker card */
 .director-card {
   display: flex;
@@ -810,7 +881,10 @@ html.lenis, html.lenis body { height: auto; }
   border-top: 3px solid var(--crimson);
 }
 .projects-inner { max-width: var(--max-w); margin: 0 auto; }
-/* Projects eyebrow reads as the big section heading (no pill) */
+/* Section eyebrows that read as the big section heading (no pill) */
+.team-inner > .section-eyebrow,
+.people-inner > .section-eyebrow,
+.contact-inner > .section-eyebrow,
 .projects-inner > .section-eyebrow {
   display: block;
   font-family: var(--font-serif);
@@ -846,116 +920,43 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--crimson);
 }
 
-/* ─── PROJECT POPUP ──────────────────────────────────────────────── */
-.project-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--sp-5);
-}
-.project-modal[hidden] { display: none; }
-.pm-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(62, 27, 42, 0.55);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-.pm-sheet {
+/* ─── FÓLKIÐ & HAFA SAMBAND — role/contact lists ─────────────────── */
+.people, .contact {
   position: relative;
-  width: min(720px, 100%);
-  max-height: min(86vh, 900px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  background: var(--bg);
+  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
+  border-top: 3px solid var(--crimson);
+}
+.people-inner, .contact-inner { max-width: 860px; margin: 0 auto; }
+/* Rows live on one cream sticker card */
+.crew-list {
   background: var(--surface);
   border: 4px solid var(--crimson);
-  border-radius: 26px;
+  border-radius: 24px;
   box-shadow: var(--sticker-lg);
-  padding: clamp(var(--sp-6), 4vw, var(--sp-10));
-  opacity: 0;
-  transform: translateY(24px) scale(0.98);
-  transition: opacity 0.45s var(--ease-soft), transform 0.45s var(--ease-pop);
+  padding: var(--sp-4) clamp(var(--sp-5), 3vw, var(--sp-8));
 }
-.project-modal.is-open .pm-scrim { opacity: 1; }
-.project-modal.is-open .pm-sheet { opacity: 1; transform: none; }
-.pm-close {
-  position: absolute;
-  top: var(--sp-4);
-  right: var(--sp-4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px; height: 48px;
-  border: 3px solid var(--crimson);
-  border-radius: 50%;
-  color: var(--crimson);
-  background: var(--gold);
-  transition: transform 0.3s var(--ease-pop), background 0.3s ease, color 0.3s ease;
-}
-.pm-close:hover { background: var(--crimson); color: var(--surface); transform: rotate(90deg); }
-.pm-close svg { width: 20px; height: 20px; }
-.pm-head {
-  display: flex;
-  align-items: center;
-  gap: clamp(var(--sp-5), 3vw, var(--sp-8));
-  margin-bottom: var(--sp-6);
-}
-.pm-poster {
-  width: clamp(96px, 18vw, 140px);
-  flex-shrink: 0;
-  box-shadow: var(--sticker);
-}
-.pm-poster .poster-title { font-size: 1rem; left: var(--sp-3); bottom: var(--sp-3); }
-.pm-title {
-  font-size: clamp(2.2rem, 6vw, 3.6rem);
-  margin: var(--sp-3) 0 0;
-}
-.pm-desc { margin-bottom: var(--sp-8); max-width: none; }
-.pm-details { margin-bottom: var(--sp-4); }
-.pm-subhead {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(1.5rem, 3.5vw, 2rem);
-  color: var(--crimson);
-  text-shadow: 2px 3px 0 var(--gold);
-  margin: var(--sp-8) 0 var(--sp-3);
-}
-.pm-crew, .pm-contact { display: flex; flex-direction: column; }
-.pm-crew-row {
+.crew-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sp-4);
   flex-wrap: wrap;
-  padding: var(--sp-3) 0;
+  padding: var(--sp-4) 0;
   border-bottom: 2px dashed rgba(194, 52, 88, 0.35);
 }
-.pm-crew-row:last-child { border-bottom: none; }
-.pm-crew-role {
+.crew-row:last-child { border-bottom: none; }
+.crew-role {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
-.pm-crew-name {
+.crew-name {
   font-weight: 600;
   color: var(--ink-soft);
   text-align: right;
-}
-/* Mobile: full-bleed bottom sheet */
-@media (max-width: 600px) {
-  .project-modal { padding: 0; align-items: flex-end; }
-  .pm-sheet {
-    width: 100%;
-    max-height: 92vh;
-    border-radius: 26px 26px 0 0;
-    border-bottom: none;
-    box-shadow: none;
-  }
 }
 
 /* ─── MUSIC (raspberry band) ─────────────────────────────────────── */
@@ -1095,6 +1096,10 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .film-inner { grid-template-columns: 1fr; gap: var(--sp-12); }
+  .film-poster-art { max-width: 300px; }
+}
 @media (max-width: 600px) {
   /* Only two links now — keep them visible on phones: drop the absolute
      centering so they flow to the right of the logo instead of overlapping. */

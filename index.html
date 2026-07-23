@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=38" />
+  <link rel="stylesheet" href="style.css?v=39" />
 </head>
 <body>
 
@@ -55,106 +55,65 @@
     <div class="hero-dots" id="heroDots" role="tablist" aria-label="Myndir"></div>
   </section>
 
-  <!-- ─── UM OKKUR — intro + team grid ────────────────────────────── -->
-  <!-- Team cards start collapsed (photo + name only). Clicking/tapping a
-       card expands its body to reveal role + bio — per the confirmed change
-       list ("Þegar ýtt er á manneskju þá kemur textinn með, annars ekki"). -->
+  <!-- ─── 2 · UM OKKUR — the studio ───────────────────────────────── -->
   <section class="duo" id="about">
     <div class="duo-inner">
       <p class="section-eyebrow" data-is="Um okkur" data-en="About Us">Um okkur</p>
-      <h2 class="duo-heading">Hanna &amp; Guðríður</h2>
+      <h2 class="duo-heading">Telpur Production</h2>
       <p class="duo-bio"
-        data-is="Hanna Álfheiður Gunnarsdóttir og Guðríður Jóhannsdóttir skrifa og leikstýra saman — og leika í verkum sínum sjálfar. Saman sækjast þær eftir sögum sem kanna samskipti, væntingar og valdahlutverk innan vinkonuhópa, með kímni sem afhjúpar það sem býr undir yfirborðinu — þar sem mörkin milli skáldskapar og raunveruleika verða óljós."
-        data-en="Hanna Álfheiður Gunnarsdóttir and Guðríður Jóhannsdóttir write and direct together — and act in their own work too. Together they're drawn to stories that explore communication, expectation, and power within friend groups, using humor to reveal what lies beneath the surface, where the line between fiction and reality quietly blurs."
-      >Hanna Álfheiður Gunnarsdóttir og Guðríður Jóhannsdóttir skrifa og leikstýra saman — og leika í verkum sínum sjálfar. Saman sækjast þær eftir sögum sem kanna samskipti, væntingar og valdahlutverk innan vinkonuhópa, með kímni sem afhjúpar það sem býr undir yfirborðinu — þar sem mörkin milli skáldskapar og raunveruleika verða óljós.</p>
-    </div>
-
-    <div class="team-grid" id="teamGrid">
-
-      <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
-        <div class="director-portrait has-photo" aria-label="Hanna Álfheiður Gunnarsdóttir">
-          <img class="dp-photo" src="hanna.jpg" alt="Hanna Álfheiður Gunnarsdóttir" loading="lazy" decoding="async" />
-        </div>
-        <h3 class="director-name">Hanna Álfheiður Gunnarsdóttir</h3>
-        <div class="team-card-body">
-          <div class="team-card-body-inner">
-            <p class="director-role" data-is="Leikstjóri & leikari" data-en="Director & Actor">Leikstjóri & leikari</p>
-            <p class="director-bio"
-              data-is="Hanna er annar tveggja höfunda og leikstjóra Telpurnar. Verkið kannar samskipti, væntingar og valdahlutverk innan vinkonuhópa — með kímni sem afhjúpar það sem býr undir yfirborðinu."
-              data-en="Hanna is one half of the writing-directing duo behind Telpurnar. The film explores communication, expectation, and power within friend groups — using humor to reveal what lies beneath the surface."
-            >Hanna er annar tveggja höfunda og leikstjóra Telpurnar. Verkið kannar samskipti, væntingar og valdahlutverk innan vinkonuhópa — með kímni sem afhjúpar það sem býr undir yfirborðinu.</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
-        <div class="director-portrait" aria-label="Guðríður Jóhannsdóttir">
-          <span class="dp-initial">G</span>
-        </div>
-        <h3 class="director-name">Guðríður Jóhannsdóttir</h3>
-        <div class="team-card-body">
-          <div class="team-card-body-inner">
-            <p class="director-role" data-is="Leikstjóri & leikari" data-en="Director & Actor">Leikstjóri & leikari</p>
-            <p class="director-bio"
-              data-is="Guðríður er annar tveggja höfunda og leikstjóra Telpurnar. Hún og Hanna sækjast eftir sögum sem brjóta niður mörkin milli skáldskapar og raunveruleika — skondnar, ófyrirsjáanlegar og óþægilega kunnuglegar."
-              data-en="Guðríður is the other half of the writing-directing duo behind Telpurnar. Together with Hanna, she's drawn to stories that blur fiction and reality — funny, unpredictable, and uncomfortably familiar."
-            >Guðríður er annar tveggja höfunda og leikstjóra Telpurnar. Hún og Hanna sækjast eftir sögum sem brjóta niður mörkin milli skáldskapar og raunveruleika — skondnar, ófyrirsjáanlegar og óþægilega kunnuglegar.</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
-        <div class="director-portrait" aria-label="Leikari — ekki staðfestur">
-          <span class="dp-initial">?</span>
-        </div>
-        <h3 class="director-name" data-is="[Ekki staðfest]" data-en="[TBD]">[Ekki staðfest]</h3>
-        <div class="team-card-body">
-          <div class="team-card-body-inner">
-            <p class="director-role" data-is="Leikari" data-en="Actor">Leikari</p>
-            <p class="director-bio" data-is="[Þriðji leikari — staðfestist síðar]" data-en="[Third cast member — TBD]">[Þriðji leikari — staðfestist síðar]</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
-        <div class="director-portrait has-photo" aria-label="Hrannar Þór">
-          <img class="dp-photo" src="hrannar.jpg" alt="Hrannar Þór" loading="lazy" decoding="async" />
-        </div>
-        <h3 class="director-name">Hrannar Þór</h3>
-        <div class="team-card-body">
-          <div class="team-card-body-inner">
-            <p class="director-role" data-is="Tónskáld" data-en="Composer">Tónskáld</p>
-            <p class="director-bio"
-              data-is="Hrannar Þór semur og framleiðir frumsamda tónlist Telpurnar — hljóðheim sem fylgir kvöldinu frá glettni yfir í undirliggjandi spennu."
-              data-en="Hrannar Þór composes and produces the original score for Telpurnar — a soundscape that follows the evening from playfulness into quiet, underlying tension."
-            >Hrannar Þór semur og framleiðir frumsamda tónlist Telpurnar — hljóðheim sem fylgir kvöldinu frá glettni yfir í undirliggjandi spennu.</p>
-          </div>
-        </div>
-      </article>
-
+        data-is="Telpur Production er sjálfstætt framleiðslufyrirtæki í Reykjavík, stofnað í kringum stuttmyndina Telpurnar. Við segjum sögur sem kanna samskipti, væntingar og valdahlutverk — með kímni sem afhjúpar það sem býr undir yfirborðinu, þar sem mörkin milli skáldskapar og raunveruleika verða óljós."
+        data-en="Telpur Production is an independent production company in Reykjavík, formed around the short film Telpurnar. We tell stories that explore communication, expectation, and power — using humor to reveal what lies beneath the surface, where the line between fiction and reality quietly blurs."
+      >Telpur Production er sjálfstætt framleiðslufyrirtæki í Reykjavík, stofnað í kringum stuttmyndina Telpurnar. Við segjum sögur sem kanna samskipti, væntingar og valdahlutverk — með kímni sem afhjúpar það sem býr undir yfirborðinu, þar sem mörkin milli skáldskapar og raunveruleika verða óljós.</p>
     </div>
   </section>
 
-  <!-- ─── VERKEFNI — projects grid ────────────────────────────────── -->
-  <!-- Each project card opens the shared project popup (#projectModal)
-       with film info, crew breakdown and contact details. -->
-  <section class="projects" id="projects">
-    <div class="projects-inner">
-      <p class="section-eyebrow" data-is="Verkefni" data-en="Projects">Verkefni</p>
+  <!-- ─── 3 · TEYMIÐ — Hanna & Guðríður ───────────────────────────── -->
+  <!-- Cards start collapsed (photo + name only). Clicking/tapping expands
+       to reveal role + bio — per the confirmed change list ("Þegar ýtt er
+       á manneskju þá kemur textinn með, annars ekki"). -->
+  <section class="team" id="team">
+    <div class="team-inner">
+      <p class="section-eyebrow" data-is="Teymið" data-en="The Team">Teymið</p>
 
-      <div class="projects-grid">
-        <button class="project-card" id="projectTelpurnar" aria-haspopup="dialog" aria-controls="projectModal">
-          <div class="film-poster-art is-empty">
-            <div class="poster-veil"></div>
-            <span class="poster-title">Telpurnar</span>
+      <div class="team-grid" id="teamGrid">
+
+        <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
+          <div class="director-portrait has-photo" aria-label="Hanna Álfheiður Gunnarsdóttir">
+            <img class="dp-photo" src="hanna.jpg" alt="Hanna Álfheiður Gunnarsdóttir" loading="lazy" decoding="async" />
           </div>
-          <span class="project-sub" data-is="Stuttmynd · 2026 · Sjá nánar" data-en="Short film · 2026 · See more">Stuttmynd · 2026 · Sjá nánar</span>
-        </button>
+          <h3 class="director-name">Hanna Álfheiður Gunnarsdóttir</h3>
+          <div class="team-card-body">
+            <div class="team-card-body-inner">
+              <p class="director-role" data-is="Leikstjóri & leikari" data-en="Director & Actor">Leikstjóri & leikari</p>
+              <p class="director-bio"
+                data-is="Hanna er annar tveggja höfunda og leikstjóra Telpurnar. Verkið kannar samskipti, væntingar og valdahlutverk innan vinkonuhópa — með kímni sem afhjúpar það sem býr undir yfirborðinu."
+                data-en="Hanna is one half of the writing-directing duo behind Telpurnar. The film explores communication, expectation, and power within friend groups — using humor to reveal what lies beneath the surface."
+              >Hanna er annar tveggja höfunda og leikstjóra Telpurnar. Verkið kannar samskipti, væntingar og valdahlutverk innan vinkonuhópa — með kímni sem afhjúpar það sem býr undir yfirborðinu.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
+          <div class="director-portrait" aria-label="Guðríður Jóhannsdóttir">
+            <span class="dp-initial">G</span>
+          </div>
+          <h3 class="director-name">Guðríður Jóhannsdóttir</h3>
+          <div class="team-card-body">
+            <div class="team-card-body-inner">
+              <p class="director-role" data-is="Leikstjóri & leikari" data-en="Director & Actor">Leikstjóri & leikari</p>
+              <p class="director-bio"
+                data-is="Guðríður er annar tveggja höfunda og leikstjóra Telpurnar. Hún og Hanna sækjast eftir sögum sem brjóta niður mörkin milli skáldskapar og raunveruleika — skondnar, ófyrirsjáanlegar og óþægilega kunnuglegar."
+                data-en="Guðríður is the other half of the writing-directing duo behind Telpurnar. Together with Hanna, she's drawn to stories that blur fiction and reality — funny, unpredictable, and uncomfortably familiar."
+              >Guðríður er annar tveggja höfunda og leikstjóra Telpurnar. Hún og Hanna sækjast eftir sögum sem brjóta niður mörkin milli skáldskapar og raunveruleika — skondnar, ófyrirsjáanlegar og óþægilega kunnuglegar.</p>
+            </div>
+          </div>
+        </article>
+
       </div>
     </div>
   </section>
 
-  <!-- ─── GALLERY ──────────────────────────────────────────────────── -->
+  <!-- ─── 3b · FRAMLEIÐSLUMYNDIR — BTS gallery (belongs to Teymið) ─── -->
   <!-- Scroll-jack: on desktop the .gallery-sticky viewport sticks for the
        height of .gallery-pin while JS translates the row sideways. Driven by
        getBoundingClientRect (live layout) so it's immune to font reflow /
@@ -210,6 +169,109 @@
     </div>
   </section>
 
+  <!-- ─── 4 · VERKEFNI — all projects ─────────────────────────────── -->
+  <!-- Project cards are anchors down to the film section on this same
+       page (wireframe: one long scrolling page, no popups). -->
+  <section class="projects" id="projects">
+    <div class="projects-inner">
+      <p class="section-eyebrow" data-is="Verkefni" data-en="Projects">Verkefni</p>
+
+      <div class="projects-grid">
+        <a class="project-card" href="#telpurnar">
+          <div class="film-poster-art is-empty">
+            <div class="poster-veil"></div>
+            <span class="poster-title">Telpurnar</span>
+          </div>
+          <span class="project-sub" data-is="Stuttmynd · 2026 · Sjá nánar" data-en="Short film · 2026 · See more">Stuttmynd · 2026 · Sjá nánar</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 5 · TELPURNAR — the film ────────────────────────────────── -->
+  <section class="film" id="telpurnar">
+    <div class="film-inner">
+
+      <div class="film-poster-wrap">
+        <div class="film-poster">
+          <div class="film-poster-art is-empty">
+            <!-- Poster art awaiting short-film image; restore with:
+                 <div class="film-poster-img" style="background-image:url('IMG_URL')"></div> -->
+            <div class="poster-veil"></div>
+            <span class="poster-title">Telpurnar</span>
+          </div>
+          <p class="poster-caption" data-is="Kvikmyndaplakat · 2026" data-en="Film poster · 2026">Kvikmyndaplakat · 2026</p>
+        </div>
+      </div>
+
+      <div class="film-info">
+        <p class="section-eyebrow" data-is="Myndin" data-en="The Film">Myndin</p>
+        <h2 class="film-heading">Telpurnar</h2>
+        <p class="film-description"
+          data-is="Þrjár vinkonur hittast eina kvöldstund. Á yfirborðinu er allt í himnalagi — en hver þeirra á sinn djöful að draga, og þegar líður á kvöldið koma þeir sífellt betur í ljós. Telpurnar er eftir Hönnu Álfheiði Gunnarsdóttur og Guðríði Jóhannsdóttur: fyndin en gagnrýnin sýn á vinkonuhópa, væntingar og valdahlutverk — þar sem mörkin milli skáldskapar og raunveruleika verða óljós."
+          data-en="Three friends meet for an evening. On the surface, everything seems fine — but each of them carries her own hidden struggle, and as the night wears on, those struggles come further into the light. Telpurnar (The Girls) is written and directed by Hanna Álfheiður Gunnarsdóttur and Guðríður Jóhannsdóttir: a comedic yet critical look at friendship, expectation, and power within groups of women, where the line between fiction and reality quietly blurs."
+        >Þrjár vinkonur hittast eina kvöldstund. Á yfirborðinu er allt í himnalagi — en hver þeirra á sinn djöful að draga, og þegar líður á kvöldið koma þeir sífellt betur í ljós. Telpurnar er eftir Hönnu Álfheiði Gunnarsdóttur og Guðríði Jóhannsdóttur: fyndin en gagnrýnin sýn á vinkonuhópa, væntingar og valdahlutverk — þar sem mörkin milli skáldskapar og raunveruleika verða óljós.</p>
+
+        <div class="film-details">
+          <div class="film-detail">
+            <span class="detail-label" data-is="Sýnt í" data-en="Screened at">Sýnt í</span>
+            <span class="detail-value">Bíó Paradís, Reykjavík</span>
+          </div>
+          <div class="film-detail">
+            <span class="detail-label" data-is="Sýnt" data-en="Screening">Sýnt</span>
+            <span class="detail-value" data-is="13. og 14. ágúst" data-en="August 13 &amp; 14">13. og 14. ágúst</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Stillur úr myndinni — film stills swipe row (awaiting imagery).
+         Restore by adding a background image to each .stills-item:
+         <div class="stills-item" style="background-image:url('IMG_URL')"> -->
+    <div class="stills">
+      <h3 class="stills-heading" data-is="Stillur úr myndinni" data-en="Stills from the film">Stillur úr myndinni</h3>
+      <!-- data-lenis-prevent: without it Lenis captures vertical wheel over
+           this horizontal scroller and page scrolling stalls -->
+      <div class="stills-row" data-lenis-prevent>
+        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">01</span></div>
+        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">02</span></div>
+        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">03</span></div>
+        <div class="stills-item is-empty"><span class="still-num" aria-hidden="true">04</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 6 · FÓLKIÐ — full cast & crew by role ───────────────────── -->
+  <section class="people" id="people">
+    <div class="people-inner">
+      <p class="section-eyebrow" data-is="Fólkið" data-en="The People">Fólkið</p>
+
+      <ul class="crew-list" role="list">
+        <li class="crew-row">
+          <span class="crew-role" data-is="Handrit & leikstjórn" data-en="Written & directed by">Handrit & leikstjórn</span>
+          <span class="crew-name">Hanna Álfheiður Gunnarsdóttir &amp; Guðríður Jóhannsdóttir</span>
+        </li>
+        <li class="crew-row">
+          <span class="crew-role" data-is="Leikur" data-en="Cast">Leikur</span>
+          <span class="crew-name" data-is="Hanna, Guðríður & [ekki staðfest]" data-en="Hanna, Guðríður & [TBD]">Hanna, Guðríður & [ekki staðfest]</span>
+        </li>
+        <li class="crew-row">
+          <span class="crew-role" data-is="Tónlist" data-en="Music">Tónlist</span>
+          <span class="crew-name">Hrannar Þór</span>
+        </li>
+        <li class="crew-row">
+          <span class="crew-role" data-is="Upptaka" data-en="Recording">Upptaka</span>
+          <span class="crew-name">Tómas Marshall</span>
+        </li>
+        <li class="crew-row">
+          <span class="crew-role" data-is="Vefsíða" data-en="Website">Vefsíða</span>
+          <span class="crew-name">Hilmir Karlsson</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
   <!-- ─── ORIGINAL SCORE ─────────────────────────────────────────── -->
   <section class="music" id="music">
     <div class="music-inner">
@@ -251,6 +313,30 @@
     </div>
   </section>
 
+  <!-- ─── 7 · HAFA SAMBAND — everyone's contact info ──────────────── -->
+  <!-- Placeholder values — swap [netfang] for real addresses when
+       Hanna/Hrannar send them. -->
+  <section class="contact" id="contact">
+    <div class="contact-inner">
+      <p class="section-eyebrow" data-is="Hafa samband" data-en="Get in Touch">Hafa samband</p>
+
+      <ul class="crew-list" role="list">
+        <li class="crew-row">
+          <span class="crew-role">Hanna Álfheiður</span>
+          <span class="crew-name" data-is="[netfang]" data-en="[email]">[netfang]</span>
+        </li>
+        <li class="crew-row">
+          <span class="crew-role">Guðríður</span>
+          <span class="crew-name" data-is="[netfang]" data-en="[email]">[netfang]</span>
+        </li>
+        <li class="crew-row">
+          <span class="crew-role">Hrannar Þór</span>
+          <span class="crew-name" data-is="[netfang]" data-en="[email]">[netfang]</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
   <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="footer-inner">
@@ -261,96 +347,12 @@
     </div>
   </footer>
 
-  <!-- ─── PROJECT POPUP (Telpurnar) ──────────────────────────────── -->
-  <!-- Opened by the Verkefni project cards. data-lenis-prevent keeps the
-       sheet's own scrolling out of Lenis' hands while the page is locked. -->
-  <div class="project-modal" id="projectModal" role="dialog" aria-modal="true" aria-labelledby="pmTitle" hidden>
-    <div class="pm-scrim" data-close aria-hidden="true"></div>
-    <div class="pm-sheet" data-lenis-prevent>
-      <button class="pm-close" data-close aria-label="Loka">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-          <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>
-        </svg>
-      </button>
-
-      <div class="pm-head">
-        <div class="film-poster-art is-empty pm-poster">
-          <div class="poster-veil"></div>
-          <span class="poster-title">Telpurnar</span>
-        </div>
-        <div class="pm-head-text">
-          <p class="section-eyebrow" data-is="Stuttmynd · 2026" data-en="Short film · 2026">Stuttmynd · 2026</p>
-          <h2 class="film-heading pm-title" id="pmTitle">Telpurnar</h2>
-        </div>
-      </div>
-
-      <p class="film-description pm-desc"
-        data-is="Þrjár vinkonur hittast eina kvöldstund. Á yfirborðinu er allt í himnalagi — en hver þeirra á sinn djöful að draga, og þegar líður á kvöldið koma þeir sífellt betur í ljós. Telpurnar er eftir Hönnu Álfheiði Gunnarsdóttur og Guðríði Jóhannsdóttur: fyndin en gagnrýnin sýn á vinkonuhópa, væntingar og valdahlutverk — þar sem mörkin milli skáldskapar og raunveruleika verða óljós."
-        data-en="Three friends meet for an evening. On the surface, everything seems fine — but each of them carries her own hidden struggle, and as the night wears on, those struggles come further into the light. Telpurnar (The Girls) is written and directed by Hanna Álfheiður Gunnarsdóttur and Guðríður Jóhannsdóttir: a comedic yet critical look at friendship, expectation, and power within groups of women, where the line between fiction and reality quietly blurs."
-      >Þrjár vinkonur hittast eina kvöldstund. Á yfirborðinu er allt í himnalagi — en hver þeirra á sinn djöful að draga, og þegar líður á kvöldið koma þeir sífellt betur í ljós. Telpurnar er eftir Hönnu Álfheiði Gunnarsdóttur og Guðríði Jóhannsdóttur: fyndin en gagnrýnin sýn á vinkonuhópa, væntingar og valdahlutverk — þar sem mörkin milli skáldskapar og raunveruleika verða óljós.</p>
-
-      <div class="film-details pm-details">
-        <div class="film-detail">
-          <span class="detail-label" data-is="Sýnt í" data-en="Screened at">Sýnt í</span>
-          <span class="detail-value">Bíó Paradís, Reykjavík</span>
-        </div>
-        <div class="film-detail">
-          <span class="detail-label" data-is="Sýnt" data-en="Screening">Sýnt</span>
-          <span class="detail-value" data-is="13. og 14. ágúst" data-en="August 13 &amp; 14">13. og 14. ágúst</span>
-        </div>
-      </div>
-
-      <h3 class="pm-subhead" data-is="Hver gerði hvað" data-en="Who did what">Hver gerði hvað</h3>
-      <ul class="pm-crew" role="list">
-        <li class="pm-crew-row">
-          <span class="pm-crew-role" data-is="Handrit & leikstjórn" data-en="Written & directed by">Handrit & leikstjórn</span>
-          <span class="pm-crew-name">Hanna Álfheiður Gunnarsdóttir &amp; Guðríður Jóhannsdóttir</span>
-        </li>
-        <li class="pm-crew-row">
-          <span class="pm-crew-role" data-is="Leikur" data-en="Cast">Leikur</span>
-          <span class="pm-crew-name" data-is="Hanna, Guðríður & [ekki staðfest]" data-en="Hanna, Guðríður & [TBD]">Hanna, Guðríður & [ekki staðfest]</span>
-        </li>
-        <li class="pm-crew-row">
-          <span class="pm-crew-role" data-is="Tónlist" data-en="Music">Tónlist</span>
-          <span class="pm-crew-name">Hrannar Þór</span>
-        </li>
-        <li class="pm-crew-row">
-          <span class="pm-crew-role" data-is="Upptaka" data-en="Recording">Upptaka</span>
-          <span class="pm-crew-name">Tómas Marshall</span>
-        </li>
-        <li class="pm-crew-row">
-          <span class="pm-crew-role" data-is="Vefsíða" data-en="Website">Vefsíða</span>
-          <span class="pm-crew-name">Hilmir Karlsson</span>
-        </li>
-      </ul>
-
-      <h3 class="pm-subhead" data-is="Hafa samband" data-en="Get in touch">Hafa samband</h3>
-      <!-- Contact placeholders — swap [netfang] for real addresses when
-           Hanna/Hrannar send them. -->
-      <ul class="pm-contact" role="list">
-        <li class="pm-crew-row">
-          <span class="pm-crew-role">Hanna Álfheiður</span>
-          <span class="pm-crew-name" data-is="[netfang]" data-en="[email]">[netfang]</span>
-        </li>
-        <li class="pm-crew-row">
-          <span class="pm-crew-role">Guðríður</span>
-          <span class="pm-crew-name" data-is="[netfang]" data-en="[email]">[netfang]</span>
-        </li>
-        <li class="pm-crew-row">
-          <span class="pm-crew-role">Hrannar Þór</span>
-          <span class="pm-crew-name" data-is="[netfang]" data-en="[email]">[netfang]</span>
-        </li>
-      </ul>
-
-    </div>
-  </div>
-
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
   <!-- Lenis (smooth scroll) + GSAP ScrollTrigger (pinned horizontal stills) -->
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js?v=38" defer></script>
+  <script src="script.js?v=39" defer></script>
 
 </body>
 </html>
