@@ -527,17 +527,91 @@ window.setTimeout(() => {
 (function initTeamCards() {
   const cards = Array.from(document.querySelectorAll('.team-card'));
   if (!cards.length) return;
-  // Container gets .has-open so the unopened card + the Um okkur copy can
-  // recede, which is what makes the open card read as "the front".
   const layout = document.getElementById('teamGrid');
-  function toggle(card) {
-    const open = !card.classList.contains('is-open');
-    cards.forEach(c => {
-      c.classList.toggle('is-open', c === card && open);
-      c.setAttribute('aria-expanded', String(c === card && open));
-    });
-    if (layout) layout.classList.toggle('has-open', open);
+  const backdrop = document.createElement('div');
+  backdrop.className = 'team-card-backdrop';
+  backdrop.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(backdrop);
+
+  let activeCard = null;
+  let originRect = null;
+  let placeholder = null;
+
+  function closeCard(animate = true) {
+    if (!activeCard) return;
+    const card = activeCard;
+    const current = card.getBoundingClientRect();
+    const target = originRect;
+
+    const finish = () => {
+      card.classList.remove('is-open', 'is-featured');
+      card.setAttribute('aria-expanded', 'false');
+      placeholder?.remove();
+      placeholder = null;
+      layout?.classList.remove('has-open');
+      backdrop.classList.remove('is-visible');
+      document.body.classList.remove('team-card-open');
+      activeCard = null;
+      originRect = null;
+      card.focus({ preventScroll: true });
+    };
+
+    if (!animate || REDUCE || !target || !card.animate) {
+      finish();
+      return;
+    }
+
+    const dx = target.left - current.left;
+    const dy = target.top - current.top;
+    const scale = target.width / current.width;
+    const closing = card.animate([
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0.92 }
+    ], { duration: 460, easing: 'cubic-bezier(.22,1,.36,1)' });
+    closing.finished.then(finish).catch(finish);
   }
+
+  function openCard(card) {
+    originRect = card.getBoundingClientRect();
+    placeholder = document.createElement('div');
+    placeholder.className = 'team-card-placeholder';
+    placeholder.style.height = `${originRect.height}px`;
+    card.before(placeholder);
+    cards.forEach(c => {
+      c.classList.toggle('is-open', c === card);
+      c.classList.toggle('is-featured', c === card);
+      c.setAttribute('aria-expanded', String(c === card));
+    });
+    activeCard = card;
+    layout?.classList.add('has-open');
+    backdrop.classList.add('is-visible');
+    document.body.classList.add('team-card-open');
+
+    if (REDUCE || !card.animate) return;
+    requestAnimationFrame(() => {
+      const target = card.getBoundingClientRect();
+      const dx = originRect.left - target.left;
+      const dy = originRect.top - target.top;
+      const scale = originRect.width / target.width;
+      card.animate([
+        { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0.9 },
+        { transform: 'translate(0, 0) scale(1)', opacity: 1 }
+      ], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)' });
+    });
+  }
+
+  function toggle(card) {
+    if (card === activeCard) closeCard();
+    else {
+      if (activeCard) closeCard(false);
+      openCard(card);
+    }
+  }
+
+  backdrop.addEventListener('click', () => closeCard());
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && activeCard) closeCard();
+  });
   cards.forEach(card => {
     card.addEventListener('click', () => toggle(card));
     card.addEventListener('keydown', e => {

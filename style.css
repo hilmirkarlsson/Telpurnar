@@ -938,6 +938,59 @@ html.lenis, html.lenis body { height: auto; }
 /* Beats .director-card:hover (0,2,0) so hover can't cancel the lift */
 .team-card.is-open:hover { transform: scale(1.06) translateY(-11px); }
 
+/* The selected director becomes a centred feature card. `translate` handles
+   centring independently, leaving `transform` free for the FLIP animation
+   that carries the card from its grid position into the foreground. */
+.team-card.is-featured {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 1001;
+  width: min(860px, calc(100vw - 48px));
+  max-height: calc(100dvh - 48px);
+  display: grid;
+  grid-template-columns: minmax(260px, 46%) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  overflow-y: auto;
+  transform: none;
+  box-shadow: 18px 22px 0 var(--crimson);
+}
+.team-card.is-open.is-featured:hover { transform: none; }
+.team-card.is-featured .director-portrait {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  height: 100%;
+  min-height: 520px;
+  aspect-ratio: auto;
+  border-right: 4px solid var(--crimson);
+  border-bottom: 0;
+}
+.team-card.is-featured .director-name,
+.team-card.is-featured .team-card-body { grid-column: 2; }
+.team-card.is-featured .director-name {
+  align-self: end;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  padding-top: var(--sp-8);
+}
+.team-card-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(62, 27, 42, 0.58);
+  opacity: 0;
+  visibility: hidden;
+  backdrop-filter: blur(7px);
+  transition: opacity 0.45s var(--ease-soft), visibility 0.45s;
+}
+.team-card-backdrop.is-visible { opacity: 1; visibility: visible; }
+body.team-card-open { overflow: hidden; }
+.team-card-placeholder {
+  width: 100%;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* …and everything else recedes so "front" actually reads as front */
 .duo-layout.has-open .team-card:not(.is-open) {
   opacity: 0.5;
@@ -1010,6 +1063,29 @@ html.lenis, html.lenis body { height: auto; }
 /* Crimson on gold once the disc has landed — matches the gallery eyebrows */
 .team-card.is-open .director-role { color: var(--crimson); }
 .team-card .director-role { padding-top: 0; }
+
+@media (max-width: 700px) {
+  .team-card.is-featured {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    transform: none;
+    box-shadow: 9px 11px 0 var(--crimson);
+  }
+  .team-card.is-open.is-featured:hover { transform: none; }
+  .team-card.is-featured .director-portrait {
+    grid-column: 1;
+    grid-row: 1;
+    height: min(42dvh, 340px);
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 4px solid var(--crimson);
+  }
+  .team-card.is-featured .director-name,
+  .team-card.is-featured .team-card-body { grid-column: 1; }
+  .team-card.is-featured .director-name { padding-top: var(--sp-5); }
+}
 
 /* ─── VERKEFNI — projects grid ───────────────────────────────────── */
 .projects {
