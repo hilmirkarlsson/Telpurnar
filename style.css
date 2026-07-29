@@ -688,7 +688,7 @@ html.lenis, html.lenis body { height: auto; }
   transition: width 0.1s linear;
 }
 
-/* Desktop scroll-jack: the sticky viewport holds for the height of
+/* Scroll-jack: the sticky viewport holds for the height of
    .gallery-pin (set by JS) while JS translates .gallery-track sideways.
    Pure CSS sticky + live getBoundingClientRect math — no ScrollTrigger,
    so it can't desync with the smooth-scroll or mis-measure under late fonts. */
@@ -721,34 +721,40 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-hint { display: none; }     /* swipe hint is phone-only */
 }
 
-/* ─── GALLERY on phones — a real swipeable filmstrip ──────────────── */
-/* No scroll-jack here (it fights touch scrolling), so the row is a native
-   snap-scroller you can swipe, plus working arrows and a live progress
-   bar. Frames are sized so the next photo always peeks in — that peek is
-   what tells you there's more to scroll. */
+/* ─── GALLERY on phones — vertical scroll drives oversized stills ─── */
 @media (max-width: 767px) {
-  .gallery { padding: var(--sp-14) 0; }
-  .gallery-item { flex: 0 0 min(84vw, 460px); }
+  .gallery { padding: 0; }
+  .gallery-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    justify-content: center;
+    overflow: hidden;
+    padding: var(--sp-6) 0;
+  }
+  /* Each frame is wider than the phone so the viewport crops into the image
+     while vertical scrolling carries the complete filmstrip past it. */
+  .gallery-item { flex: 0 0 min(150vw, 780px); }
   .gallery-still {
-    aspect-ratio: 4/3;   /* taller frame = bigger photo on a narrow screen */
+    width: 100%;
+    height: min(68svh, 620px);
+    aspect-ratio: auto;
     border-width: 3px;
     border-radius: 16px;
   }
   .gallery-track {
-    scroll-padding-left: var(--pad-x);   /* snap lands flush with the edge */
-    padding-bottom: var(--sp-4);
-  }
-  /* Trailing breathing room so the last photo can sit fully on screen */
-  .gallery-track::after {
-    content: '';
-    flex: 0 0 calc(var(--pad-x) / 2);
+    overflow: visible;
+    scroll-snap-type: none;
+    align-items: center;
+    will-change: transform;
+    padding: 0 calc(var(--gallery-gap) * 2) 0 var(--pad-x);
   }
   .gallery-header {
     align-items: center;
     gap: var(--sp-4);
     margin-bottom: var(--sp-6);
   }
-  .gallery-arrow { width: 46px; height: 46px; border-width: 2px; }
+  .gallery-arrows { display: none; }
   .gallery-hint { display: block; }
 }
 
@@ -1209,4 +1215,16 @@ html.lenis, html.lenis body { height: auto; }
   }
   .hero-slide { transition: opacity 0.3s ease; clip-path: none; filter: none; }
   .hero-slide.is-active .hero-slide-img { animation: none; transform: scale(1.02); }
+  /* The scroll-driven transform is intentionally disabled in reduced-motion
+     mode, so keep every still reachable with a conventional swipe row. */
+  .gallery { padding: var(--sp-14) 0; }
+  .gallery-pin { height: auto !important; }
+  .gallery-sticky { position: static; height: auto; overflow: visible; }
+  .gallery-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    transform: none !important;
+  }
+  .gallery-item { flex: 0 0 min(84vw, 460px); scroll-snap-align: start; }
+  .gallery-still { width: 100%; height: auto; aspect-ratio: 4/3; }
 }

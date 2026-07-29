@@ -98,7 +98,6 @@ Lang.apply('is');
    so both bands get exactly the same scroll experience. */
 (function initStillsScroll() {
   if (REDUCE) return;
-  const mq = window.matchMedia('(min-width: 768px)');
   const jacks = [];
 
   document.querySelectorAll('.gallery').forEach(section => {
@@ -108,15 +107,9 @@ Lang.apply('is');
     const fill = section.querySelector('.gallery-progress-fill');
     if (!pin || !sticky || !track) return;
 
-    let travel = 0, active = false;
+    let travel = 0;
 
     function measure() {
-      active = mq.matches;
-      if (!active) {                    // mobile → native swipe row; clear jack
-        pin.style.height = '';
-        track.style.transform = '';
-        return;
-      }
       // How far the row must slide so its right edge reaches the viewport.
       travel = Math.max(0, track.scrollWidth - sticky.clientWidth);
       // Tall pin = one viewport of scroll (to reach/leave the sticky) + the
@@ -125,7 +118,6 @@ Lang.apply('is');
       apply();
     }
     function apply() {
-      if (!active) return;
       // While the sticky viewport is engaged, the pin's top edge travels from
       // 0 down to -travel. Normalise that into 0→1 progress.
       const rectTop = pin.getBoundingClientRect().top;
