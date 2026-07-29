@@ -563,11 +563,12 @@ window.setTimeout(() => {
 
     const dx = target.left - current.left;
     const dy = target.top - current.top;
-    const scale = target.width / current.width;
+    const scaleX = target.width / current.width;
+    const scaleY = target.height / current.height;
     const closing = card.animate([
-      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-      { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0.92 }
-    ], { duration: 460, easing: 'cubic-bezier(.22,1,.36,1)' });
+      { transform: 'translate(0, 0) scale(1, 1)', opacity: 1 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`, opacity: 0.92 }
+    ], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)' });
     closing.finished.then(finish).catch(finish);
   }
 
@@ -592,11 +593,12 @@ window.setTimeout(() => {
       const target = card.getBoundingClientRect();
       const dx = originRect.left - target.left;
       const dy = originRect.top - target.top;
-      const scale = originRect.width / target.width;
+      const scaleX = originRect.width / target.width;
+      const scaleY = originRect.height / target.height;
       card.animate([
-        { transform: `translate(${dx}px, ${dy}px) scale(${scale})`, opacity: 0.9 },
-        { transform: 'translate(0, 0) scale(1)', opacity: 1 }
-      ], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)' });
+        { transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`, opacity: 0.9 },
+        { transform: 'translate(0, 0) scale(1, 1)', opacity: 1 }
+      ], { duration: 780, easing: 'cubic-bezier(.16,1,.3,1)' });
     });
   }
 

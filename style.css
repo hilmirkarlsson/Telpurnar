@@ -868,7 +868,10 @@ html.lenis, html.lenis body { height: auto; }
   border-radius: 24px;
   overflow: hidden;
   box-shadow: var(--sticker-lg);
-  transition: transform 0.4s var(--ease-pop), box-shadow 0.4s var(--ease-pop);
+  transition:
+    transform 0.4s var(--ease-pop),
+    box-shadow 0.4s var(--ease-pop),
+    background-color 0.55s ease 0.18s;
 }
 .director-card:hover { transform: translate(-3px,-4px); box-shadow: 11px 13px 0 var(--crimson); }
 .director-portrait {
@@ -948,12 +951,15 @@ html.lenis, html.lenis body { height: auto; }
   translate: -50% -50%;
   z-index: 1001;
   width: min(860px, calc(100vw - 48px));
+  height: min(720px, calc(100dvh - 48px));
   max-height: calc(100dvh - 48px);
   display: grid;
   grid-template-columns: minmax(260px, 46%) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   overflow-y: auto;
   transform: none;
+  transform-origin: top left;
+  background: var(--gold);
   box-shadow: 18px 22px 0 var(--crimson);
 }
 .team-card.is-open.is-featured:hover { transform: none; }
@@ -981,7 +987,7 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 0;
   visibility: hidden;
   backdrop-filter: blur(7px);
-  transition: opacity 0.45s var(--ease-soft), visibility 0.45s;
+  transition: opacity 0.6s var(--ease-soft), visibility 0.6s;
 }
 .team-card-backdrop.is-visible { opacity: 1; visibility: visible; }
 body.team-card-open { overflow: hidden; }
@@ -1049,7 +1055,7 @@ body.team-card-open { overflow: hidden; }
   z-index: -1;
   pointer-events: none;
 }
-.team-card.is-open .team-card-body-inner::before { transform: scale(38); }
+.team-card.is-open .team-card-body-inner::before { transform: scale(72); }
 
 /* Role + bio ride in just behind the circle's leading edge */
 .team-card .director-role,
@@ -1067,6 +1073,7 @@ body.team-card-open { overflow: hidden; }
 @media (max-width: 700px) {
   .team-card.is-featured {
     width: calc(100vw - 24px);
+    height: min(760px, calc(100dvh - 24px));
     max-height: calc(100dvh - 24px);
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
