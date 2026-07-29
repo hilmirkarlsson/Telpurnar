@@ -55,28 +55,15 @@
     <div class="hero-dots" id="heroDots" role="tablist" aria-label="Myndir"></div>
   </section>
 
-  <!-- ─── 2 · UM OKKUR — the studio ───────────────────────────────── -->
+  <!-- ─── 2 · UM OKKUR + TEYMIÐ — studio intro flanked by its two directors ─ -->
+  <!-- The two director cards sit on either side of the Um okkur copy.
+       Cards start collapsed (photo + name); clicking/tapping expands to
+       reveal role + bio ("Þegar ýtt er á manneskju þá kemur textinn með"). -->
   <section class="duo" id="about">
     <div class="duo-inner">
-      <p class="section-eyebrow" data-is="Um okkur" data-en="About Us">Um okkur</p>
-      <h2 class="duo-heading">Telpur Production</h2>
-      <p class="duo-bio"
-        data-is="Telpur Production er sjálfstætt framleiðslufyrirtæki í Reykjavík, stofnað í kringum stuttmyndina Telpurnar. Við segjum sögur sem kanna samskipti, væntingar og valdahlutverk — með kímni sem afhjúpar það sem býr undir yfirborðinu, þar sem mörkin milli skáldskapar og raunveruleika verða óljós."
-        data-en="Telpur Production is an independent production company in Reykjavík, formed around the short film Telpurnar. We tell stories that explore communication, expectation, and power — using humor to reveal what lies beneath the surface, where the line between fiction and reality quietly blurs."
-      >Telpur Production er sjálfstætt framleiðslufyrirtæki í Reykjavík, stofnað í kringum stuttmyndina Telpurnar. Við segjum sögur sem kanna samskipti, væntingar og valdahlutverk — með kímni sem afhjúpar það sem býr undir yfirborðinu, þar sem mörkin milli skáldskapar og raunveruleika verða óljós.</p>
-    </div>
-  </section>
+      <div class="duo-layout" id="teamGrid">
 
-  <!-- ─── 3 · TEYMIÐ — Hanna & Guðríður ───────────────────────────── -->
-  <!-- Cards start collapsed (photo + name only). Clicking/tapping expands
-       to reveal role + bio — per the confirmed change list ("Þegar ýtt er
-       á manneskju þá kemur textinn með, annars ekki"). -->
-  <section class="team" id="team">
-    <div class="team-inner">
-      <p class="section-eyebrow" data-is="Teymið" data-en="The Team">Teymið</p>
-
-      <div class="team-grid" id="teamGrid">
-
+        <!-- Hanna — left -->
         <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
           <div class="director-portrait has-photo" aria-label="Hanna Álfheiður Gunnarsdóttir">
             <img class="dp-photo" src="hanna.jpg" alt="Hanna Álfheiður Gunnarsdóttir" loading="lazy" decoding="async" />
@@ -93,6 +80,17 @@
           </div>
         </article>
 
+        <!-- Um okkur copy — centre -->
+        <div class="duo-copy">
+          <p class="section-eyebrow" data-is="Um okkur" data-en="About Us">Um okkur</p>
+          <h2 class="duo-heading">Telpur Production</h2>
+          <p class="duo-bio"
+            data-is="Telpur Production er sjálfstætt framleiðslufyrirtæki í Reykjavík, stofnað í kringum stuttmyndina Telpurnar. Við segjum sögur sem kanna samskipti, væntingar og valdahlutverk — með kímni sem afhjúpar það sem býr undir yfirborðinu, þar sem mörkin milli skáldskapar og raunveruleika verða óljós."
+            data-en="Telpur Production is an independent production company in Reykjavík, formed around the short film Telpurnar. We tell stories that explore communication, expectation, and power — using humor to reveal what lies beneath the surface, where the line between fiction and reality quietly blurs."
+          >Telpur Production er sjálfstætt framleiðslufyrirtæki í Reykjavík, stofnað í kringum stuttmyndina Telpurnar. Við segjum sögur sem kanna samskipti, væntingar og valdahlutverk — með kímni sem afhjúpar það sem býr undir yfirborðinu, þar sem mörkin milli skáldskapar og raunveruleika verða óljós.</p>
+        </div>
+
+        <!-- Guðríður — right -->
         <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
           <div class="director-portrait" aria-label="Guðríður Jóhannsdóttir">
             <span class="dp-initial">G</span>
@@ -139,24 +137,25 @@
           </div>
         </div>
 
-        <!-- Stills emptied — AWAITING SHORT-FILM IMAGERY.
-             Restore by adding the background image back to each .gallery-still:
-             <div class="gallery-still" style="background-image:url('IMG_URL')"> ... -->
+        <!-- Behind-the-scenes photos from the Telpurnar shoot (added 2026-07-29). -->
         <div class="gallery-track">
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">01</span></div>
+            <div class="gallery-still" style="background-image:url('bts-01.jpg')" role="img" aria-label="Tökulið að störfum í eldhúsi — leikkona og myndatökumaður"><span class="still-num" aria-hidden="true">01</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">02</span></div>
+            <div class="gallery-still" style="background-image:url('bts-02.jpg')" role="img" aria-label="Leikstjóri les handrit með hljóðmanni og myndatökumanni"><span class="still-num" aria-hidden="true">02</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">03</span></div>
+            <div class="gallery-still" style="background-image:url('bts-03.jpg')" role="img" aria-label="Skjár myndavélar sýnir senu í eldhúsinu"><span class="still-num" aria-hidden="true">03</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">04</span></div>
+            <div class="gallery-still" style="background-image:url('bts-04.jpg')" role="img" aria-label="Leikkonur brosa fyrir framan myndavélina milli taka"><span class="still-num" aria-hidden="true">04</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">05</span></div>
+            <div class="gallery-still" style="background-image:url('bts-05.jpg')" role="img" aria-label="Tökulið að taka upp senu í gangi utandyra"><span class="still-num" aria-hidden="true">05</span></div>
+          </figure>
+          <figure class="gallery-item">
+            <div class="gallery-still" style="background-image:url('bts-06.jpg')" role="img" aria-label="Faðmlagssena tekin upp utandyra með hljóðnema"><span class="still-num" aria-hidden="true">06</span></div>
           </figure>
         </div>
 
@@ -298,10 +297,6 @@
         <li class="crew-row">
           <span class="crew-role" data-is="Upptaka" data-en="Recording">Upptaka</span>
           <span class="crew-name">Tómas Marshall</span>
-        </li>
-        <li class="crew-row">
-          <span class="crew-role" data-is="Hljóð" data-en="Sound">Hljóð</span>
-          <span class="crew-name" data-is="[ekki staðfest]" data-en="[TBD]">[ekki staðfest]</span>
         </li>
       </ul>
     </div>

@@ -433,7 +433,7 @@ html.lenis, html.lenis body { height: auto; }
   border-top: 3px solid var(--crimson);
   text-align: center;
 }
-.duo-inner { max-width: 780px; margin: 0 auto; }
+.duo-inner { max-width: 1120px; margin: 0 auto; }
 .duo-heading {
   font-family: var(--font-serif);
   font-size: clamp(2.2rem, 5vw, 3.6rem);
@@ -726,16 +726,32 @@ html.lenis, html.lenis body { height: auto; }
   border-top: 3px solid var(--crimson);
 }
 .team-inner { max-width: var(--max-w); margin: 0 auto; }
-.team-grid {
-  margin-top: var(--sp-12);
+/* ── Um okkur + Teymið merged: the two directors flank the studio intro ──
+   Desktop: [ Hanna ]  [ Um okkur copy ]  [ Guðríður ].
+   Card styling below (.director-card etc.) is shared, layout-agnostic. */
+.duo-layout {
   display: grid;
-  /* Two directors — capped card width so 2-up doesn't balloon */
-  grid-template-columns: repeat(2, minmax(0, 420px));
-  gap: clamp(var(--sp-8), 4vw, var(--sp-12));
-  align-items: start;   /* only the open card grows, siblings keep their height */
-  text-align: left;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 300px);
+  align-items: start;   /* an expanding card grows alone; siblings hold height */
+  gap: clamp(var(--sp-6), 3.5vw, var(--sp-14));
+  margin-top: var(--sp-12);
+  text-align: left;     /* keep card internals left; copy re-centres itself */
 }
-@media (max-width: 700px) { .team-grid { grid-template-columns: 1fr; max-width: 420px; } }
+.duo-copy {
+  text-align: center;
+  align-self: center;   /* centre the intro against the taller card column */
+  max-width: 34rem;
+  margin: 0 auto;
+}
+.duo-copy .section-eyebrow { margin-left: auto; margin-right: auto; }
+/* Tablet: intro on top spanning full width, the two cards below it side by side */
+@media (max-width: 860px) {
+  .duo-layout { grid-template-columns: repeat(2, minmax(0, 360px)); justify-content: center; }
+  .duo-copy { grid-column: 1 / -1; order: -1; margin-bottom: var(--sp-6); }
+}
+@media (max-width: 520px) {
+  .duo-layout { grid-template-columns: minmax(0, 360px); }
+}
 /* Whole card is a cream sticker card */
 .director-card {
   display: flex;
