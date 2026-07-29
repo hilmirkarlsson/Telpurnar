@@ -456,6 +456,55 @@ html.lenis, html.lenis body { height: auto; }
   padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
   border-top: 3px solid var(--crimson);
 }
+
+/* ─── TELPURNAR PROJECT WORLD ────────────────────────────────────── */
+/* One quiet outer shape connects Myndin, Stillur, Fólkið and Tónverk.
+   It deliberately does not clip: sticky gallery positioning must remain
+   relative to the viewport while the outline visually holds the group. */
+.film-world {
+  position: relative;
+  isolation: isolate;
+  width: calc(100% - clamp(20px, 4vw, 72px));
+  max-width: 1560px;
+  margin: clamp(var(--sp-12), 7vw, var(--sp-24)) auto;
+  border-radius: clamp(28px, 4vw, 54px);
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgba(62, 27, 42, 0.16);
+}
+.film-world::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: 4px solid var(--crimson);
+  border-radius: inherit;
+  box-shadow: 10px 12px 0 rgba(194, 52, 88, 0.24);
+  pointer-events: none;
+}
+.film-world-label {
+  position: absolute;
+  top: 0;
+  left: clamp(var(--sp-5), 4vw, var(--sp-12));
+  z-index: 6;
+  transform: translateY(-50%) rotate(-1.5deg);
+  padding: 0.55rem 1rem;
+  border: 3px solid var(--crimson);
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--crimson);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  box-shadow: 4px 5px 0 var(--crimson);
+}
+.film-world > .film {
+  border-top: 0;
+  border-radius: inherit inherit 0 0;
+}
+.film-world > .music {
+  border-radius: 0 0 inherit inherit;
+}
 .film-inner {
   max-width: var(--max-w);
   margin: 0 auto;
