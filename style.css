@@ -433,7 +433,9 @@ html.lenis, html.lenis body { height: auto; }
   border-top: 3px solid var(--crimson);
   text-align: center;
 }
-.duo-inner { max-width: 1120px; margin: 0 auto; }
+/* Wide so the flexible middle column pushes the two directors out to the
+   edges — the copy stays narrow and centred between them. */
+.duo-inner { max-width: 1560px; margin: 0 auto; }
 .duo-heading {
   font-family: var(--font-serif);
   font-size: clamp(2.2rem, 5vw, 3.6rem);
@@ -716,24 +718,49 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-item { flex: 0 0 auto; }
   .gallery-still { height: min(74vh, 760px); width: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
+  .gallery-hint { display: none; }     /* swipe hint is phone-only */
 }
 
-/* ─── TEYMIÐ — H & G team section ────────────────────────────────── */
-.team {
-  position: relative;
-  background: var(--bg);
-  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
-  border-top: 3px solid var(--crimson);
+/* ─── GALLERY on phones — a real swipeable filmstrip ──────────────── */
+/* No scroll-jack here (it fights touch scrolling), so the row is a native
+   snap-scroller you can swipe, plus working arrows and a live progress
+   bar. Frames are sized so the next photo always peeks in — that peek is
+   what tells you there's more to scroll. */
+@media (max-width: 767px) {
+  .gallery { padding: var(--sp-14) 0; }
+  .gallery-item { flex: 0 0 min(84vw, 460px); }
+  .gallery-still {
+    aspect-ratio: 4/3;   /* taller frame = bigger photo on a narrow screen */
+    border-width: 3px;
+    border-radius: 16px;
+  }
+  .gallery-track {
+    scroll-padding-left: var(--pad-x);   /* snap lands flush with the edge */
+    padding-bottom: var(--sp-4);
+  }
+  /* Trailing breathing room so the last photo can sit fully on screen */
+  .gallery-track::after {
+    content: '';
+    flex: 0 0 calc(var(--pad-x) / 2);
+  }
+  .gallery-header {
+    align-items: center;
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
+  }
+  .gallery-arrow { width: 46px; height: 46px; border-width: 2px; }
+  .gallery-hint { display: block; }
 }
-.team-inner { max-width: var(--max-w); margin: 0 auto; }
+
+/* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
 /* ── Um okkur + Teymið merged: the two directors flank the studio intro ──
    Desktop: [ Hanna ]  [ Um okkur copy ]  [ Guðríður ].
    Card styling below (.director-card etc.) is shared, layout-agnostic. */
 .duo-layout {
   display: grid;
-  grid-template-columns: minmax(0, 300px) minmax(0, 1fr) minmax(0, 300px);
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr) minmax(0, 320px);
   align-items: start;   /* an expanding card grows alone; siblings hold height */
-  gap: clamp(var(--sp-6), 3.5vw, var(--sp-14));
+  gap: clamp(var(--sp-6), 5vw, var(--sp-20));
   margin-top: var(--sp-12);
   text-align: left;     /* keep card internals left; copy re-centres itself */
 }
@@ -745,12 +772,31 @@ html.lenis, html.lenis body { height: auto; }
 }
 .duo-copy .section-eyebrow { margin-left: auto; margin-right: auto; }
 /* Tablet: intro on top spanning full width, the two cards below it side by side */
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .duo-layout { grid-template-columns: repeat(2, minmax(0, 360px)); justify-content: center; }
-  .duo-copy { grid-column: 1 / -1; order: -1; margin-bottom: var(--sp-6); }
+  .duo-copy { grid-column: 1 / -1; order: -1; margin-bottom: var(--sp-8); }
 }
-@media (max-width: 520px) {
-  .duo-layout { grid-template-columns: minmax(0, 360px); }
+/* Phone: one clean column, in reading order — Um okkur, then Hanna, then
+   Guðríður (order:-1 on the copy above already puts the intro first). */
+@media (max-width: 700px) {
+  .duo-layout {
+    grid-template-columns: minmax(0, 420px);
+    justify-content: center;
+    gap: var(--sp-8);
+    margin-top: var(--sp-8);
+  }
+  .duo-copy { max-width: none; }
+  /* Portraits get shorter so you aren't scrolling past two full-bleed faces */
+  .duo-layout .director-portrait { aspect-ratio: 3/2; }
+  /* No scale-up on phones: a 1.06 card + its offset shadow would push past
+     the viewport and create a horizontal scrollbar. Lift + shadow + the
+     receding siblings still sell "this one came to the front". */
+  .team-card.is-open {
+    transform: translateY(-4px);
+    box-shadow: 9px 11px 0 var(--crimson);
+  }
+  .team-card.is-open:hover { transform: translateY(-6px); }
+  .duo-layout.has-open .team-card:not(.is-open) { transform: none; }
 }
 /* Whole card is a cream sticker card */
 .director-card {
@@ -815,9 +861,32 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ─── TEAM CARD — click-to-reveal body ───────────────────────────── */
-/* Collapsed by default: photo + name only. .is-open grows the body via
-   the 0fr→1fr grid-row trick (animates to auto height, no magic numbers). */
-.team-card { cursor: pointer; }
+/* Collapsed by default: photo + name only. Opening does three things at
+   once: the card scales up and lifts to the FRONT (z-index + big shadow),
+   a gold disc BLOOMS OUT IN A CIRCLE from under the "+", and the role/bio
+   ride in behind it. Height still animates via the 0fr→1fr grid-row trick
+   (auto height, no magic numbers) so layout stays honest. */
+.team-card { cursor: pointer; position: relative; z-index: 1; }
+
+/* Open card comes to the front */
+.team-card.is-open {
+  z-index: 20;
+  transform: scale(1.06) translateY(-6px);
+  box-shadow: 14px 17px 0 var(--crimson);
+}
+/* Beats .director-card:hover (0,2,0) so hover can't cancel the lift */
+.team-card.is-open:hover { transform: scale(1.06) translateY(-11px); }
+
+/* …and everything else recedes so "front" actually reads as front */
+.duo-layout.has-open .team-card:not(.is-open) {
+  opacity: 0.5;
+  transform: scale(0.94);
+}
+.duo-layout.has-open .duo-copy {
+  opacity: 0.42;
+  transition: opacity 0.5s var(--ease-soft);
+}
+.duo-copy { transition: opacity 0.5s var(--ease-soft); }
 .team-card .director-name {
   font-size: clamp(1.4rem, 1.8vw, 1.8rem);
   padding: var(--sp-5) var(--sp-6);
@@ -840,10 +909,45 @@ html.lenis, html.lenis body { height: auto; }
 .team-card-body {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.5s var(--ease-soft);
+  transition: grid-template-rows 0.55s var(--ease-soft);
 }
 .team-card.is-open .team-card-body { grid-template-rows: 1fr; }
-.team-card-body-inner { overflow: hidden; min-height: 0; }
+.team-card-body-inner {
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+  isolation: isolate;   /* keeps the disc behind the text, above the card */
+}
+/* THE CIRCLE — a gold disc that blooms from under the "+" and floods the
+   body. Sits at z-index -1 inside the isolated inner, so text stays on top. */
+.team-card-body-inner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: var(--sp-6);
+  width: 26px;
+  height: 26px;
+  margin: -13px -13px 0 0;
+  border-radius: 50%;
+  background: var(--gold);
+  transform: scale(0);
+  transition: transform 0.8s var(--ease-pop);
+  z-index: -1;
+  pointer-events: none;
+}
+.team-card.is-open .team-card-body-inner::before { transform: scale(38); }
+
+/* Role + bio ride in just behind the circle's leading edge */
+.team-card .director-role,
+.team-card .director-bio {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.45s ease 0.14s, transform 0.55s var(--ease-pop) 0.14s;
+}
+.team-card.is-open .director-role,
+.team-card.is-open .director-bio { opacity: 1; transform: none; }
+/* Crimson on gold once the disc has landed — matches the gallery eyebrows */
+.team-card.is-open .director-role { color: var(--crimson); }
 .team-card .director-role { padding-top: 0; }
 
 /* ─── VERKEFNI — projects grid ───────────────────────────────────── */

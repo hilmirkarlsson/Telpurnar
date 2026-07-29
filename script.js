@@ -535,12 +535,16 @@ window.setTimeout(() => {
 (function initTeamCards() {
   const cards = Array.from(document.querySelectorAll('.team-card'));
   if (!cards.length) return;
+  // Container gets .has-open so the unopened card + the Um okkur copy can
+  // recede, which is what makes the open card read as "the front".
+  const layout = document.getElementById('teamGrid');
   function toggle(card) {
     const open = !card.classList.contains('is-open');
     cards.forEach(c => {
       c.classList.toggle('is-open', c === card && open);
       c.setAttribute('aria-expanded', String(c === card && open));
     });
+    if (layout) layout.classList.toggle('has-open', open);
   }
   cards.forEach(card => {
     card.addEventListener('click', () => toggle(card));
