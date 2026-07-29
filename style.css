@@ -868,10 +868,16 @@ html.lenis, html.lenis body { height: auto; }
   border-radius: 24px;
   overflow: hidden;
   box-shadow: var(--sticker-lg);
+  /* opacity MUST be listed: the receding-sibling dim below sets opacity, and
+     without it here the other card snapped to 50% in a single frame while the
+     chosen card animated smoothly — the tell that broke the whole illusion.
+     Easing is the smooth decelerate curve, not the bouncy --ease-pop: an
+     overshoot on a card this large reads as a wobble, not as polish. */
   transition:
-    transform 0.4s var(--ease-pop),
-    box-shadow 0.4s var(--ease-pop),
-    background-color 0.55s ease 0.18s;
+    transform 0.42s var(--ease-soft),
+    box-shadow 0.42s var(--ease-soft),
+    opacity 0.42s var(--ease-soft),
+    background-color 0.5s ease 0.14s;
 }
 .director-card:hover { transform: translate(-3px,-4px); box-shadow: 11px 13px 0 var(--crimson); }
 .director-portrait {
@@ -958,7 +964,10 @@ html.lenis, html.lenis body { height: auto; }
   grid-template-rows: auto 1fr;
   overflow-y: auto;
   transform: none;
-  transform-origin: top left;
+  /* Centre origin: the FLIP scales this card about its own centre and
+     matches centre-to-centre, so the growth reads as evenly weighted
+     rather than unfolding out of the top-left corner. */
+  transform-origin: center center;
   background: var(--gold);
   box-shadow: 18px 22px 0 var(--crimson);
 }
@@ -987,7 +996,9 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 0;
   visibility: hidden;
   backdrop-filter: blur(7px);
-  transition: opacity 0.6s var(--ease-soft), visibility 0.6s;
+  /* Matched to the card's flight (520ms open / 420ms close) so the scrim and
+     the card arrive and leave together instead of trailing each other. */
+  transition: opacity 0.46s var(--ease-soft), visibility 0.46s;
 }
 .team-card-backdrop.is-visible { opacity: 1; visibility: visible; }
 body.team-card-open { overflow: hidden; }
@@ -1022,7 +1033,7 @@ body.team-card-open { overflow: hidden; }
   font-size: 1.2em;
   color: var(--crimson);
   text-shadow: 2px 2px 0 var(--gold);
-  transition: transform 0.4s var(--ease-pop);
+  transition: transform 0.42s var(--ease-soft);
   flex-shrink: 0;
 }
 .team-card.is-open .director-name::after { transform: rotate(45deg); }
@@ -1035,38 +1046,28 @@ body.team-card-open { overflow: hidden; }
 .team-card-body-inner {
   overflow: hidden;
   min-height: 0;
-  position: relative;
-  isolation: isolate;   /* keeps the disc behind the text, above the card */
 }
-/* THE CIRCLE — a gold disc that blooms from under the "+" and floods the
-   body. Sits at z-index -1 inside the isolated inner, so text stays on top. */
-.team-card-body-inner::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: var(--sp-6);
-  width: 26px;
-  height: 26px;
-  margin: -13px -13px 0 0;
-  border-radius: 50%;
-  background: var(--gold);
-  transform: scale(0);
-  transition: transform 0.8s var(--ease-pop);
-  z-index: -1;
-  pointer-events: none;
-}
-.team-card.is-open .team-card-body-inner::before { transform: scale(72); }
+/* The gold disc that used to bloom here has been removed. It scaled a 26px
+   circle by 72x, which the compositor rasterises once at its small size and
+   then upscales — the edge arrived visibly soft and pixelated. It was also
+   a second, competing motion fighting the card's own flight to the front.
+   The feature card already paints itself gold, so the wash is free. */
 
-/* Role + bio ride in just behind the circle's leading edge */
+/* Role + bio settle in just after the card lands, so the eye follows the
+   card first and the text second — one idea at a time. The 80ms gap between
+   them is a stagger you feel as rhythm; past ~100ms it reads as lag. */
 .team-card .director-role,
 .team-card .director-bio {
   opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.45s ease 0.14s, transform 0.55s var(--ease-pop) 0.14s;
+  transform: translateY(8px);
+  transition:
+    opacity 0.35s var(--ease-soft) 0.16s,
+    transform 0.35s var(--ease-soft) 0.16s;
 }
+.team-card .director-bio { transition-delay: 0.24s; }
 .team-card.is-open .director-role,
 .team-card.is-open .director-bio { opacity: 1; transform: none; }
-/* Crimson on gold once the disc has landed — matches the gallery eyebrows */
+/* Crimson on gold once the card has landed — matches the gallery eyebrows */
 .team-card.is-open .director-role { color: var(--crimson); }
 .team-card .director-role { padding-top: 0; }
 

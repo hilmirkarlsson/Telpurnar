@@ -537,6 +537,37 @@ window.setTimeout(() => {
   let originRect = null;
   let placeholder = null;
 
+  /* One easing in both directions — an open that glides and a close that
+     snaps back on a different curve reads as two unrelated animations.
+     This is the standard "smooth" decelerate curve, same as --ease-soft.
+     Exit is a touch quicker than entry: leaving should never feel slower
+     than arriving. */
+  const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  const OPEN_MS = 520;
+  const CLOSE_MS = 420;
+
+  /* FLIP geometry, matched CENTRE-to-CENTRE with ONE uniform scale factor.
+     Scaling x and y independently (w-ratio vs h-ratio) is what makes most
+     FLIP transitions look cheap: the card changes aspect ratio on the way
+     (320x500 grid card -> 860x720 feature card), so the portrait, the text
+     and the corner radius all visibly squash mid-flight. A single scale
+     keeps every child in proportion — it reads as one object moving
+     toward you rather than a box being stretched into shape. */
+  function flipFrom(from, to) {
+    const scale = from.width / to.width;
+    const dx = (from.left + from.width / 2) - (to.left + to.width / 2);
+    const dy = (from.top + from.height / 2) - (to.top + to.height / 2);
+    return `translate(${dx}px, ${dy}px) scale(${scale})`;
+  }
+
+  function run(card, keyframes, duration) {
+    card.style.willChange = 'transform';
+    const anim = card.animate(keyframes, { duration, easing: EASE });
+    const clear = () => { card.style.willChange = ''; };
+    anim.finished.then(clear).catch(clear);
+    return anim;
+  }
+
   function closeCard(animate = true) {
     if (!activeCard) return;
     const card = activeCard;
@@ -549,26 +580,26 @@ window.setTimeout(() => {
       placeholder?.remove();
       placeholder = null;
       layout?.classList.remove('has-open');
-      backdrop.classList.remove('is-visible');
       document.body.classList.remove('team-card-open');
       activeCard = null;
       originRect = null;
       card.focus({ preventScroll: true });
     };
 
+    // Dim the backdrop WITH the card, not after it. Releasing this inside
+    // finish() left the scrim at full strength for the whole return trip
+    // and then snapped it away once the card had already landed.
+    backdrop.classList.remove('is-visible');
+
     if (!animate || REDUCE || !target || !card.animate) {
       finish();
       return;
     }
 
-    const dx = target.left - current.left;
-    const dy = target.top - current.top;
-    const scaleX = target.width / current.width;
-    const scaleY = target.height / current.height;
-    const closing = card.animate([
-      { transform: 'translate(0, 0) scale(1, 1)', opacity: 1 },
-      { transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`, opacity: 0.92 }
-    ], { duration: 620, easing: 'cubic-bezier(.22,1,.36,1)' });
+    const closing = run(card, [
+      { transform: 'translate(0, 0) scale(1)' },
+      { transform: flipFrom(target, current) }
+    ], CLOSE_MS);
     closing.finished.then(finish).catch(finish);
   }
 
@@ -591,14 +622,12 @@ window.setTimeout(() => {
     if (REDUCE || !card.animate) return;
     requestAnimationFrame(() => {
       const target = card.getBoundingClientRect();
-      const dx = originRect.left - target.left;
-      const dy = originRect.top - target.top;
-      const scaleX = originRect.width / target.width;
-      const scaleY = originRect.height / target.height;
-      card.animate([
-        { transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`, opacity: 0.9 },
-        { transform: 'translate(0, 0) scale(1, 1)', opacity: 1 }
-      ], { duration: 780, easing: 'cubic-bezier(.16,1,.3,1)' });
+      // No opacity fade on the card itself: it's a solid object travelling
+      // to the front, and fading it through the move just looks washed out.
+      run(card, [
+        { transform: flipFrom(originRect, target) },
+        { transform: 'translate(0, 0) scale(1)' }
+      ], OPEN_MS);
     });
   }
 
