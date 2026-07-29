@@ -464,8 +464,8 @@ html.lenis, html.lenis body { height: auto; }
 .film-world {
   position: relative;
   isolation: isolate;
-  width: calc(100% - clamp(20px, 4vw, 72px));
-  max-width: 1560px;
+  width: calc(100% - clamp(20px, 3vw, 52px));
+  max-width: 1720px;
   margin: clamp(var(--sp-12), 7vw, var(--sp-24)) auto;
   border-radius: clamp(28px, 4vw, 54px);
   background: var(--surface);
