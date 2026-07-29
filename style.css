@@ -995,10 +995,17 @@ html.lenis, html.lenis body { height: auto; }
   background: rgba(62, 27, 42, 0.58);
   opacity: 0;
   visibility: hidden;
-  backdrop-filter: blur(7px);
-  /* Matched to the card's flight (520ms open / 420ms close) so the scrim and
-     the card arrive and leave together instead of trailing each other. */
-  transition: opacity 0.46s var(--ease-soft), visibility 0.46s;
+  /* Blur is the single most expensive thing on screen during this
+     transition — the compositor re-blurs the whole viewport every frame
+     while the card moves. 7px bought almost nothing visually over 4px and
+     cost real frames on weaker machines. will-change keeps it on its own
+     layer instead of re-rasterising the page behind it. */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  will-change: opacity;
+  /* Matched to the card (380ms open / 280ms close) so scrim and card
+     arrive and leave together instead of trailing each other. */
+  transition: opacity 0.32s var(--ease-soft), visibility 0.32s;
 }
 .team-card-backdrop.is-visible { opacity: 1; visibility: visible; }
 body.team-card-open { overflow: hidden; }
@@ -1061,10 +1068,10 @@ body.team-card-open { overflow: hidden; }
   opacity: 0;
   transform: translateY(8px);
   transition:
-    opacity 0.35s var(--ease-soft) 0.16s,
-    transform 0.35s var(--ease-soft) 0.16s;
+    opacity 0.28s var(--ease-soft) 0.10s,
+    transform 0.28s var(--ease-soft) 0.10s;
 }
-.team-card .director-bio { transition-delay: 0.24s; }
+.team-card .director-bio { transition-delay: 0.16s; }
 .team-card.is-open .director-role,
 .team-card.is-open .director-bio { opacity: 1; transform: none; }
 /* Crimson on gold once the card has landed — matches the gallery eyebrows */

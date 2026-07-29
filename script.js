@@ -543,25 +543,32 @@ window.setTimeout(() => {
      Exit is a touch quicker than entry: leaving should never feel slower
      than arriving. */
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
-  const OPEN_MS = 520;
-  const CLOSE_MS = 420;
+  const OPEN_MS = 380;
+  const CLOSE_MS = 280;
 
-  /* FLIP geometry, matched CENTRE-to-CENTRE with ONE uniform scale factor.
-     Scaling x and y independently (w-ratio vs h-ratio) is what makes most
-     FLIP transitions look cheap: the card changes aspect ratio on the way
-     (320x500 grid card -> 860x720 feature card), so the portrait, the text
-     and the corner radius all visibly squash mid-flight. A single scale
-     keeps every child in proportion — it reads as one object moving
-     toward you rather than a box being stretched into shape. */
-  function flipFrom(from, to) {
-    const scale = from.width / to.width;
-    const dx = (from.left + from.width / 2) - (to.left + to.width / 2);
-    const dy = (from.top + from.height / 2) - (to.top + to.height / 2);
-    return `translate(${dx}px, ${dy}px) scale(${scale})`;
+  /* NOT a rigid FLIP — deliberately.
+     A FLIP only looks right when the element keeps its aspect ratio. This
+     one does not: a 320x503 portrait card becomes an 860x720 landscape
+     panel. Scaling x and y independently matches the footprint but visibly
+     squashes the portrait and text; scaling uniformly keeps proportions but
+     starts the card at 320x268 inside a 320x503 slot — a 236px collapse on
+     the first frame. Both are the same bug wearing different clothes.
+
+     So: emerge from the card instead of pretending to BE the card. A small
+     scale-up plus a fade, nudged partway toward where you clicked, keeps
+     the spatial link without ever claiming the two boxes are the same
+     shape. The fade is what absorbs the geometry difference. */
+  const DRIFT = 0.4;   // how far toward the origin card it starts (0..1)
+  const FROM_SCALE = 0.94;
+
+  function entryTransform(from, to) {
+    const dx = ((from.left + from.width / 2) - (to.left + to.width / 2)) * DRIFT;
+    const dy = ((from.top + from.height / 2) - (to.top + to.height / 2)) * DRIFT;
+    return `translate(${dx}px, ${dy}px) scale(${FROM_SCALE})`;
   }
 
   function run(card, keyframes, duration) {
-    card.style.willChange = 'transform';
+    card.style.willChange = 'transform, opacity';
     const anim = card.animate(keyframes, { duration, easing: EASE });
     const clear = () => { card.style.willChange = ''; };
     anim.finished.then(clear).catch(clear);
@@ -597,8 +604,8 @@ window.setTimeout(() => {
     }
 
     const closing = run(card, [
-      { transform: 'translate(0, 0) scale(1)' },
-      { transform: flipFrom(target, current) }
+      { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+      { transform: entryTransform(target, current), opacity: 0 }
     ], CLOSE_MS);
     closing.finished.then(finish).catch(finish);
   }
@@ -622,11 +629,9 @@ window.setTimeout(() => {
     if (REDUCE || !card.animate) return;
     requestAnimationFrame(() => {
       const target = card.getBoundingClientRect();
-      // No opacity fade on the card itself: it's a solid object travelling
-      // to the front, and fading it through the move just looks washed out.
       run(card, [
-        { transform: flipFrom(originRect, target) },
-        { transform: 'translate(0, 0) scale(1)' }
+        { transform: entryTransform(originRect, target), opacity: 0 },
+        { transform: 'translate(0, 0) scale(1)', opacity: 1 }
       ], OPEN_MS);
     });
   }
