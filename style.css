@@ -462,12 +462,16 @@ html.lenis, html.lenis body { height: auto; }
    It deliberately does not clip: sticky gallery positioning must remain
    relative to the viewport while the outline visually holds the group. */
 .film-world {
+  --film-world-top-radius: clamp(28px, 4vw, 54px);
+  --film-world-bottom-radius: clamp(58px, 7vw, 104px);
   position: relative;
   isolation: isolate;
   width: calc(100% - clamp(20px, 3vw, 52px));
   max-width: 1720px;
   margin: clamp(var(--sp-12), 7vw, var(--sp-24)) auto;
-  border-radius: clamp(28px, 4vw, 54px);
+  border-radius:
+    var(--film-world-top-radius) var(--film-world-top-radius)
+    var(--film-world-bottom-radius) var(--film-world-bottom-radius);
   background: var(--surface);
   box-shadow: 0 24px 70px rgba(62, 27, 42, 0.16);
 }
@@ -500,10 +504,12 @@ html.lenis, html.lenis body { height: auto; }
 }
 .film-world > .film {
   border-top: 0;
-  border-radius: inherit inherit 0 0;
+  border-radius:
+    var(--film-world-top-radius) var(--film-world-top-radius) 0 0;
 }
 .film-world > .music {
-  border-radius: 0 0 inherit inherit;
+  border-radius:
+    0 0 var(--film-world-bottom-radius) var(--film-world-bottom-radius);
 }
 .film-inner {
   max-width: var(--max-w);
