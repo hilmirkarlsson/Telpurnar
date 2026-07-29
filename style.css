@@ -1008,7 +1008,11 @@ html.lenis, html.lenis body { height: auto; }
   transition: opacity 0.32s var(--ease-soft), visibility 0.32s;
 }
 .team-card-backdrop.is-visible { opacity: 1; visibility: visible; }
-body.team-card-open { overflow: hidden; }
+/* NOTE: no overflow:hidden here on purpose. Scroll locking is done in JS —
+   via Lenis's own stop()/start() when it's running, position:fixed otherwise.
+   Setting body overflow directly collapses the document's scrollable height,
+   which made Lenis clamp its position and then glide back on release. This
+   class is now purely a state hook (see the .dust rule below). */
 /* Drop the ambient dust layer entirely while a card is open. It's decorative,
    it's invisible behind the scrim anyway, and a full-viewport canvas
    repainting every frame is the last thing this transition needs competing

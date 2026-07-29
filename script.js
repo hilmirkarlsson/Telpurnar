@@ -49,6 +49,13 @@ Lang.apply('is');
     smoothTouch: false,
   });
 
+  // Exposed so modal-style overlays can stop/start Lenis properly instead of
+  // slapping overflow:hidden on <body>. Body overflow collapses the document's
+  // scrollable height, Lenis clamps its internal position toward 0, and on
+  // release it glides all the way back — which looks like the page falling
+  // and then rewinding.
+  window.__lenis = lenis;
+
   // Drive Lenis from GSAP's ticker and keep ScrollTrigger in sync (as v3 did)
   if (typeof gsap !== 'undefined' && gsap.ticker) {
     if (typeof ScrollTrigger !== 'undefined') {
@@ -543,6 +550,43 @@ window.setTimeout(() => {
   let activeCard = null;
   let originRect = null;
   let placeholder = null;
+  let lockedY = 0;
+
+  /* Scroll lock that survives Lenis.
+     With Lenis running, the only correct way to freeze scrolling is its own
+     stop()/start() — it owns the scroll position. We also snap it back to the
+     exact offset on release so nothing can drift while the overlay is up.
+     Without Lenis (reduced-motion, or the CDN blocked) fall back to the
+     position:fixed technique, which preserves the offset by construction —
+     plain overflow:hidden does not. */
+  function lockScroll() {
+    const lenis = window.__lenis;
+    lockedY = lenis ? lenis.scroll : window.scrollY;
+    if (lenis) { lenis.stop(); return; }
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${lockedY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+  }
+
+  function unlockScroll() {
+    const lenis = window.__lenis;
+    if (lenis) {
+      lenis.start();
+      const restore = () => lenis.scrollTo(lockedY, { immediate: true, force: true });
+      restore();
+      // Re-assert once more on the next frame: start() resyncs Lenis from the
+      // window's own offset, and anything that touched it during teardown
+      // would otherwise win the last write.
+      requestAnimationFrame(restore);
+      return;
+    }
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    window.scrollTo(0, lockedY);
+  }
 
   /* One easing in both directions — an open that glides and a close that
      snaps back on a different curve reads as two unrelated animations.
@@ -597,7 +641,12 @@ window.setTimeout(() => {
       document.body.classList.remove('team-card-open');
       activeCard = null;
       originRect = null;
+      // Focus BEFORE restoring scroll, never after. Returning focus to an
+      // element that was just reinserted into flow can nudge the native
+      // scroll offset even with preventScroll, and Lenis resyncs from it on
+      // start(). Restoring last means the offset always gets the final say.
       card.focus({ preventScroll: true });
+      unlockScroll();
     };
 
     // Dim the backdrop WITH the card, not after it. Releasing this inside
@@ -618,7 +667,9 @@ window.setTimeout(() => {
   }
 
   function openCard(card) {
+    // Measure before locking — the no-Lenis fallback repositions <body>.
     originRect = card.getBoundingClientRect();
+    lockScroll();
     placeholder = document.createElement('div');
     placeholder.className = 'team-card-placeholder';
     placeholder.style.height = `${originRect.height}px`;
