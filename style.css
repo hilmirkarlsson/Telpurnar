@@ -992,16 +992,16 @@ html.lenis, html.lenis body { height: auto; }
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(62, 27, 42, 0.58);
+  /* Deliberately a flat scrim with NO backdrop-filter.
+     The drifting-dust canvas is a full-viewport <canvas> that repaints every
+     frame at z-index 400 — directly beneath this element. A backdrop-filter
+     has to re-blur everything below it whenever that content changes, so the
+     dust was forcing a full-viewport blur recomputation on every single frame
+     of the transition. That, not the easing, is what made this feel rough.
+     A solid scrim costs one composited layer and nothing per frame. */
+  background: rgba(62, 27, 42, 0.72);
   opacity: 0;
   visibility: hidden;
-  /* Blur is the single most expensive thing on screen during this
-     transition — the compositor re-blurs the whole viewport every frame
-     while the card moves. 7px bought almost nothing visually over 4px and
-     cost real frames on weaker machines. will-change keeps it on its own
-     layer instead of re-rasterising the page behind it. */
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   will-change: opacity;
   /* Matched to the card (380ms open / 280ms close) so scrim and card
      arrive and leave together instead of trailing each other. */
@@ -1009,6 +1009,11 @@ html.lenis, html.lenis body { height: auto; }
 }
 .team-card-backdrop.is-visible { opacity: 1; visibility: visible; }
 body.team-card-open { overflow: hidden; }
+/* Drop the ambient dust layer entirely while a card is open. It's decorative,
+   it's invisible behind the scrim anyway, and a full-viewport canvas
+   repainting every frame is the last thing this transition needs competing
+   with it. The loop also stops drawing (see initDust in script.js). */
+body.team-card-open .dust { display: none; }
 .team-card-placeholder {
   width: 100%;
   visibility: hidden;

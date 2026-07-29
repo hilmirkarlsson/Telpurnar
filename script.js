@@ -192,6 +192,13 @@ Lang.apply('is');
   }
   const pts = Array.from({ length: 20 }, () => { const p = spawn(); p.y = Math.random() * H; return p; });
   (function tick() {
+    // Idle while a director card is open. The canvas is hidden by CSS then,
+    // so this work would be invisible anyway — and leaving a full-viewport
+    // repaint running competes with the card's transition for frame budget.
+    if (document.body.classList.contains('team-card-open')) {
+      requestAnimationFrame(tick);
+      return;
+    }
     ctx.clearRect(0, 0, W, H);
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i];
