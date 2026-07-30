@@ -1125,11 +1125,15 @@ html.lenis, html.lenis body { height: auto; }
   top: 50%;
   translate: -50% -50%;
   z-index: 1001;
-  width: min(860px, calc(100vw - 48px));
-  height: min(720px, calc(100dvh - 48px));
+  width: min(880px, calc(100vw - 48px));
+  /* Height follows the content. It was a fixed 720px, which left a large empty
+     field under four lines of bio — and empty space in the loudest colour of
+     the palette is exactly what made this panel feel heavy. */
+  height: auto;
+  min-height: 360px;
   max-height: calc(100dvh - 48px);
   display: grid;
-  grid-template-columns: minmax(260px, 46%) minmax(0, 1fr);
+  grid-template-columns: minmax(240px, 40%) minmax(0, 1fr);
   grid-template-rows: auto 1fr;
   overflow-y: auto;
   transform: none;
@@ -1137,15 +1141,22 @@ html.lenis, html.lenis body { height: auto; }
      matches centre-to-centre, so the growth reads as evenly weighted
      rather than unfolding out of the top-left corner. */
   transform-origin: center center;
-  background: var(--gold);
-  box-shadow: 18px 22px 0 var(--crimson);
+  /* Cream, not gold. The collapsed card is already a cream sticker card, so
+     the open card now reads as the SAME card enlarged instead of a different
+     yellow object appearing. Gold drops to an accent — the role pill — where
+     it can actually mean something. Cream also lets the photo and the crimson
+     name carry the card, which is what you're there to look at. */
+  background: var(--surface);
+  box-shadow: 16px 19px 0 var(--crimson);
 }
 .team-card.is-open.is-featured:hover { transform: none; }
+/* The photo bleeds to the card's edges and fills whatever height the text
+   column asks for — no 520px floor forcing the card taller than its content. */
 .team-card.is-featured .director-portrait {
   grid-column: 1;
   grid-row: 1 / 3;
   height: 100%;
-  min-height: 520px;
+  min-height: 0;
   aspect-ratio: auto;
   border-right: 4px solid var(--crimson);
   border-bottom: 0;
@@ -1154,8 +1165,40 @@ html.lenis, html.lenis body { height: auto; }
 .team-card.is-featured .team-card-body { grid-column: 2; }
 .team-card.is-featured .director-name {
   align-self: end;
-  font-size: clamp(1.65rem, 3vw, 2.35rem);
-  padding-top: var(--sp-8);
+  font-size: clamp(1.5rem, 2.6vw, 2.05rem);
+  color: var(--crimson);
+  padding: var(--sp-8) var(--sp-8) 0;
+  line-height: 1.1;
+}
+/* Role becomes a small gold pill — the one place gold appears on this card,
+   and the same pill language the section eyebrows already use. Dark plum on
+   gold rather than crimson on gold: at this size crimson-on-gold sits around
+   3.4:1, under the 4.5:1 small-text minimum, while plum clears 9:1. */
+.team-card.is-featured .director-role {
+  display: inline-block;
+  align-self: start;
+  background: var(--gold);
+  color: var(--ink-soft);
+  border: 2px solid var(--crimson);
+  border-radius: 100px;
+  padding: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-5);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+}
+/* One padding owner inside the featured body — the role and bio drop their own
+   so the two don't stack into a double inset. */
+.team-card.is-featured .team-card-body-inner {
+  padding: var(--sp-5) var(--sp-8) var(--sp-8);
+}
+.team-card.is-featured .director-bio {
+  /* ~60ch keeps the measure inside the comfortable reading range instead of
+     running the full width of an 880px card. */
+  max-width: 60ch;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  padding: 0;
 }
 .team-card-backdrop {
   position: fixed;
@@ -1267,14 +1310,14 @@ body.team-card-open .dust { display: none; }
 .team-card .director-bio { transition-delay: 0.16s; }
 .team-card.is-open .director-role,
 .team-card.is-open .director-bio { opacity: 1; transform: none; }
-/* Crimson on gold once the card has landed — matches the gallery eyebrows */
-.team-card.is-open .director-role { color: var(--crimson); }
 .team-card .director-role { padding-top: 0; }
 
 @media (max-width: 700px) {
   .team-card.is-featured {
     width: calc(100vw - 24px);
-    height: min(760px, calc(100dvh - 24px));
+    /* Content height on phones too, capped by the viewport. */
+    height: auto;
+    min-height: 0;
     max-height: calc(100dvh - 24px);
     grid-template-columns: 1fr;
     grid-template-rows: auto auto auto;
@@ -1285,14 +1328,17 @@ body.team-card-open .dust { display: none; }
   .team-card.is-featured .director-portrait {
     grid-column: 1;
     grid-row: 1;
-    height: min(42dvh, 340px);
+    height: min(38dvh, 300px);
     min-height: 0;
     border-right: 0;
     border-bottom: 4px solid var(--crimson);
   }
   .team-card.is-featured .director-name,
   .team-card.is-featured .team-card-body { grid-column: 1; }
-  .team-card.is-featured .director-name { padding-top: var(--sp-5); }
+  .team-card.is-featured .director-name { padding: var(--sp-5) var(--sp-6) 0; }
+  .team-card.is-featured .team-card-body-inner {
+    padding: var(--sp-4) var(--sp-6) var(--sp-6);
+  }
 }
 
 /* ─── VERKEFNI — projects grid ───────────────────────────────────── */

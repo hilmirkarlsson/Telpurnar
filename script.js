@@ -162,10 +162,30 @@ Lang.apply('is');
     if (!pin || !sticky || !track) return;
 
     let travel = 0;
+    const items = () => [...track.children].filter(c => c.classList.contains('gallery-item'));
+
+    /* The row's true width, measured rather than taken from scrollWidth.
+       scrollWidth silently DROPS the track's trailing padding: for the BTS
+       band it reported 6917 = 64px left padding + 6853px of frames, leaving
+       the 28px right padding out. Travel came out that much short, so the row
+       stopped with the last frame flush against the viewport edge and the
+       trailing space never scrolled into view — it existed in CSS the whole
+       time and was simply unreachable.
+       Measuring first-left → last-right and adding both paddings back is
+       exact. The track's own translate cancels out because both edges move
+       together. */
+    function contentExtent() {
+      const list = items();
+      if (!list.length) return track.scrollWidth;
+      const cs = getComputedStyle(track);
+      const span = list[list.length - 1].getBoundingClientRect().right
+                 - list[0].getBoundingClientRect().left;
+      return parseFloat(cs.paddingLeft) + span + parseFloat(cs.paddingRight);
+    }
 
     function measure() {
       // How far the row must slide so its right edge reaches the viewport.
-      travel = Math.max(0, track.scrollWidth - sticky.clientWidth);
+      travel = Math.max(0, contentExtent() - sticky.clientWidth);
       // Pin height = the sticky viewport's OWN height + the horizontal travel,
       // so vertical scroll maps 1:1 onto sideways motion.
       //
