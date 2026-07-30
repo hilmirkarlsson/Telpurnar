@@ -1255,16 +1255,20 @@ body.team-card-open .dust { display: none; }
   justify-content: space-between;
   gap: var(--sp-3);
 }
-/* Gold "+" affordance that turns into "×" when open */
+/* Close mark — only present once the card is open.
+   It used to sit on the collapsed card as a "+", which read as a stray mark
+   next to the name rather than a control. It still occupies its slot in the
+   name row while invisible, so opening doesn't reflow the heading. */
 .team-card .director-name::after {
   content: '+';
   font-size: 1.2em;
   color: var(--crimson);
   text-shadow: 2px 2px 0 var(--gold);
-  transition: transform 0.42s var(--ease-soft);
+  opacity: 0;
+  transition: transform 0.42s var(--ease-soft), opacity 0.3s ease;
   flex-shrink: 0;
 }
-.team-card.is-open .director-name::after { transform: rotate(45deg); }
+.team-card.is-open .director-name::after { transform: rotate(45deg); opacity: 1; }
 .team-card-body {
   display: grid;
   grid-template-rows: 0fr;
