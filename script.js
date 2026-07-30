@@ -8,6 +8,53 @@
 
 const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+/* ─── SCROLL LOCK — shared by the director cards and the lightbox ── */
+/* With Lenis running, the only correct way to freeze scrolling is its own
+   stop()/start() — it owns the scroll position. We also snap it back to the
+   exact offset on release so nothing can drift while an overlay is up.
+   Without Lenis (reduced-motion, or the CDN blocked) fall back to the
+   position:fixed technique, which preserves the offset by construction —
+   plain overflow:hidden does not, and setting body overflow collapses the
+   document's scrollable height, which makes Lenis clamp and then glide back. */
+const ScrollLock = (function () {
+  let lockedY = 0;
+  let depth = 0;
+
+  function lock() {
+    if (depth++ > 0) return;                    // already locked — don't re-measure
+    const lenis = window.__lenis;
+    lockedY = lenis ? lenis.scroll : window.scrollY;
+    if (lenis) { lenis.stop(); return; }
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${lockedY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+  }
+
+  function unlock() {
+    depth = Math.max(0, depth - 1);
+    if (depth > 0) return;
+    const lenis = window.__lenis;
+    if (lenis) {
+      lenis.start();
+      const restore = () => lenis.scrollTo(lockedY, { immediate: true, force: true });
+      restore();
+      // Re-assert once more on the next frame: start() resyncs Lenis from the
+      // window's own offset, and anything that touched it during teardown
+      // would otherwise win the last write.
+      requestAnimationFrame(restore);
+      return;
+    }
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    window.scrollTo(0, lockedY);
+  }
+
+  return { lock, unlock };
+})();
+
 /* ─── LANGUAGE — defaults to Icelandic ───────────────────────────── */
 const Lang = (function () {
   let current = 'is';
@@ -119,9 +166,25 @@ Lang.apply('is');
     function measure() {
       // How far the row must slide so its right edge reaches the viewport.
       travel = Math.max(0, track.scrollWidth - sticky.clientWidth);
-      // Tall pin = one viewport of scroll (to reach/leave the sticky) + the
-      // horizontal travel, so vertical scroll maps 1:1 onto sideways motion.
-      pin.style.height = (window.innerHeight + travel) + 'px';
+      // Pin height = the sticky viewport's OWN height + the horizontal travel,
+      // so vertical scroll maps 1:1 onto sideways motion.
+      //
+      // Measure the sticky rather than window.innerHeight — this is what made
+      // phone scrolling feel broken. The sticky is 100svh on phones, and `svh`
+      // is the SMALL viewport: a constant that assumes the URL bar is showing.
+      // window.innerHeight is the LIVE visual viewport, ~60-110px taller the
+      // moment the URL bar collapses. Two bugs came out of that gap:
+      //   1. Each band ended with innerHeight-svh of scrolling where the row
+      //      had already finished moving — scroll appeared to go dead.
+      //   2. Showing/hiding the URL bar fires resize, so both pins were
+      //      rewritten mid-scroll and the document breathed by ~200px. Near
+      //      the bottom the document could shrink past the current offset, and
+      //      Lenis then clamped and glided you back up — the weird bottom.
+      // The sticky's height is stable across URL-bar changes, and it makes the
+      // progress below hit exactly 1 as the sticky releases. On desktop it is
+      // 100vh, i.e. innerHeight, so nothing changes there.
+      const viewport = sticky.offsetHeight || window.innerHeight;
+      pin.style.height = (viewport + travel) + 'px';
       apply();
     }
     function apply() {
@@ -150,6 +213,158 @@ Lang.apply('is');
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureAll);
   window.addEventListener('load', measureAll);
   requestAnimationFrame(measureAll);
+})();
+
+/* ─── LIGHTBOX — tap a still to see the whole frame ──────────────── */
+/* Runs for BOTH horizontal bands. The stills are deliberately cropped in the
+   filmstrip (16/10 on desktop, a frame wider than the screen on phones), so a
+   tap has to be able to show the picture whole and uncropped. Phone-first:
+   that's where the crop hides the most. */
+(function initLightbox() {
+  // The stills are background-image divs, not <img> — read the URL back out.
+  const urlOf = el => {
+    const m = /url\((['"]?)(.*?)\1\)/.exec(el.style.backgroundImage || '');
+    return m ? m[2] : '';
+  };
+
+  // Capture the description now: the trigger's own aria-label gains an
+  // "— opna í fullri stærð" suffix below, and that suffix must not end up in
+  // the lightbox caption (it's an instruction, not a description).
+  const stills = Array.from(document.querySelectorAll('.gallery-still'))
+    .map(el => ({ el, src: urlOf(el), label: el.getAttribute('aria-label') || '' }))
+    .filter(s => s.src && !s.el.classList.contains('is-empty'));
+  if (!stills.length) return;   // nothing to open yet (empty Stillur band)
+
+  /* ---- build the overlay once ---- */
+  const box = document.createElement('div');
+  box.className = 'lightbox';
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-label', 'Mynd í fullri stærð');
+  // Picture before controls in the DOM: on a phone the arrows then sit BELOW
+  // the frame (source order = single-column order), and a screen reader reads
+  // the image before the paging buttons.
+  box.innerHTML = `
+    <button class="lightbox-btn lightbox-close" type="button" aria-label="Loka">&times;</button>
+    <figure class="lightbox-figure">
+      <img class="lightbox-img" alt="" decoding="async">
+      <figcaption class="lightbox-caption"></figcaption>
+      <p class="lightbox-count" aria-hidden="true"></p>
+    </figure>
+    <div class="lightbox-nav-row">
+      <button class="lightbox-btn lightbox-prev" type="button" aria-label="Fyrri mynd">&#8249;</button>
+      <button class="lightbox-btn lightbox-next" type="button" aria-label="Næsta mynd">&#8250;</button>
+    </div>`;
+  document.body.appendChild(box);
+
+  const img     = box.querySelector('.lightbox-img');
+  const caption = box.querySelector('.lightbox-caption');
+  const count   = box.querySelector('.lightbox-count');
+  const closeBtn = box.querySelector('.lightbox-close');
+  const prevBtn = box.querySelector('.lightbox-prev');
+  const nextBtn = box.querySelector('.lightbox-next');
+
+  let index = -1;
+  let lastTrigger = null;
+
+  function show(i) {
+    // Wrap around — with only a handful of stills, a dead end at either edge
+    // is more annoying than useful.
+    index = (i + stills.length) % stills.length;
+    const { src, label } = stills[index];
+    img.src = src;
+    img.alt = label;
+    caption.textContent = label;
+    count.textContent = `${index + 1} / ${stills.length}`;
+    // Warm the neighbours so paging feels instant.
+    [index - 1, index + 1].forEach(n => {
+      const s = stills[(n + stills.length) % stills.length];
+      if (s) { const p = new Image(); p.src = s.src; }
+    });
+  }
+
+  function open(i, trigger) {
+    lastTrigger = trigger || null;
+    show(i);
+    ScrollLock.lock();
+    box.classList.add('is-open');
+    closeBtn.focus({ preventScroll: true });
+  }
+
+  function close() {
+    if (!box.classList.contains('is-open')) return;
+    box.classList.remove('is-open');
+    ScrollLock.unlock();
+    // Send focus back where it came from, or a keyboard user is dumped at the
+    // top of the document.
+    lastTrigger?.focus({ preventScroll: true });
+    lastTrigger = null;
+  }
+
+  const isOpen = () => box.classList.contains('is-open');
+
+  /* ---- triggers on the stills ---- */
+  stills.forEach(({ el }, i) => {
+    el.classList.add('is-zoomable');
+    // Reachable by keyboard, and announced as the action it now performs.
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', 'button');
+    const label = el.getAttribute('aria-label') || 'Mynd';
+    el.setAttribute('aria-label', `${label} — opna í fullri stærð`);
+
+    // Tap, not drag. The phone band is carried sideways by vertical scroll, so
+    // a click can land at the end of a flick; ignore anything that moved.
+    let down = null;
+    el.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY }; });
+    el.addEventListener('pointercancel', () => { down = null; });
+    el.addEventListener('click', e => {
+      if (down) {
+        const moved = Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y);
+        down = null;
+        if (moved > 10) return;
+      }
+      open(i, el);
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i, el); }
+    });
+  });
+
+  /* ---- overlay controls ---- */
+  closeBtn.addEventListener('click', close);
+  prevBtn.addEventListener('click', () => show(index - 1));
+  nextBtn.addEventListener('click', () => show(index + 1));
+  // Clicking the dark surround closes; clicking the picture itself does not.
+  box.addEventListener('click', e => { if (e.target === box) close(); });
+
+  window.addEventListener('keydown', e => {
+    if (!isOpen()) return;
+    if (e.key === 'Escape') { close(); return; }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); show(index - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(index + 1); }
+    // Keep Tab inside the dialog — it's modal, so focus must not wander off
+    // to the page behind it.
+    if (e.key === 'Tab') {
+      const stops = [closeBtn, prevBtn, nextBtn];
+      const at = stops.indexOf(document.activeElement);
+      e.preventDefault();
+      const next = e.shiftKey ? at - 1 : at + 1;
+      stops[(next + stops.length) % stops.length].focus();
+    }
+  });
+
+  // Swipe to page on touch — a supplement to the arrows, never the only way.
+  let touchX = null;
+  box.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  box.addEventListener('touchend', e => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 45) show(index + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+
+  // Only one still? Paging controls would be dead weight.
+  if (stills.length < 2) { prevBtn.hidden = true; nextBtn.hidden = true; }
 })();
 
 /* ─── HERO PARALLAX (content drifts up + fades on scroll) ────────── */
@@ -550,43 +765,12 @@ window.setTimeout(() => {
   let activeCard = null;
   let originRect = null;
   let placeholder = null;
-  let lockedY = 0;
 
-  /* Scroll lock that survives Lenis.
-     With Lenis running, the only correct way to freeze scrolling is its own
-     stop()/start() — it owns the scroll position. We also snap it back to the
-     exact offset on release so nothing can drift while the overlay is up.
-     Without Lenis (reduced-motion, or the CDN blocked) fall back to the
-     position:fixed technique, which preserves the offset by construction —
-     plain overflow:hidden does not. */
-  function lockScroll() {
-    const lenis = window.__lenis;
-    lockedY = lenis ? lenis.scroll : window.scrollY;
-    if (lenis) { lenis.stop(); return; }
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${lockedY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-  }
-
-  function unlockScroll() {
-    const lenis = window.__lenis;
-    if (lenis) {
-      lenis.start();
-      const restore = () => lenis.scrollTo(lockedY, { immediate: true, force: true });
-      restore();
-      // Re-assert once more on the next frame: start() resyncs Lenis from the
-      // window's own offset, and anything that touched it during teardown
-      // would otherwise win the last write.
-      requestAnimationFrame(restore);
-      return;
-    }
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    window.scrollTo(0, lockedY);
-  }
+  /* Scroll lock lives in the shared ScrollLock (top of file) — the lightbox
+     needs exactly the same Lenis-aware behaviour, and two copies of it would
+     drift apart. */
+  const lockScroll = () => ScrollLock.lock();
+  const unlockScroll = () => ScrollLock.unlock();
 
   /* One easing in both directions — an open that glides and a close that
      snaps back on a different curve reads as two unrelated animations.
@@ -618,9 +802,9 @@ window.setTimeout(() => {
     return `translate(${dx}px, ${dy}px) scale(${FROM_SCALE})`;
   }
 
-  function run(card, keyframes, duration) {
+  function run(card, keyframes, duration, fill = 'none') {
     card.style.willChange = 'transform, opacity';
-    const anim = card.animate(keyframes, { duration, easing: EASE });
+    const anim = card.animate(keyframes, { duration, easing: EASE, fill });
     const clear = () => { card.style.willChange = ''; };
     anim.finished.then(clear).catch(clear);
     return anim;
@@ -632,7 +816,11 @@ window.setTimeout(() => {
     const current = card.getBoundingClientRect();
     const target = originRect;
 
-    const finish = () => {
+    const finish = (anim) => {
+      // Collapse and un-fix the card in ONE style change with transitions
+      // suppressed, so the row collapse and text fade never get to play out
+      // with the card back in flow (see .is-closing in style.css).
+      card.classList.add('is-closing');
       card.classList.remove('is-open', 'is-featured');
       card.setAttribute('aria-expanded', 'false');
       placeholder?.remove();
@@ -641,6 +829,17 @@ window.setTimeout(() => {
       document.body.classList.remove('team-card-open');
       activeCard = null;
       originRect = null;
+      // Force the collapsed geometry to commit while transitions are still
+      // off. Only then drop the fade-out hold and re-enable transitions —
+      // the values already match, so nothing animates.
+      void card.offsetHeight;
+      anim?.cancel();
+      // Next frame normally; the timer is a fallback because rAF is paused in
+      // a hidden tab, and the class must never get stuck (it mutes the card's
+      // transitions). Removal is idempotent, so both firing is harmless.
+      const release = () => card.classList.remove('is-closing');
+      requestAnimationFrame(release);
+      setTimeout(release, 80);
       // Focus BEFORE restoring scroll, never after. Returning focus to an
       // element that was just reinserted into flow can nudge the native
       // scroll offset even with preventScroll, and Lenis resyncs from it on
@@ -659,14 +858,22 @@ window.setTimeout(() => {
       return;
     }
 
+    // fill: 'forwards' matters here. With the default fill the effect is
+    // dropped the instant the animation ends, so the card snapped back to
+    // opacity 1 for the frame before teardown ran — a fully opaque card
+    // flashing in flow. Holding the last keyframe keeps it invisible until
+    // finish() has collapsed it, then cancels the hold.
     const closing = run(card, [
       { transform: 'translate(0, 0) scale(1)', opacity: 1 },
       { transform: entryTransform(target, current), opacity: 0 }
-    ], CLOSE_MS);
-    closing.finished.then(finish).catch(finish);
+    ], CLOSE_MS, 'forwards');
+    closing.finished.then(() => finish(closing)).catch(() => finish(closing));
   }
 
   function openCard(card) {
+    // A card reopened inside the same frame it closed would still be carrying
+    // the teardown class, and would open with its transitions muted.
+    card.classList.remove('is-closing');
     // Measure before locking — the no-Lenis fallback repositions <body>.
     originRect = card.getBoundingClientRect();
     lockScroll();

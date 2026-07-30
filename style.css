@@ -50,7 +50,14 @@
 
 /* ─── RESET ──────────────────────────────────────────────────────── */
 *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: 16px; }
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  /* No rubber-band at the ends and no pull-to-refresh at the top. Both fight
+     Lenis's inertia on a phone: the browser's own overscroll runs on top of
+     the smooth-scroll and the page ends up feeling loose at the bottom. */
+  overscroll-behavior-y: none;
+}
 body {
   background: var(--bg);
   color: var(--ink-soft);
@@ -580,7 +587,17 @@ html.lenis, html.lenis body { height: auto; }
   line-height: 1.75;
   color: var(--ink-soft);
   max-width: 46ch;
-  margin-bottom: var(--sp-10);
+  /* Paragraph rhythm inside the block; only the last one opens the bigger gap
+     down to the screening details. */
+  margin-bottom: var(--sp-5);
+}
+.film-description:last-of-type { margin-bottom: var(--sp-10); }
+/* The opening line names the film and its authors — it carries more weight
+   than the synopsis that follows it. */
+.film-lede {
+  font-size: clamp(1.12rem, 1.6vw, 1.35rem);
+  font-weight: 600;
+  color: var(--crimson);
 }
 /* Each detail becomes its own cream sticker card */
 .film-details {
@@ -743,6 +760,157 @@ html.lenis, html.lenis body { height: auto; }
   transition: width 0.1s linear;
 }
 
+/* ─── STILL → LIGHTBOX TRIGGER ───────────────────────────────────── */
+/* Both bands crop on purpose — 16/10 on desktop, a frame wider than the
+   screen on phones — so the filmstrip reads as film, not as a photo grid.
+   The cost is that you never see a whole picture, which is worst on a phone
+   where roughly half the frame is off-screen. Tapping a still opens it whole.
+   Only stills that actually carry an image get this (JS adds .is-zoomable),
+   so the empty Stillur placeholders stay inert. */
+.gallery-still.is-zoomable { cursor: zoom-in; }
+.gallery-still.is-zoomable::before {
+  content: '⤢';
+  position: absolute;
+  z-index: 2;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--crimson);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--crimson);
+  font-size: 1.15rem;
+  line-height: 1;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.3s ease, transform 0.3s var(--ease-pop);
+}
+.gallery-item:hover .gallery-still.is-zoomable::before,
+.gallery-still.is-zoomable:focus-visible::before { opacity: 1; transform: none; }
+/* Touch devices have no hover to reveal it, and this is exactly where the
+   crop hurts most — so on touch the affordance is simply always there. */
+@media (hover: none) {
+  .gallery-still.is-zoomable::before { opacity: 1; transform: none; }
+}
+
+/* ─── LIGHTBOX — the whole, uncropped frame ──────────────────────── */
+/* Shown/hidden with opacity + visibility rather than a JS-driven animation.
+   visibility also takes it out of the tab order and the a11y tree, and both
+   directions are pure CSS — so the exit is the exact reverse of the entry
+   and can never half-play the way the director card's used to. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: clamp(12px, 3vw, 32px);
+  background: rgba(62, 27, 42, 0.92);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.26s var(--ease-soft), visibility 0.26s;
+}
+.lightbox.is-open { opacity: 1; visibility: visible; }
+.lightbox-figure {
+  grid-column: 2;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+.lightbox-img {
+  display: block;
+  /* contain, never cover — the entire point is that nothing is cropped. */
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 78svh;
+  width: auto;
+  height: auto;
+  border: 4px solid var(--gold);
+  border-radius: 16px;
+  background: var(--bg);
+  transform: scale(0.96);
+  transition: transform 0.3s var(--ease-soft);
+}
+.lightbox.is-open .lightbox-img { transform: none; }
+.lightbox-caption {
+  max-width: 62ch;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--gold);
+}
+.lightbox-count {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--gold);
+  opacity: 0.75;
+}
+.lightbox-btn {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  border: 3px solid var(--gold);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--gold);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.25s var(--ease-pop);
+}
+.lightbox-btn:hover { background: var(--gold); color: var(--crimson); }
+.lightbox-btn:active { transform: scale(0.94); }
+.lightbox-btn[hidden] { visibility: hidden; display: grid; }  /* hold the column width */
+.lightbox-close {
+  position: absolute;
+  top: clamp(12px, 3vw, 28px);
+  right: clamp(12px, 3vw, 28px);
+  z-index: 1;
+}
+/* Phone: the arrows move under the picture so the frame gets the full width.
+   Swipe works too, but a visible control beats a hidden gesture. */
+@media (max-width: 700px) {
+  .lightbox {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: var(--sp-5);
+  }
+  .lightbox-figure { grid-column: 1; }
+  .lightbox-img { max-height: 66svh; }
+  .lightbox-nav-row {
+    grid-column: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--sp-6);
+  }
+  .lightbox-btn { width: 60px; height: 60px; }   /* comfortable thumb target */
+}
+/* Desktop puts the arrows in the side columns flanking the picture, so the
+   row wrapper is only a layout device on phones — display:contents dissolves
+   it and lets the buttons become grid items themselves.
+   Every item is placed on row 1 EXPLICITLY: with auto-placement the browser
+   walks the grid forwards only, so once the "next" button had claimed column
+   3, the figure could no longer be placed back in column 2 of the same row
+   and got pushed onto a second row — which parked both arrows up at the top
+   of the screen on top of the close button. */
+@media (min-width: 701px) {
+  .lightbox-nav-row { display: contents; }
+  .lightbox-prev   { grid-area: 1 / 1; }
+  .lightbox-figure { grid-area: 1 / 2; }
+  .lightbox-next   { grid-area: 1 / 3; }
+}
+
 /* Scroll-jack: the sticky viewport holds for the height of
    .gallery-pin (set by JS) while JS translates .gallery-track sideways.
    Pure CSS sticky + live getBoundingClientRect math — no ScrollTrigger,
@@ -757,10 +925,10 @@ html.lenis, html.lenis body { height: auto; }
     overflow: hidden;
     padding: var(--sp-8) 0;
   }
-  /* Dedicated breathing room after the last still once the track has slid
-     all the way over — bigger than the inter-item gap so it reads as
-     deliberate trailing space, not just another gap. */
-  .gallery-track { padding-right: calc(var(--gallery-gap) * 3); }
+  /* Trailing space after the last still = exactly one inter-item gap, so the
+     rhythm of the filmstrip is unbroken from the first frame to the end
+     (it used to be 3x, which read as an empty slot). */
+  .gallery-track { padding-right: var(--gallery-gap); }
   .gallery-track {
     overflow: visible;
     scroll-snap-type: none;
@@ -802,7 +970,8 @@ html.lenis, html.lenis body { height: auto; }
     scroll-snap-type: none;
     align-items: center;
     will-change: transform;
-    padding: 0 calc(var(--gallery-gap) * 2) 0 var(--pad-x);
+    /* Trailing space = one gap, matching the spacing between the frames. */
+    padding: 0 var(--gallery-gap) 0 var(--pad-x);
   }
   .gallery-header {
     align-items: center;
@@ -1063,6 +1232,21 @@ body.team-card-open .dust { display: none; }
   overflow: hidden;
   min-height: 0;
 }
+
+/* TEARDOWN — the one frame where .is-open comes off.
+   The reveal transitions below (0.55s row collapse, 0.28s text fade) only
+   START when .is-open is removed — which is the moment the card also drops
+   back into normal document flow. Left to run, they played out with the card
+   in flow and fully opaque: the bio flashed back into view and Framleiðslumyndir
+   got shoved down and pulled back. An exit has to be the reverse of the entry,
+   not the entry interrupted. So the card re-enters flow already collapsed:
+   kill the transitions for that single frame, then hand them back (see
+   closeCard in script.js). */
+.team-card.is-closing,
+.team-card.is-closing .team-card-body,
+.team-card.is-closing .director-role,
+.team-card.is-closing .director-bio,
+.team-card.is-closing .director-name::after { transition: none !important; }
 /* The gold disc that used to bloom here has been removed. It scaled a 26px
    circle by 72x, which the compositor rasterises once at its small size and
    then upscales — the edge arrived visibly soft and pixelated. It was also
@@ -1320,13 +1504,15 @@ body.team-card-open .dust { display: none; }
 .footer-credit { color: var(--crimson); font-weight: 600; }
 /* Email sits directly under the website credit — underline on hover only,
    so it reads as part of the credit line rather than a loud link. */
-.footer-email a {
+/* Contact links sit on the cream card — underline on hover only, so the row
+   stays as calm as the crew rows it shares the card with. */
+.crew-name a {
   color: inherit;
   text-decoration: none;
   border-bottom: 2px solid transparent;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease, color 0.3s ease;
 }
-.footer-email a:hover { border-bottom-color: var(--crimson); }
+.crew-name a:hover { color: var(--crimson); border-bottom-color: var(--crimson); }
 
 /* ─── FOCUS ──────────────────────────────────────────────────────── */
 :focus-visible {
