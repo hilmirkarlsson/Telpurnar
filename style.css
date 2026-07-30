@@ -1368,18 +1368,29 @@ body.team-card-open .dust { display: none; }
   border-bottom: 2px dashed rgba(194, 52, 88, 0.35);
 }
 .crew-row:last-child { border-bottom: none; }
-.crew-role {
+/* Two row shapes on the same card.
+   Fólkið reads person-first: the NAME leads on the left (.crew-person) and
+   the credit sits quietly on the right (.crew-job) — you scan a cast list by
+   who, not by job title.
+   Hafa samband is the other way round: the label leads (.crew-role) and the
+   value follows on the right (.crew-name), because there the label is what
+   you're looking for. Either way the prominent half is the useful half. */
+.crew-role,
+.crew-job {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
 }
-.crew-name {
+.crew-name,
+.crew-person {
   font-weight: 600;
   color: var(--ink-soft);
-  text-align: right;
 }
+/* Whichever one lands in the right-hand slot is the one that aligns right. */
+.crew-name,
+.crew-job { text-align: right; }
 
 /* ─── MUSIC (raspberry band) ─────────────────────────────────────── */
 .music {
