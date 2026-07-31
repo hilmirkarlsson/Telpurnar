@@ -7,24 +7,24 @@
 
 /* ─── TOKENS ─────────────────────────────────────────────────────── */
 :root {
-  /* Reference palette (exact hexes) */
-  --bg:          #8FDFC4;   /* bright mint — main background */
+  /* Reference palette (exact hexes) — Blái / Guli / Bleiki */
+  --bg:          #B0FFEC;   /* Blái — main background */
   --surface:     #FFF8E6;   /* cream — cards */
-  --gold:        #F4C740;   /* gold — gallery band, accents, play buttons */
-  --crimson:     #C23458;   /* raspberry — brand, headings, borders */
-  --crimson-deep:#B12C52;   /* deeper raspberry — music rows */
+  --gold:        #FFE274;   /* Guli — gallery band, accents, play buttons */
+  --crimson:     #CC4D72;   /* Bleiki — brand, headings, borders */
+  --crimson-deep:#AF4067;   /* deeper bleiki — music rows */
 
   /* Kept token names so existing rules resolve; remapped to the new roles */
-  --surface-soft:#F4C740;   /* gallery band = gold */
-  --surface-2:   #7FD3B6;   /* slightly deeper mint (empty-media tint) */
+  --surface-soft:#FFE274;   /* gallery band = guli */
+  --surface-2:   #9DEDD2;   /* slightly deeper blái (empty-media tint) */
 
-  --ink:         #C23458;   /* headings / nav / brand = raspberry */
+  --ink:         #CC4D72;   /* headings / nav / brand = bleiki */
   --ink-soft:    #3E1B2A;   /* dark plum — body copy */
   --ink-faint:   #8A5A66;   /* muted plum — captions / tertiary */
 
-  --moss:        #F4C740;   /* generic accent = gold */
-  --line:        #C23458;   /* borders = raspberry */
-  --line-soft:   #C23458;
+  --moss:        #FFE274;   /* generic accent = guli */
+  --line:        #CC4D72;   /* borders = bleiki */
+  --line-soft:   #CC4D72;
 
   --font-serif:  'Luckiest Guy', cursive;          /* chunky display */
   --font-body:   'Fredoka', system-ui, sans-serif; /* rounded body */
@@ -76,7 +76,7 @@ a { color: inherit; text-decoration: none; }
 
 /* Display headings all use the chunky font — never faux-italic */
 .hero-title, .film-heading, .music-heading, .director-name,
-.poster-title, .footer-brand, .loader-mark, .nav-logo,
+.footer-brand, .loader-mark, .nav-logo,
 .detail-value, .still-num, .tl-num, .dp-initial {
   font-family: var(--font-serif);
   font-style: normal;
@@ -323,25 +323,13 @@ html.lenis, html.lenis body { height: auto; }
   transform: translateY(-10px);
 }
 .hero-title {
-  font-size: clamp(5rem, 21vw, 19rem);
-  color: var(--crimson);
-  text-shadow: 5px 7px 0 var(--gold);
   opacity: 0;
   transform: translateY(28px);
 }
-.hero-title-sub {
-  font-size: 0.34em;
-  display: block;
-}
-.hero-line {
-  margin: var(--sp-5) auto 0;
-  width: 100%;
-  max-width: 360px;
-  height: 6px;
-  border-radius: 6px;
-  background: var(--crimson);
-  transform: scaleX(0);
-  transform-origin: left;
+.hero-logo {
+  width: min(92vw, 720px);
+  height: auto;
+  margin: 0 auto;
 }
 .hero-meta {
   margin-top: var(--sp-6);
@@ -421,10 +409,6 @@ html.lenis, html.lenis body { height: auto; }
   opacity: 1; transform: none;
   transition: opacity 1.1s var(--ease-soft) 0.22s, transform 1.1s var(--ease-pop) 0.22s;
 }
-.hero.is-ready .hero-line {
-  transform: scaleX(1);
-  transition: transform 1.1s var(--ease-glide) 0.5s;
-}
 .hero.is-ready .hero-meta {
   opacity: 1; transform: none;
   transition: opacity 0.9s var(--ease-soft) 0.62s, transform 0.9s var(--ease-soft) 0.62s;
@@ -489,7 +473,7 @@ html.lenis, html.lenis body { height: auto; }
   z-index: 5;
   border: 4px solid var(--crimson);
   border-radius: inherit;
-  box-shadow: 10px 12px 0 rgba(194, 52, 88, 0.24);
+  box-shadow: 10px 12px 0 rgba(204, 77, 114, 0.24);
   pointer-events: none;
 }
 .film-world-label {
@@ -547,13 +531,6 @@ html.lenis, html.lenis body { height: auto; }
   transition: transform 0.4s var(--ease-pop), box-shadow 0.4s var(--ease-pop);
 }
 .film-poster-art:hover { transform: translate(-3px,-3px) rotate(-1deg); box-shadow: 11px 12px 0 var(--crimson); }
-/* Empty media placeholder (awaiting short-film imagery) */
-.film-poster-art.is-empty,
-.gallery-still.is-empty {
-  background:
-    repeating-linear-gradient(45deg, transparent 0 18px, rgba(194,52,88,0.06) 18px 36px),
-    linear-gradient(150deg, var(--surface-2), var(--gold));
-}
 .film-poster-img {
   position: absolute;
   inset: 0;
@@ -562,19 +539,6 @@ html.lenis, html.lenis body { height: auto; }
   transition: transform 1.2s var(--ease-soft);
 }
 .film-poster-art:hover .film-poster-img { transform: scale(1.05); }
-.poster-veil {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(62,27,42,0.45) 0%, rgba(62,27,42,0.02) 55%);
-}
-.poster-title {
-  position: absolute;
-  left: var(--sp-5);
-  bottom: var(--sp-5);
-  font-size: 2rem;
-  color: var(--surface);
-  text-shadow: 2px 3px 0 var(--crimson);
-}
 .film-heading {
   font-size: clamp(2.8rem, 6.5vw, 6rem);
   color: var(--crimson);
@@ -1415,7 +1379,7 @@ body.team-card-open .dust { display: none; }
   gap: var(--sp-4);
   flex-wrap: wrap;
   padding: var(--sp-4) 0;
-  border-bottom: 2px dashed rgba(194, 52, 88, 0.35);
+  border-bottom: 2px dashed rgba(204, 77, 114, 0.35);
 }
 .crew-row:last-child { border-bottom: none; }
 /* Two row shapes on the same card.

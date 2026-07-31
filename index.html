@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="style.css?v=54" />
+  <link rel="stylesheet" href="style.css?v=55" />
 </head>
 <body>
 
@@ -47,8 +47,9 @@
     <div class="hero-scrim" aria-hidden="true"></div>
 
     <div class="hero-content">
-      <h1 class="hero-title">Telpur <span class="hero-title-sub">Productions</span></h1>
-      <div class="hero-line" aria-hidden="true"></div>
+      <h1 class="hero-title">
+        <img class="hero-logo" src="telpur-logo.png" alt="Telpur Productions" width="1430" height="1020" />
+      </h1>
     </div>
 
     <!-- Slideshow dots -->
@@ -178,9 +179,8 @@
 
       <div class="projects-grid">
         <a class="project-card" href="#telpurnar">
-          <div class="film-poster-art is-empty">
-            <div class="poster-veil"></div>
-            <span class="poster-title">Telpurnar</span>
+          <div class="film-poster-art">
+            <div class="film-poster-img" style="background-image:url('poster-telpurnar.jpg')"></div>
           </div>
           <span class="project-sub" data-is="Stuttmynd · 2026 · Sjá nánar" data-en="Short film · 2026 · See more">Stuttmynd · 2026 · Sjá nánar</span>
         </a>
@@ -197,11 +197,8 @@
 
       <div class="film-poster-wrap">
         <div class="film-poster">
-          <div class="film-poster-art is-empty">
-            <!-- Poster art awaiting short-film image; restore with:
-                 <div class="film-poster-img" style="background-image:url('IMG_URL')"></div> -->
-            <div class="poster-veil"></div>
-            <span class="poster-title">Telpurnar</span>
+          <div class="film-poster-art">
+            <div class="film-poster-img" style="background-image:url('poster-telpurnar.jpg')"></div>
           </div>
           <p class="poster-caption" data-is="Kvikmyndaplakat · 2026" data-en="Film poster · 2026">Kvikmyndaplakat · 2026</p>
         </div>
@@ -270,28 +267,23 @@
         </div>
 
         <div class="gallery-track">
-          <!-- Six slots: Hanna has chosen six stills and will airdrop them.
-               Fill each one with
-               style="background-image:url('still-0N.jpg')" and a real
-               aria-label, then drop the is-empty class — the lightbox picks
-               them up automatically. -->
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">01</span></div>
+            <div class="gallery-still" style="background-image:url('still-01.jpg')" role="img" aria-label="Tvær vinkonur ræða saman í eldhúsinu"><span class="still-num" aria-hidden="true">01</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">02</span></div>
+            <div class="gallery-still" style="background-image:url('still-02.jpg')" role="img" aria-label="Æsingur á milli tveggja vinkvenna á götu að kvöldlagi"><span class="still-num" aria-hidden="true">02</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">03</span></div>
+            <div class="gallery-still" style="background-image:url('still-03.jpg')" role="img" aria-label="Nærmynd af áhyggjufullum svip"><span class="still-num" aria-hidden="true">03</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">04</span></div>
+            <div class="gallery-still" style="background-image:url('still-04.jpg')" role="img" aria-label="Vinkona hrópar af skelfingu"><span class="still-num" aria-hidden="true">04</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">05</span></div>
+            <div class="gallery-still" style="background-image:url('still-05.jpg')" role="img" aria-label="Spennuþrungin sena í ganginum"><span class="still-num" aria-hidden="true">05</span></div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still is-empty"><span class="still-num" aria-hidden="true">06</span></div>
+            <div class="gallery-still" style="background-image:url('still-06.jpg')" role="img" aria-label="Vinkonurnar þrjár í stofunni"><span class="still-num" aria-hidden="true">06</span></div>
           </figure>
         </div>
 
@@ -422,7 +414,7 @@
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js?v=54" defer></script>
+  <script src="script.js?v=55" defer></script>
 
 </body>
 </html>

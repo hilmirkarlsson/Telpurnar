@@ -421,7 +421,7 @@ Lang.apply('is');
   function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
   resize();
   window.addEventListener('resize', resize, { passive: true });
-  const PAL = ['rgba(194,52,88,0.06)', 'rgba(244,199,64,0.07)', 'rgba(62,27,42,0.04)', 'rgba(255,248,230,0.06)'];
+  const PAL = ['rgba(204,77,114,0.06)', 'rgba(255,226,116,0.07)', 'rgba(62,27,42,0.04)', 'rgba(255,248,230,0.06)'];
   function spawn() {
     return {
       x: Math.random() * W, y: H + Math.random() * 80,
