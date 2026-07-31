@@ -587,6 +587,10 @@ html.lenis, html.lenis body { height: auto; }
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  /* "Sýnt í" was wrapping onto two lines on phones while "Sýnt" (the row
+     below) stayed on one, an asymmetry that read as broken. The label is
+     always short; let the value do the wrapping instead. */
+  white-space: nowrap;
 }
 .detail-value {
   font-size: 1.4rem;
@@ -1554,9 +1558,13 @@ body.team-card-open .dust { display: none; }
   .nav-links {
     position: static;
     transform: none;
-    gap: var(--sp-5);
+    gap: 10px;
   }
-  .nav-links a { font-size: 1.35rem; }
+  /* 1.35rem + the desktop gap wrapped "Um okkur" onto two lines at phone
+     widths (confirmed down to 320px with this size + nowrap + tighter gap;
+     comfortable from ~355px up). nowrap turns any remaining shortfall into a
+     clean overflow instead of an ugly mid-phrase wrap. */
+  .nav-links a { font-size: 1rem; white-space: nowrap; }
   .hero { padding: var(--sp-24) var(--pad-x) var(--sp-20); }
   .hero-dots { bottom: var(--sp-6); }
 }
