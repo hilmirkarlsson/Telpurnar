@@ -138,7 +138,7 @@ html.lenis, html.lenis body { height: auto; }
   border-bottom: 3px solid transparent;
 }
 .nav.scrolled {
-  background: rgba(143,223,196,0.9);
+  background: rgba(176,255,236,0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom-color: var(--crimson);
@@ -724,15 +724,19 @@ html.lenis, html.lenis body { height: auto; }
   transition: width 0.1s linear;
 }
 
-/* ─── STILL → LIGHTBOX TRIGGER ───────────────────────────────────── */
-/* Both bands crop on purpose — 16/10 on desktop, a frame wider than the
+/* ─── STILL/POSTER → LIGHTBOX TRIGGER ────────────────────────────── */
+/* Both galleries crop on purpose — 16/10 on desktop, a frame wider than the
    screen on phones — so the filmstrip reads as film, not as a photo grid.
    The cost is that you never see a whole picture, which is worst on a phone
    where roughly half the frame is off-screen. Tapping a still opens it whole.
-   Only stills that actually carry an image get this (JS adds .is-zoomable),
-   so the empty Stillur placeholders stay inert. */
-.gallery-still.is-zoomable { cursor: zoom-in; }
-.gallery-still.is-zoomable::before {
+   The film poster gets the same treatment — its cast/credit text is too
+   small at display size to read otherwise. Only elements that actually
+   carry an image get this (JS adds .is-zoomable), so the empty Stillur
+   placeholders stay inert. */
+.gallery-still.is-zoomable,
+.film-poster-art.is-zoomable { cursor: zoom-in; }
+.gallery-still.is-zoomable::before,
+.film-poster-art.is-zoomable::before {
   content: '⤢';
   position: absolute;
   z-index: 2;
@@ -753,11 +757,14 @@ html.lenis, html.lenis body { height: auto; }
   transition: opacity 0.3s ease, transform 0.3s var(--ease-pop);
 }
 .gallery-item:hover .gallery-still.is-zoomable::before,
-.gallery-still.is-zoomable:focus-visible::before { opacity: 1; transform: none; }
+.gallery-still.is-zoomable:focus-visible::before,
+.film-poster-art.is-zoomable:hover::before,
+.film-poster-art.is-zoomable:focus-visible::before { opacity: 1; transform: none; }
 /* Touch devices have no hover to reveal it, and this is exactly where the
    crop hurts most — so on touch the affordance is simply always there. */
 @media (hover: none) {
-  .gallery-still.is-zoomable::before { opacity: 1; transform: none; }
+  .gallery-still.is-zoomable::before,
+  .film-poster-art.is-zoomable::before { opacity: 1; transform: none; }
 }
 
 /* ─── LIGHTBOX — the whole, uncropped frame ──────────────────────── */
@@ -1309,12 +1316,13 @@ body.team-card-open .dust { display: none; }
   }
 }
 
-/* ─── VERKEFNI — projects grid ───────────────────────────────────── */
+/* ─── VERKEFNI — section intro, centred, sits tight above film-world ──── */
 .projects {
   position: relative;
   background: var(--bg);
-  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
+  padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x) var(--sp-4);
   border-top: 3px solid var(--crimson);
+  text-align: center;
 }
 .projects-inner { max-width: var(--max-w); margin: 0 auto; }
 /* Section eyebrows that read as the big section heading (no pill) */
@@ -1336,25 +1344,7 @@ body.team-card-open .dust { display: none; }
   margin-bottom: var(--sp-12);
   text-shadow: 3px 4px 0 var(--gold);
 }
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 320px));
-  gap: clamp(var(--sp-8), 4vw, var(--sp-12));
-}
-.project-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-  text-align: left;
-}
-.project-card .film-poster-art { width: 100%; }
-.project-sub {
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--crimson);
-}
+.projects-inner > .section-eyebrow { margin-bottom: 0; }
 
 /* ─── FÓLKIÐ & HAFA SAMBAND — role/contact lists ─────────────────── */
 .people, .contact {

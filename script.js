@@ -241,7 +241,9 @@ Lang.apply('is');
    tap has to be able to show the picture whole and uncropped. Phone-first:
    that's where the crop hides the most. */
 (function initLightbox() {
-  // The stills are background-image divs, not <img> — read the URL back out.
+  // The stills (and the film poster) are background-image divs, not <img> —
+  // read the URL back out. The poster's image lives one level deeper, in a
+  // nested .film-poster-img, rather than on the trigger element itself.
   const urlOf = el => {
     const m = /url\((['"]?)(.*?)\1\)/.exec(el.style.backgroundImage || '');
     return m ? m[2] : '';
@@ -250,8 +252,11 @@ Lang.apply('is');
   // Capture the description now: the trigger's own aria-label gains an
   // "— opna í fullri stærð" suffix below, and that suffix must not end up in
   // the lightbox caption (it's an instruction, not a description).
-  const stills = Array.from(document.querySelectorAll('.gallery-still'))
-    .map(el => ({ el, src: urlOf(el), label: el.getAttribute('aria-label') || '' }))
+  const stills = Array.from(document.querySelectorAll('.gallery-still, .film-poster-art'))
+    .map(el => {
+      const imgEl = el.classList.contains('film-poster-art') ? el.querySelector('.film-poster-img') : el;
+      return { el, src: urlOf(imgEl || el), label: el.getAttribute('aria-label') || '' };
+    })
     .filter(s => s.src && !s.el.classList.contains('is-empty'));
   if (!stills.length) return;   // nothing to open yet (empty Stillur band)
 
@@ -946,7 +951,7 @@ window.setTimeout(() => {
   const groups = [
     '.team-inner > .section-eyebrow', '.director-card',
     '.gallery-header > *',
-    '.projects-inner > .section-eyebrow', '.project-card',
+    '.projects-inner > .section-eyebrow',
     '.film-poster-wrap', '.film-info > *',
     '.people-inner > *', '.music-inner > *', '.contact-inner > *',
   ];
