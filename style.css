@@ -637,13 +637,7 @@ html.lenis, html.lenis body { height: auto; }
   margin-bottom: 0;
   text-shadow: 3px 4px 0 var(--surface);
 }
-.gallery-nav-row { display: flex; align-items: center; gap: var(--sp-5); }
-.gallery-hint {
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--crimson);
-}
+.gallery-nav-row { display: flex; align-items: center; }
 .gallery-arrows { display: flex; gap: var(--sp-3); }
 .gallery-arrow {
   display: flex;
@@ -916,45 +910,52 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-item { flex: 0 0 auto; }
   .gallery-still { height: min(74vh, 760px); width: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
-  .gallery-hint { display: none; }     /* swipe hint is phone-only */
 }
 
-/* ─── GALLERY on phones — vertical scroll drives oversized stills ─── */
+/* ─── GALLERY on phones — compact native swipe filmstrip ─── */
 @media (max-width: 767px) {
-  .gallery { padding: 0; }
+  .gallery { padding: var(--sp-12) 0 var(--sp-10); }
+  .gallery-pin { height: auto !important; }
   .gallery-sticky {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-    justify-content: center;
-    overflow: hidden;
-    padding: var(--sp-6) 0;
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 0;
   }
-  /* Each frame is wider than the phone so the viewport crops into the image
-     while vertical scrolling carries the complete filmstrip past it. */
-  .gallery-item { flex: 0 0 min(150vw, 780px); }
+  .gallery-item {
+    flex: 0 0 min(82vw, 420px);
+    scroll-snap-align: center;
+  }
   .gallery-still {
     width: 100%;
-    height: min(68svh, 620px);
-    aspect-ratio: auto;
+    height: auto;
+    aspect-ratio: 4 / 3;
     border-width: 3px;
     border-radius: 16px;
+    box-shadow: 5px 6px 0 var(--crimson);
   }
   .gallery-track {
-    overflow: visible;
-    scroll-snap-type: none;
-    align-items: center;
-    will-change: transform;
-    /* Trailing space = one gap, matching the spacing between the frames. */
-    padding: 0 var(--gallery-gap) 0 var(--pad-x);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--pad-x);
+    align-items: stretch;
+    transform: none !important;
+    will-change: auto;
+    padding: 0 var(--pad-x) var(--sp-3);
   }
   .gallery-header {
     align-items: center;
-    gap: var(--sp-4);
-    margin-bottom: var(--sp-6);
+    flex-wrap: nowrap;
+    gap: var(--sp-3);
+    margin-bottom: var(--sp-5);
   }
-  .gallery-arrows { display: none; }
-  .gallery-hint { display: block; }
+  .gallery-header .section-eyebrow {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+    line-height: 1.05;
+  }
+  .gallery-arrows { gap: var(--sp-2); }
+  .gallery-arrow { width: 44px; height: 44px; border-width: 2px; }
+  .gallery-progress-wrap { margin-top: var(--sp-5); }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
@@ -1553,6 +1554,8 @@ body.team-card-open .dust { display: none; }
   .film-poster-art { max-width: 300px; }
 }
 @media (max-width: 600px) {
+  :root { --pad-x: 1rem; }
+
   /* Only two links now — keep them visible on phones: drop the absolute
      centering so they flow to the right of the logo instead of overlapping. */
   .nav-links {
@@ -1567,6 +1570,92 @@ body.team-card-open .dust { display: none; }
   .nav-links a { font-size: 1rem; white-space: nowrap; }
   .hero { padding: var(--sp-24) var(--pad-x) var(--sp-20); }
   .hero-dots { bottom: var(--sp-6); }
+
+  /* Give the film information the page width and let the unfinished poster
+     act as a small chapter marker instead of dominating the phone viewport. */
+  .film { padding: var(--sp-20) var(--pad-x) var(--sp-16); }
+  .film-inner { gap: var(--sp-10); }
+  .film-poster-wrap { display: flex; justify-content: center; }
+  .film-poster { width: min(58vw, 220px); }
+  .film-poster-art { width: 100%; box-shadow: 5px 6px 0 var(--crimson); }
+  .poster-caption { text-align: center; letter-spacing: 0.1em; }
+  .film-heading {
+    font-size: clamp(2.8rem, 15vw, 4.25rem);
+    line-height: 0.95;
+    margin-bottom: var(--sp-5);
+  }
+  .film-description { font-size: 1rem; line-height: 1.65; max-width: none; }
+  .film-description:last-of-type { margin-bottom: var(--sp-8); }
+
+  /* The two screening facts belong together, so they become one ticket-like
+     unit instead of two heavy cards fighting for attention. */
+  .film-details {
+    gap: 0;
+    padding: var(--sp-2) var(--sp-5);
+    background: var(--surface);
+    border: 3px solid var(--crimson);
+    border-radius: 18px;
+    box-shadow: 5px 6px 0 var(--crimson);
+  }
+  .film-detail {
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-1);
+    padding: var(--sp-4) 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .film-detail + .film-detail { border-top: 2px dashed rgba(194, 52, 88, 0.35); }
+  .film-detail:hover { transform: none; }
+  .detail-label { color: var(--crimson); }
+  .detail-value { font-size: clamp(1.25rem, 6vw, 1.6rem); line-height: 1.15; }
+  .film-detail:first-child .detail-value { font-size: clamp(1.45rem, 7vw, 1.85rem); }
+
+  /* A phone is too narrow for a two-ended credit table. Each credit becomes
+     a clear person-first block with the role directly underneath. */
+  .people { padding: var(--sp-16) var(--pad-x); }
+  .people-inner > .section-eyebrow { margin-bottom: var(--sp-6); }
+  .crew-list {
+    counter-reset: credit;
+    display: grid;
+    gap: var(--sp-3);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .people .crew-row {
+    counter-increment: credit;
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: var(--sp-2);
+    padding: var(--sp-5) var(--sp-12) var(--sp-5) var(--sp-5);
+    background: var(--surface);
+    border: 3px solid var(--crimson);
+    border-radius: 16px;
+    box-shadow: 4px 5px 0 var(--crimson);
+  }
+  .people .crew-row::after {
+    content: counter(credit, decimal-leading-zero);
+    position: absolute;
+    top: var(--sp-4);
+    right: var(--sp-4);
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    color: var(--crimson);
+    opacity: 0.5;
+  }
+  .people .crew-person { font-size: 1.1rem; line-height: 1.3; }
+  .people .crew-job {
+    max-width: 30ch;
+    text-align: left;
+    line-height: 1.45;
+    letter-spacing: 0.1em;
+  }
 }
 
 /* ─── REDUCED MOTION ─────────────────────────────────────────────── */
