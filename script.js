@@ -148,11 +148,10 @@ Lang.apply('is');
    pin mis-placed (a big empty gap). CSS `position: sticky` instead lets the
    browser hold the viewport, and we read the pin's LIVE getBoundingClientRect
    each frame — always accurate, immune to font reflow and scroll desync. */
-/* Runs for every gallery on desktop. Phones keep a short native swipe row;
-   the scroll-jack is intentionally reserved for larger viewports. */
+/* Runs for EVERY .gallery section (Framleiðslumyndir + Stillur úr myndinni),
+   so both bands get exactly the same scroll experience. */
 (function initStillsScroll() {
   if (REDUCE) return;
-  const desktop = window.matchMedia('(min-width: 768px)');
   const jacks = [];
 
   document.querySelectorAll('.gallery').forEach(section => {
@@ -185,13 +184,6 @@ Lang.apply('is');
     }
 
     function measure() {
-      if (!desktop.matches) {
-        travel = 0;
-        pin.style.height = '';
-        track.style.transform = '';
-        if (fill) fill.style.width = '';
-        return;
-      }
       // How far the row must slide so its right edge reaches the viewport.
       travel = Math.max(0, contentExtent() - sticky.clientWidth);
       // Pin height = the sticky viewport's OWN height + the horizontal travel,
@@ -216,7 +208,6 @@ Lang.apply('is');
       apply();
     }
     function apply() {
-      if (!desktop.matches) return;
       // While the sticky viewport is engaged, the pin's top edge travels from
       // 0 down to -travel. Normalise that into 0→1 progress.
       const rectTop = pin.getBoundingClientRect().top;

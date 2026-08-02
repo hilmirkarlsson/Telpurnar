@@ -912,50 +912,41 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
 }
 
-/* ─── GALLERY on phones — compact native swipe filmstrip ─── */
+/* ─── GALLERY on phones — vertical scroll drives oversized stills ─── */
 @media (max-width: 767px) {
-  .gallery { padding: var(--sp-12) 0 var(--sp-10); }
-  .gallery-pin { height: auto !important; }
+  .gallery { padding: 0; }
   .gallery-sticky {
-    position: static;
-    height: auto;
-    overflow: visible;
-    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    justify-content: center;
+    overflow: hidden;
+    padding: var(--sp-6) 0;
   }
-  .gallery-item {
-    flex: 0 0 min(82vw, 420px);
-    scroll-snap-align: center;
-  }
+  /* Each frame is wider than the phone so the viewport crops into the image
+     while vertical scrolling carries the complete filmstrip past it. */
+  .gallery-item { flex: 0 0 min(150vw, 780px); }
   .gallery-still {
     width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 3;
+    height: min(68svh, 620px);
+    aspect-ratio: auto;
     border-width: 3px;
     border-radius: 16px;
-    box-shadow: 5px 6px 0 var(--crimson);
   }
   .gallery-track {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--pad-x);
-    align-items: stretch;
-    transform: none !important;
-    will-change: auto;
-    padding: 0 var(--pad-x) var(--sp-3);
+    overflow: visible;
+    scroll-snap-type: none;
+    align-items: center;
+    will-change: transform;
+    /* Trailing space = one gap, matching the spacing between the frames. */
+    padding: 0 var(--gallery-gap) 0 var(--pad-x);
   }
   .gallery-header {
     align-items: center;
-    flex-wrap: nowrap;
-    gap: var(--sp-3);
-    margin-bottom: var(--sp-5);
+    gap: var(--sp-4);
+    margin-bottom: var(--sp-6);
   }
-  .gallery-header .section-eyebrow {
-    font-size: clamp(1.45rem, 7vw, 2rem);
-    line-height: 1.05;
-  }
-  .gallery-arrows { gap: var(--sp-2); }
-  .gallery-arrow { width: 44px; height: 44px; border-width: 2px; }
-  .gallery-progress-wrap { margin-top: var(--sp-5); }
+  .gallery-arrows { display: none; }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
