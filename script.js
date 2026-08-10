@@ -155,14 +155,6 @@ Lang.apply('is');
     let travel = 0;
     const items = () => [...track.children].filter(c => c.classList.contains('gallery-item'));
 
-    /* Stillur úr myndinni drops the jack on phones and becomes a native
-       snap-swipe row (see style.css — the frames are cinemascope, so a
-       full, uncropped frame is too short to hold a 100svh sticky band).
-       The CSS neutralises our inline styles, but the jack would still drive
-       the progress bar against the row's own scroll — so bow out entirely. */
-    const jackOff = () =>
-      section.id === 'stills' && window.matchMedia('(max-width: 767px)').matches;
-
     /* The row's true width, measured rather than taken from scrollWidth.
        scrollWidth silently DROPS the track's trailing padding: for the BTS
        band it reported 6917 = 64px left padding + 6853px of frames, leaving
@@ -183,14 +175,6 @@ Lang.apply('is');
     }
 
     function measure() {
-      if (jackOff()) {
-        // Hand every property we own back to the stylesheet, so resizing
-        // across the breakpoint can't leave a stale pin height behind.
-        pin.style.height = '';
-        track.style.transform = '';
-        if (fill) fill.style.transform = '';
-        return;
-      }
       // How far the row must slide so its right edge reaches the viewport.
       travel = Math.max(0, contentExtent() - sticky.clientWidth);
       // Pin height = the sticky viewport's OWN height + the horizontal travel,
@@ -215,7 +199,6 @@ Lang.apply('is');
       apply();
     }
     function apply() {
-      if (jackOff()) return;
       // While the sticky viewport is engaged, the pin's top edge travels from
       // 0 down to -travel. Normalise that into 0→1 progress.
       const rectTop = pin.getBoundingClientRect().top;

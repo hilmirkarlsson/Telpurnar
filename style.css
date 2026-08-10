@@ -931,39 +931,11 @@ html.lenis, html.lenis body { height: auto; }
   }
   .gallery-arrows { display: none; }
 
-  /* ── …except Stillur úr myndinni: the WHOLE frame inside the card ──
-     The BTS band above is MEANT to be cropped — an oversized card acts as a
-     viewfinder into the photo. These are finished film frames, so cropping
-     them cuts the composition the directors framed. Each card therefore fits
-     the phone's width and takes the frames' own cinemascope ratio
-     (1280x500 ≈ 2.56:1), with the image CONTAINED rather than covered: the
-     frames that are a hair taller letterbox instead of losing their edges.
-
-     A 2.56:1 frame at phone width is only ~160px tall, and a strip that short
-     floating in the middle of a 100svh scroll-jack read as an empty gold
-     screen. So this band alone drops the jack on phones and becomes a plain
-     snap-swipe row — the same fallback the reduced-motion block uses, hence
-     the same !important overrides against the JS-written inline styles. */
-  #stills { padding: clamp(var(--sp-12), 8vw, var(--sp-16)) 0; }
-  #stills .gallery-pin { height: auto !important; }
-  #stills .gallery-sticky {
-    position: static;
-    height: auto;
-    overflow: visible;
-    padding: 0;
-  }
-  #stills .gallery-track {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    transform: none !important;
-    padding: 0 var(--pad-x) var(--sp-3);
-  }
-  /* 100% of the track's CONTENT box, i.e. one frame per screen inside the
-     page gutters. Deliberately not calc(100vw - gutters): 100vw includes a
-     scrollbar where one exists, which pushed the card past the section edge. */
+  /* Film stills keep the same vertical-scroll-driven horizontal sequence as
+     the BTS band, but each finished frame is contained inside a phone-width
+     card so none of the directors' composition is cropped. */
   #stills .gallery-item {
-    flex: 0 0 100%;
-    scroll-snap-align: center;
+    flex: 0 0 calc(100vw - var(--pad-x) - var(--pad-x));
   }
   #stills .gallery-still {
     height: auto;
@@ -971,9 +943,6 @@ html.lenis, html.lenis body { height: auto; }
     background-size: contain;
     background-repeat: no-repeat;
   }
-  /* Native scroll here, so the arrows work again — and with frames this small
-     a tap target beats hoping the swipe is discovered. */
-  #stills .gallery-arrows { display: flex; }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
