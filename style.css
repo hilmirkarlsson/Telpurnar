@@ -902,9 +902,12 @@ html.lenis, html.lenis body { height: auto; }
     position: sticky;
     top: 0;
     height: 100svh;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
-    padding: var(--sp-6) 0;
+    /* Clear the fixed navigation and anchor the heading instead of vertically
+       centring a stack taller than short phone viewports, which clipped the
+       top quarter of “Framleiðslumyndir”. */
+    padding: clamp(60px, 9svh, 80px) 0 var(--sp-4);
   }
   /* Each frame is wider than the phone so the viewport crops into the image
      while vertical scrolling carries the complete filmstrip past it. */
@@ -927,22 +930,10 @@ html.lenis, html.lenis body { height: auto; }
   .gallery-header {
     align-items: center;
     gap: var(--sp-4);
-    margin-bottom: var(--sp-6);
+    margin-bottom: var(--sp-4);
   }
+  .gallery-progress-wrap { margin-top: var(--sp-4); }
   .gallery-arrows { display: none; }
-
-  /* Film stills keep the same vertical-scroll-driven horizontal sequence as
-     the BTS band, but each finished frame is contained inside a phone-width
-     card so none of the directors' composition is cropped. */
-  #stills .gallery-item {
-    flex: 0 0 calc(100vw - var(--pad-x) - var(--pad-x));
-  }
-  #stills .gallery-still {
-    height: auto;
-    aspect-ratio: 128 / 50;
-    background-size: contain;
-    background-repeat: no-repeat;
-  }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
