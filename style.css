@@ -717,9 +717,11 @@ html.lenis, html.lenis body { height: auto; }
 }
 .gallery-progress-fill {
   height: 100%;
-  width: 0%;
+  width: 100%;
   background: var(--crimson);
-  transition: width 0.1s linear;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 /* ─── STILL/POSTER → LIGHTBOX TRIGGER ────────────────────────────── */

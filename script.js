@@ -86,11 +86,11 @@ Lang.apply('is');
   onScroll();
 })();
 
-/* ─── SMOOTH SCROLL (Lenis) + ScrollTrigger integration ──────────── */
+/* ─── SMOOTH SCROLL (Lenis) ──────────────────────────────────────── */
 (function initLenis() {
   if (REDUCE || typeof Lenis === 'undefined') return;   // CDN blocked → native scroll
   const lenis = new Lenis({
-    duration: 1.2,
+    duration: 0.9,
     easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     smoothWheel: true,
     smoothTouch: false,
@@ -103,17 +103,8 @@ Lang.apply('is');
   // and then rewinding.
   window.__lenis = lenis;
 
-  // Drive Lenis from GSAP's ticker and keep ScrollTrigger in sync (as v3 did)
-  if (typeof gsap !== 'undefined' && gsap.ticker) {
-    if (typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
-      lenis.on('scroll', ScrollTrigger.update);
-    }
-    gsap.ticker.add(time => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-  } else {
-    (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
-  }
+  // One animation loop is enough; the galleries use native sticky positioning.
+  (function raf(time) { lenis.raf(time); requestAnimationFrame(raf); })();
 
   // Anchor links glide via Lenis instead of jumping. Nav clicks that cross
   // the gallery section (in either direction) get a slower glide, long
@@ -213,7 +204,7 @@ Lang.apply('is');
       const rectTop = pin.getBoundingClientRect().top;
       const p = travel > 0 ? Math.min(Math.max(-rectTop / travel, 0), 1) : 0;
       track.style.transform = 'translate3d(' + (-travel * p).toFixed(1) + 'px,0,0)';
-      if (fill) fill.style.width = (p * 100).toFixed(2) + '%';
+      if (fill) fill.style.transform = 'scaleX(' + p.toFixed(4) + ')';
     }
     jacks.push({ measure, apply });
   });
@@ -400,10 +391,10 @@ Lang.apply('is');
   const cue = document.querySelector('.hero-scroll');
   if (!hero || !content) return;
   let ticking = false;
+  let heroHeight = hero.offsetHeight || window.innerHeight;
   function update() {
     const y = window.scrollY || window.pageYOffset || 0;
-    const h = hero.offsetHeight || window.innerHeight;
-    const p = Math.min(y / h, 1);
+    const p = Math.min(y / heroHeight, 1);
     content.style.transform = `translate3d(0, ${y * -0.18}px, 0)`;
     content.style.opacity = String(Math.max(0, 1 - p * 1.15));
     if (cue) cue.style.opacity = String(Math.max(0, 1 - y / 220));
@@ -411,6 +402,9 @@ Lang.apply('is');
   }
   window.addEventListener('scroll', () => {
     if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  window.addEventListener('resize', () => {
+    heroHeight = hero.offsetHeight || window.innerHeight;
   }, { passive: true });
   // No initial call — let the hero intro animation play first; parallax
   // engages on the first scroll.
@@ -438,7 +432,8 @@ Lang.apply('is');
     };
   }
   const pts = Array.from({ length: 20 }, () => { const p = spawn(); p.y = Math.random() * H; return p; });
-  (function tick() {
+  let lastFrame = 0;
+  (function tick(now = performance.now()) {
     // Idle while a director card is open. The canvas is hidden by CSS then,
     // so this work would be invisible anyway — and leaving a full-viewport
     // repaint running competes with the card's transition for frame budget.
@@ -446,6 +441,12 @@ Lang.apply('is');
       requestAnimationFrame(tick);
       return;
     }
+    // Ambient dust does not need 60 full-viewport canvas repaints per second.
+    if (now - lastFrame < 33) {
+      requestAnimationFrame(tick);
+      return;
+    }
+    lastFrame = now;
     ctx.clearRect(0, 0, W, H);
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i];
@@ -654,6 +655,7 @@ function initHeroGL() {
 
   let transStart = 0;
   const easeInOut = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+  let heroVisible = true;
 
   function render(now) {
     // parallax smoothing
@@ -701,7 +703,7 @@ function initHeroGL() {
     gl.uniform1f(U.uZoomB, zoomNext);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    raf = requestAnimationFrame(render);
+    raf = heroVisible ? requestAnimationFrame(render) : 0;
   }
 
   let raf = 0;
@@ -714,6 +716,22 @@ function initHeroGL() {
     raf = requestAnimationFrame(render);
   }
 
+  // Stop the WebGL slideshow once the hero leaves the viewport. Keeping it
+  // rendering behind the rest of the page steals GPU time from scrolling.
+  if ('IntersectionObserver' in window) {
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      heroVisible = entry.isIntersecting;
+      if (!heroVisible && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      } else if (heroVisible && started && !raf && !document.hidden) {
+        lastSwap = performance.now();
+        raf = requestAnimationFrame(render);
+      }
+    }, { threshold: 0 });
+    heroObserver.observe(hero);
+  }
+
   // Watchdog: if textures haven't uploaded in time (e.g. CORS), abandon
   // WebGL and let the CSS slideshow take over so the hero never sits static.
   window.setTimeout(() => {
@@ -722,7 +740,7 @@ function initHeroGL() {
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
-    else if (started && !raf) { lastSwap = performance.now(); raf = requestAnimationFrame(render); }
+    else if (heroVisible && started && !raf) { lastSwap = performance.now(); raf = requestAnimationFrame(render); }
   });
 
   return true;
@@ -1003,7 +1021,8 @@ function initGallery(section) {
     if (window.matchMedia('(min-width: 768px)').matches) return;
     if (progress) {
       const max = track.scrollWidth - track.clientWidth;
-      progress.style.width = (max > 0 ? (track.scrollLeft / max) * 100 : 0) + '%';
+      const ratio = max > 0 ? track.scrollLeft / max : 0;
+      progress.style.transform = `scaleX(${ratio.toFixed(4)})`;
     }
     // refined parallax: background drifts opposite to scroll within each frame
     if (!REDUCE) {
