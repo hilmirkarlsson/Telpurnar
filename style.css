@@ -1028,7 +1028,7 @@ html.lenis, html.lenis body { height: auto; }
   color: var(--crimson);
   text-shadow: 3px 4px 0 var(--surface);
 }
-.director-portrait.has-photo { background: var(--surface-2); }
+.director-portrait.has-photo { background: var(--surface); }
 .dp-photo {
   position: absolute;
   inset: 0;
@@ -1036,6 +1036,11 @@ html.lenis, html.lenis body { height: auto; }
   height: 100%;
   object-fit: contain;
 }
+/* The source portraits differ slightly from the shared 7:8 card ratio. A
+   minimal crop (about 3% for Hanna and 6% for Guðríður) fills the closed card
+   cleanly without the blue background frame; the expanded view stays fully
+   contained so the complete portraits remain available. */
+.team-card:not(.is-featured) .dp-photo { object-fit: cover; }
 /* Text sits padded inside the card body */
 .director-role {
   font-size: 0.68rem;
