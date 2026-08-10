@@ -907,14 +907,14 @@ html.lenis, html.lenis body { height: auto; }
     /* Clear the fixed navigation and anchor the heading instead of vertically
        centring a stack taller than short phone viewports, which clipped the
        top quarter of “Framleiðslumyndir”. */
-    padding: clamp(60px, 9svh, 80px) 0 var(--sp-4);
+    padding: max(88px, calc(env(safe-area-inset-top) + 72px)) 0 var(--sp-4);
   }
   /* Each frame is wider than the phone so the viewport crops into the image
      while vertical scrolling carries the complete filmstrip past it. */
   .gallery-item { flex: 0 0 min(150vw, 780px); }
   .gallery-still {
     width: 100%;
-    height: min(68svh, 620px);
+    height: min(64svh, 580px);
     aspect-ratio: auto;
     border-width: 3px;
     border-radius: 16px;
