@@ -944,18 +944,6 @@ html.lenis, html.lenis body { height: auto; }
   }
   .gallery-arrows { display: none; }
 
-  /* Film stills retain the vertical-scroll-driven horizontal sequence, but
-     use phone-sized 16:9 cards instead of the oversized BTS framing. */
-  #stills .gallery-item {
-    flex: 0 0 min(88vw, 560px);
-  }
-  #stills .gallery-still {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    background-size: cover;
-    background-position: center;
-  }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
@@ -1229,20 +1217,21 @@ body.team-card-open .dust { display: none; }
   justify-content: space-between;
   gap: var(--sp-3);
 }
-/* Close mark — only present once the card is open.
-   It used to sit on the collapsed card as a "+", which read as a stray mark
-   next to the name rather than a control. It still occupies its slot in the
-   name row while invisible, so opening doesn't reflow the heading. */
-.team-card .director-name::after {
-  content: '+';
-  font-size: 1.2em;
+/* Keep the action visible in both states: collapsed cards advertise that
+   more information exists, and expanded cards name the reverse action. */
+.team-card-more {
+  flex: 0 0 auto;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--crimson);
-  text-shadow: 2px 2px 0 var(--gold);
-  opacity: 0;
-  transition: transform 0.42s var(--ease-soft), opacity 0.3s ease;
-  flex-shrink: 0;
+  white-space: nowrap;
 }
-.team-card.is-open .director-name::after { transform: rotate(45deg); opacity: 1; }
+.team-card-more-open { display: none; }
+.team-card.is-open .team-card-more-closed { display: none; }
+.team-card.is-open .team-card-more-open { display: inline; }
 .team-card-body {
   display: grid;
   grid-template-rows: 0fr;
@@ -1267,7 +1256,7 @@ body.team-card-open .dust { display: none; }
 .team-card.is-closing .team-card-body,
 .team-card.is-closing .director-role,
 .team-card.is-closing .director-bio,
-.team-card.is-closing .director-name::after { transition: none !important; }
+.team-card.is-closing .team-card-more { transition: none !important; }
 /* The gold disc that used to bloom here has been removed. It scaled a 26px
    circle by 72x, which the compositor rasterises once at its small size and
    then upscales — the edge arrived visibly soft and pixelated. It was also
@@ -1301,6 +1290,9 @@ body.team-card-open .dust { display: none; }
     grid-template-rows: auto auto auto;
     transform: none;
     box-shadow: 9px 11px 0 var(--crimson);
+    /* Switch to fixed geometry immediately. The Web Animation API supplies
+       the only visible phone motion, preventing a down-then-up transition. */
+    transition: none;
   }
   .team-card.is-open.is-featured:hover { transform: none; }
   .team-card.is-featured .director-portrait {

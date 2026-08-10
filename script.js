@@ -299,6 +299,13 @@ Lang.apply('is');
   }
 
   function open(i, trigger) {
+    // A fast double-tap used to call lock() twice while one close only called
+    // unlock() once, leaving the entire page permanently frozen. Opening an
+    // already-open dialog now only changes the displayed image.
+    if (box.classList.contains('is-open')) {
+      show(i);
+      return;
+    }
     lastTrigger = trigger || null;
     show(i);
     ScrollLock.lock();
@@ -838,6 +845,8 @@ window.setTimeout(() => {
   const DRIFT = 0.4;   // how far toward the origin card it starts (0..1)
   const FROM_SCALE = 0.94;
 
+  const isPhone = () => window.matchMedia('(max-width: 700px)').matches;
+
   function entryTransform(from, to) {
     const dx = ((from.left + from.width / 2) - (to.left + to.width / 2)) * DRIFT;
     const dy = ((from.top + from.height / 2) - (to.top + to.height / 2)) * DRIFT;
@@ -907,7 +916,7 @@ window.setTimeout(() => {
     // finish() has collapsed it, then cancels the hold.
     const closing = run(card, [
       { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-      { transform: entryTransform(target, current), opacity: 0 }
+      { transform: isPhone() ? `scale(${FROM_SCALE})` : entryTransform(target, current), opacity: 0 }
     ], CLOSE_MS, 'forwards');
     closing.finished.then(() => finish(closing)).catch(() => finish(closing));
   }
@@ -937,7 +946,7 @@ window.setTimeout(() => {
     requestAnimationFrame(() => {
       const target = card.getBoundingClientRect();
       run(card, [
-        { transform: entryTransform(originRect, target), opacity: 0 },
+        { transform: isPhone() ? `scale(${FROM_SCALE})` : entryTransform(originRect, target), opacity: 0 },
         { transform: 'translate(0, 0) scale(1)', opacity: 1 }
       ], OPEN_MS);
     });
