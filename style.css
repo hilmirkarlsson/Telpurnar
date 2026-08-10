@@ -587,9 +587,8 @@ html.lenis, html.lenis body { height: auto; }
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  /* "Sýnt í" was wrapping onto two lines on phones while "Sýnt" (the row
-     below) stayed on one, an asymmetry that read as broken. The label is
-     always short; let the value do the wrapping instead. */
+  /* Keep short screening labels such as "Sýnt í" and "dagana" on one line;
+     the corresponding value may wrap when space is tight. */
   white-space: nowrap;
 }
 .detail-value {
@@ -945,30 +944,10 @@ html.lenis, html.lenis body { height: auto; }
   }
   .gallery-arrows { display: none; }
 
-  /* Film stills: compact native swipe row. Unlike the BTS band, these wide
-     frames must be visible whole and must not drive a tall pinned sequence. */
-  #stills { padding: var(--sp-12) 0; }
-  #stills .gallery-pin { height: auto !important; }
-  #stills .gallery-sticky {
-    position: static;
-    height: auto;
-    overflow: visible;
-    padding: 0;
-  }
-  #stills .gallery-header {
-    align-items: flex-start;
-    padding-inline: var(--pad-x);
-  }
-  #stills .gallery-track {
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    transform: none !important;
-    will-change: auto;
-    padding: var(--sp-2) var(--pad-x) var(--sp-5);
-  }
+  /* Film stills retain the vertical-scroll-driven horizontal sequence, but
+     use phone-sized 16:9 cards instead of the oversized BTS framing. */
   #stills .gallery-item {
     flex: 0 0 min(88vw, 560px);
-    scroll-snap-align: start;
   }
   #stills .gallery-still {
     width: 100%;
@@ -977,7 +956,6 @@ html.lenis, html.lenis body { height: auto; }
     background-size: cover;
     background-position: center;
   }
-  #stills .gallery-progress-wrap { margin-top: var(--sp-4); }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */
@@ -1014,8 +992,8 @@ html.lenis, html.lenis body { height: auto; }
     margin-top: var(--sp-8);
   }
   .duo-copy { max-width: none; }
-  /* Portraits get shorter so you aren't scrolling past two full-bleed faces */
-  .duo-layout .director-portrait { aspect-ratio: 3/2; }
+  /* Preserve the complete portrait composition on phones. */
+  .duo-layout .director-portrait { aspect-ratio: 7/8; }
   /* No scale-up on phones: a 1.06 card + its offset shadow would push past
      the viewport and create a horizontal scrollbar. Lift + shadow + the
      receding siblings still sell "this one came to the front". */
@@ -1049,7 +1027,7 @@ html.lenis, html.lenis body { height: auto; }
 .director-card:hover { transform: translate(-3px,-4px); box-shadow: 11px 13px 0 var(--crimson); }
 .director-portrait {
   width: 100%;
-  aspect-ratio: 4/5;
+  aspect-ratio: 7/8;
   overflow: hidden;
   position: relative;
   display: flex;
@@ -1069,10 +1047,8 @@ html.lenis, html.lenis body { height: auto; }
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 1.2s var(--ease-soft);
+  object-fit: contain;
 }
-.director-card:hover .dp-photo { transform: scale(1.04); }
 /* Text sits padded inside the card body */
 .director-role {
   font-size: 0.68rem;
