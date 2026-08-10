@@ -805,19 +805,6 @@ html.lenis, html.lenis body { height: auto; }
   transition: transform 0.3s var(--ease-soft);
 }
 .lightbox.is-open .lightbox-img { transform: none; }
-.lightbox-caption {
-  max-width: 62ch;
-  text-align: center;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--gold);
-}
-.lightbox-count {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  color: var(--gold);
-  opacity: 0.75;
-}
 .lightbox-btn {
   display: grid;
   place-items: center;

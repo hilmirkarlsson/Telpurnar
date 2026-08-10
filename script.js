@@ -263,8 +263,6 @@ Lang.apply('is');
     <button class="lightbox-btn lightbox-close" type="button" aria-label="Loka">&times;</button>
     <figure class="lightbox-figure">
       <img class="lightbox-img" alt="" decoding="async">
-      <figcaption class="lightbox-caption"></figcaption>
-      <p class="lightbox-count" aria-hidden="true"></p>
     </figure>
     <div class="lightbox-nav-row">
       <button class="lightbox-btn lightbox-prev" type="button" aria-label="Fyrri mynd">&#8249;</button>
@@ -273,8 +271,6 @@ Lang.apply('is');
   document.body.appendChild(box);
 
   const img     = box.querySelector('.lightbox-img');
-  const caption = box.querySelector('.lightbox-caption');
-  const count   = box.querySelector('.lightbox-count');
   const closeBtn = box.querySelector('.lightbox-close');
   const prevBtn = box.querySelector('.lightbox-prev');
   const nextBtn = box.querySelector('.lightbox-next');
@@ -289,8 +285,6 @@ Lang.apply('is');
     const { src, label } = stills[index];
     img.src = src;
     img.alt = label;
-    caption.textContent = label;
-    count.textContent = `${index + 1} / ${stills.length}`;
     // Warm the neighbours so paging feels instant.
     [index - 1, index + 1].forEach(n => {
       const s = stills[(n + stills.length) % stills.length];
