@@ -680,6 +680,20 @@ html.lenis, html.lenis body { height: auto; }
   box-shadow: var(--sticker-lg);
   transition: transform 0.5s var(--ease-pop), box-shadow 0.5s var(--ease-pop);
 }
+
+/* The finished-film stills are native ~2.5:1 cinematic frames. Preserve the
+   complete composition instead of cropping them into the BTS gallery's 16:10
+   cards. The small ratio differences are letterboxed by the dark frame. */
+#stills .gallery-item {
+  flex-basis: min(88vw, 1280px);
+}
+#stills .gallery-still {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1280 / 500;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
 .gallery-item:hover .gallery-still {
   transform: translate(-3px,-4px);
   box-shadow: 11px 13px 0 var(--crimson);
@@ -725,14 +739,8 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* ─── STILL/POSTER → LIGHTBOX TRIGGER ────────────────────────────── */
-/* Both galleries crop on purpose — 16/10 on desktop, a frame wider than the
-   screen on phones — so the filmstrip reads as film, not as a photo grid.
-   The cost is that you never see a whole picture, which is worst on a phone
-   where roughly half the frame is off-screen. Tapping a still opens it whole.
-   The film poster gets the same treatment — its cast/credit text is too
-   small at display size to read otherwise. Only elements that actually
-   carry an image get this (JS adds .is-zoomable), so the empty Stillur
-   placeholders stay inert. */
+/* Gallery stills and the poster can open in a lightbox. BTS frames retain
+   their editorial crop; the finished-film stills are already shown whole. */
 .gallery-still.is-zoomable,
 .film-poster-art.is-zoomable { cursor: zoom-in; }
 .gallery-still.is-zoomable::before,
@@ -911,6 +919,8 @@ html.lenis, html.lenis body { height: auto; }
      top to bottom instead of being capped by a width-first aspect-ratio. */
   .gallery-item { flex: 0 0 auto; }
   .gallery-still { height: min(74vh, 760px); width: auto; }
+  #stills .gallery-item { flex: 0 0 min(88vw, 1280px); }
+  #stills .gallery-still { width: 100%; height: auto; }
   .gallery-arrows { display: none; }   /* page scroll drives the row */
 }
 
@@ -949,6 +959,38 @@ html.lenis, html.lenis body { height: auto; }
     margin-bottom: var(--sp-6);
   }
   .gallery-arrows { display: none; }
+
+  /* Film stills: compact native swipe row. Unlike the BTS band, these wide
+     frames must be visible whole and must not drive a tall pinned sequence. */
+  #stills { padding: var(--sp-12) 0; }
+  #stills .gallery-pin { height: auto !important; }
+  #stills .gallery-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding: 0;
+  }
+  #stills .gallery-header {
+    align-items: flex-start;
+    padding-inline: var(--pad-x);
+  }
+  #stills .gallery-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    transform: none !important;
+    will-change: auto;
+    padding: var(--sp-2) var(--pad-x) var(--sp-5);
+  }
+  #stills .gallery-item {
+    flex: 0 0 min(88vw, 560px);
+    scroll-snap-align: start;
+  }
+  #stills .gallery-still {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1280 / 500;
+  }
+  #stills .gallery-progress-wrap { margin-top: var(--sp-4); }
 }
 
 /* ─── TEYMIÐ — merged into the Um okkur section ──────────────────── */

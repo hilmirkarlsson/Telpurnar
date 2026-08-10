@@ -153,6 +153,7 @@ Lang.apply('is');
     if (!pin || !sticky || !track) return;
 
     let travel = 0;
+    const usesNativeMobileScroll = section.id === 'stills';
     const items = () => [...track.children].filter(c => c.classList.contains('gallery-item'));
 
     /* The row's true width, measured rather than taken from scrollWidth.
@@ -175,6 +176,15 @@ Lang.apply('is');
     }
 
     function measure() {
+      // The film stills are panoramic source frames. On phones they use a
+      // conventional swipe row so every frame stays fully visible and the
+      // page never becomes a multi-screen horizontal scroll-jack.
+      if (usesNativeMobileScroll && window.innerWidth < 768) {
+        travel = 0;
+        pin.style.height = 'auto';
+        track.style.transform = 'none';
+        return;
+      }
       // How far the row must slide so its right edge reaches the viewport.
       travel = Math.max(0, contentExtent() - sticky.clientWidth);
       // Pin height = the sticky viewport's OWN height + the horizontal travel,
@@ -199,6 +209,7 @@ Lang.apply('is');
       apply();
     }
     function apply() {
+      if (usesNativeMobileScroll && window.innerWidth < 768) return;
       // While the sticky viewport is engaged, the pin's top edge travels from
       // 0 down to -travel. Normalise that into 0→1 progress.
       const rectTop = pin.getBoundingClientRect().top;
@@ -227,10 +238,9 @@ Lang.apply('is');
 })();
 
 /* ─── LIGHTBOX — tap a still to see the whole frame ──────────────── */
-/* Runs for BOTH horizontal bands. The stills are deliberately cropped in the
-   filmstrip (16/10 on desktop, a frame wider than the screen on phones), so a
-   tap has to be able to show the picture whole and uncropped. Phone-first:
-   that's where the crop hides the most. */
+/* Runs for BOTH horizontal bands. BTS photography and the poster use the
+   lightbox to reveal their uncropped source; film stills keep it as a useful
+   enlarged view even though their gallery cards now show the full frame. */
 (function initLightbox() {
   // The stills (and the film poster) are background-image divs, not <img> —
   // read the URL back out. The poster's image lives one level deeper, in a
