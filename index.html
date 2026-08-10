@@ -3,8 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Telpur Productions — nýtt framleiðsluteymi sem kemur ungu listafólki á framfæri. Stuttmyndin Telpurnar sýnd í Bíó Paradís 13. og 14. ágúst 2026." />
-  <title>Telpur Productions</title>
+  <meta name="description" content="Telpur Productions — nýtt íslenskt framleiðsluteymi sem kemur ungu listafólki á framfæri. Stuttmyndin Telpurnar, eftir Hönnu Álfheiði Gunnarsdóttur og Guðríði Jóhannsdóttur, sýnd í Bíó Paradís 13. og 14. ágúst 2026." />
+  <title>Telpur Productions — Telpurnar, ný íslensk stuttmynd</title>
+
+  <!-- ─── SEARCH + SHARING ────────────────────────────────────────────
+       telpurproductions.is and hilmirkarlsson.github.io/Telpurnar serve the
+       SAME page, so without a canonical the two compete as duplicates and
+       neither wins the brand search. Everything below points at the domain. -->
+  <link rel="canonical" href="https://telpurproductions.is/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#B0FFEC" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Telpur Productions" />
+  <meta property="og:locale" content="is_IS" />
+  <meta property="og:locale:alternate" content="en_GB" />
+  <meta property="og:url" content="https://telpurproductions.is/" />
+  <meta property="og:title" content="Telpur Productions — Telpurnar, ný íslensk stuttmynd" />
+  <meta property="og:description" content="Þrjár vinkonur hittast eina kvöldstund. Stuttmyndin Telpurnar sýnd í Bíó Paradís 13. og 14. ágúst 2026." />
+  <!-- Absolute URLs: crawlers and chat apps fetch these without page context. -->
+  <meta property="og:image" content="https://telpurproductions.is/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Telpur Productions" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Relative, not root-absolute: the github.io URL serves this page from a
+       /Telpurnar/ subpath, where a leading slash would 404. -->
+  <link rel="icon" href="icon-512.png" type="image/png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <!-- Structured data: tells Google that "Telpur Productions" is an
+       organisation with a film, rather than leaving it to guess from prose. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://telpurproductions.is/#org",
+        "name": "Telpur Productions",
+        "alternateName": "Telpur",
+        "url": "https://telpurproductions.is/",
+        "logo": "https://telpurproductions.is/icon-512.png",
+        "description": "Nýtt íslenskt framleiðsluteymi sem kemur ungu listafólki á framfæri.",
+        "foundingLocation": { "@type": "Country", "name": "Ísland" },
+        "founder": [
+          { "@type": "Person", "name": "Hanna Álfheiður Gunnarsdóttir" },
+          { "@type": "Person", "name": "Guðríður Jóhannsdóttir" }
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://telpurproductions.is/#website",
+        "url": "https://telpurproductions.is/",
+        "name": "Telpur Productions",
+        "inLanguage": "is",
+        "publisher": { "@id": "https://telpurproductions.is/#org" }
+      },
+      {
+        "@type": "Movie",
+        "name": "Telpurnar",
+        "url": "https://telpurproductions.is/#telpurnar",
+        "image": "https://telpurproductions.is/photos/poster-telpurnar.jpg",
+        "inLanguage": "is",
+        "countryOfOrigin": { "@type": "Country", "name": "Ísland" },
+        "genre": "Stuttmynd",
+        "description": "Þrjár vinkonur hittast eina kvöldstund. Á yfirborðinu virðist allt vera í himnalagi en allar hafa þær þó sinn djöful að draga.",
+        "director": [
+          { "@type": "Person", "name": "Hanna Álfheiður Gunnarsdóttir" },
+          { "@type": "Person", "name": "Guðríður Jóhannsdóttir" }
+        ],
+        "productionCompany": { "@id": "https://telpurproductions.is/#org" }
+      }
+    ]
+  }
+  </script>
 
   <!-- Fonts: Luckiest Guy (chunky display) + Fredoka (rounded body) — playful poster pairing -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
