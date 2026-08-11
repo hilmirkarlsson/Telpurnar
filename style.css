@@ -1385,12 +1385,9 @@ body.team-card-open .dust { display: none; }
   font-size: clamp(2.6rem, 6vw, 4.6rem);
   color: var(--gold);
   text-shadow: 3px 4px 0 var(--ink-soft);
-  margin-bottom: var(--sp-3);
-}
-.music-composer {
-  font-size: 0.95rem;
-  color: var(--surface);
-  opacity: 0.85;
+  /* The composer line under this heading used to carry the gap down to the
+     tracklist (--sp-3 here, --sp-10 on it). With that line gone the heading
+     owns the whole gap, or it would sit straight on top of track 01. */
   margin-bottom: var(--sp-10);
 }
 .tracklist {
