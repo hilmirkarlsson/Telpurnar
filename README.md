@@ -1,6 +1,6 @@
 # Telpurnar
 
-Promotional website for **Telpurnar** — an Icelandic short film, 2026 · 14 minutes.
+Promotional website for **Telpurnar** — an Icelandic short film, 2026.
 
 Þrjár vinkonur hittast eina kvöldstund. Á yfirborðinu virðist allt vera í
 himnalagi en allar hafa þær þó sinn djöful að draga.
