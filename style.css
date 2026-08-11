@@ -12,7 +12,17 @@
   --surface:     #FFF8E6;   /* cream — cards */
   --gold:        #FFE274;   /* Guli — gallery band, accents, play buttons */
   --crimson:     #CC4D72;   /* Bleiki — brand, headings, borders */
-  --crimson-deep:#AF4067;   /* deeper bleiki — music rows */
+  --crimson-deep:#AB3F65;   /* deeper bleiki — music section + rows */
+
+  /* Small text only. #CC4D72 is a lovely brand pink but at body sizes it lands
+     at 3.4:1 on guli and 3.8:1 on blái — under the 4.5:1 AA floor. This is the
+     same hue darkened just far enough to clear 4.5:1 on all three light
+     surfaces (guli 4.52, cream 5.46, blái 5.06). Large display type keeps the
+     brighter --crimson, which only needs 3:1. */
+  --crimson-text:#B6345A;
+  /* Music rows sit ON --crimson-deep, so they darken again to stay visibly
+     layered against it (gold reaches 6.0:1 here, cream 7.3:1). */
+  --crimson-row: #8C3453;
 
   /* Kept token names so existing rules resolve; remapped to the new roles */
   --surface-soft:#FFE274;   /* gallery band = guli */
@@ -46,6 +56,35 @@
 
   --max-w: 1280px;
   --pad-x: clamp(1.25rem, 5vw, 4rem);
+
+  /* Height of the fixed nav. Anything that sticks to top:0 must clear it. */
+  --nav-h: 72px;
+}
+
+/* ─── FONTS (self-hosted) ────────────────────────────────────────────
+   Was a render-blocking https://fonts.googleapis.com stylesheet. Only the
+   `latin` subset is shipped: every Icelandic glyph (á é í ó ú ý þ æ ö ð)
+   sits inside U+0000-00FF, so latin-ext and hebrew were dropped — 46KB total
+   for both families, served same-origin. Fredoka is variable 400–700. */
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url(fonts/fredoka-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Luckiest Guy';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/luckiest-guy-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* ─── RESET ──────────────────────────────────────────────────────── */
@@ -77,7 +116,7 @@ a { color: inherit; text-decoration: none; }
 /* Display headings all use the chunky font — never faux-italic */
 .hero-title, .film-heading, .music-heading, .director-name,
 .footer-brand, .loader-mark, .nav-logo,
-.detail-value, .still-num, .tl-num, .dp-initial {
+.detail-value, .still-num, .tl-num {
   font-family: var(--font-serif);
   font-style: normal;
   font-weight: 400;
@@ -101,7 +140,29 @@ html.lenis, html.lenis body { height: auto; }
   z-index: 400;
 }
 
+/* ─── SKIP LINK ──────────────────────────────────────────────────── */
+.skip-link {
+  position: fixed;
+  top: var(--sp-2);
+  left: var(--sp-2);
+  z-index: 10000;
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--surface);
+  color: var(--crimson-text);
+  border: 3px solid var(--crimson);
+  border-radius: 100px;
+  font-weight: 600;
+  /* Off-screen until focused, rather than display:none — a keyboard user must
+     be able to reach it, and display:none removes it from the tab order. */
+  transform: translateY(-200%);
+  transition: transform 0.25s var(--ease-soft);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
 /* ─── LOADER ─────────────────────────────────────────────────────── */
+/* Hidden by default so a no-JS / failed-script load shows the page instead of
+   an opaque overlay that nothing is left to dismiss. The inline script in
+   <head> adds .js-loading, which is what actually raises the curtain. */
 .loader {
   position: fixed;
   inset: 0;
@@ -111,8 +172,11 @@ html.lenis, html.lenis body { height: auto; }
   align-items: center;
   justify-content: center;
   transition: opacity 0.8s var(--ease-soft);
+  opacity: 0;
+  pointer-events: none;
 }
-.loader.done { opacity: 0; pointer-events: none; }
+.js-loading .loader { opacity: 1; pointer-events: auto; }
+.js-loading .loader.done { opacity: 0; pointer-events: none; }
 .loader-mark {
   font-size: clamp(2rem, 5vw, 3rem);
   color: var(--crimson);
@@ -149,6 +213,10 @@ html.lenis, html.lenis body { height: auto; }
   font-size: 1.7rem;
   color: var(--crimson);
   transition: transform 0.3s var(--ease-pop);
+  /* 29px tall on its own; pad it out to a comfortable target. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .nav-logo:hover { transform: rotate(-3deg) scale(1.04); }
 
@@ -167,12 +235,16 @@ html.lenis, html.lenis body { height: auto; }
   font-size: clamp(1.9rem, 3.2vw, 2.7rem);
   font-weight: 400;
   letter-spacing: 0.01em;
-  color: var(--gold);
+  /* Was gold-on-mint: 1.12:1, essentially no luminance difference, with the
+     letterforms carried entirely by a 1.5px outline. Inverted to crimson fill
+     + gold outline — the same sticker treatment, now 3.3:1 (AA for text this
+     size) and matching .nav-logo, which was already crimson. */
+  color: var(--crimson);
   text-shadow:
-    -1.5px -1.5px 0 var(--crimson),
-     1.5px -1.5px 0 var(--crimson),
-    -1.5px  1.5px 0 var(--crimson),
-     1.5px  1.5px 0 var(--crimson);
+    -1.5px -1.5px 0 var(--gold),
+     1.5px -1.5px 0 var(--gold),
+    -1.5px  1.5px 0 var(--gold),
+     1.5px  1.5px 0 var(--gold);
   transition: color 0.3s ease;
   position: relative;
   padding: var(--sp-2) var(--sp-2);
@@ -188,7 +260,7 @@ html.lenis, html.lenis body { height: auto; }
   transform-origin: left;
   transition: transform 0.35s var(--ease-soft);
 }
-.nav-links a:hover { color: var(--surface); }
+.nav-links a:hover { color: var(--crimson-text); }
 .nav-links a:hover::after { transform: scaleX(1); }
 
 .lang-toggle {
@@ -221,7 +293,7 @@ html.lenis, html.lenis body { height: auto; }
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--crimson);
+  color: var(--crimson-text);
   background: var(--gold);
   border: 2px solid var(--crimson);
   border-radius: 100px;
@@ -244,59 +316,8 @@ html.lenis, html.lenis body { height: auto; }
   background: var(--bg);   /* flat mint — photo-ready (slides sit behind) */
 }
 
-/* WebGL displacement canvas — behind scrim, above bg (only when photos added) */
-.hero-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.9s var(--ease-soft);
-}
-.hero.gl-active .hero-canvas { opacity: 1; }
-.hero.gl-active .hero-slides { display: none; }
-
-/* Slideshow layers (CSS fallback) — kept for when film stills are added */
-.hero-slides { position: absolute; inset: 0; z-index: 0; }
-.hero-slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  overflow: hidden;
-  z-index: 1;
-  filter: blur(14px);
-  clip-path: inset(0 0 0 100%);
-  transition:
-    opacity 1.5s var(--ease-glide),
-    clip-path 1.7s var(--ease-glide),
-    filter 1.5s var(--ease-soft);
-}
-.hero-slide:nth-child(even) { clip-path: inset(0 100% 0 0); }
-.hero-slide.is-active {
-  opacity: 1;
-  filter: blur(0);
-  clip-path: inset(0 0 0 0);
-  z-index: 2;
-}
-.hero-slide-img {
-  position: absolute;
-  inset: -2%;
-  background-size: cover;
-  background-position: center;
-  transform: scale(1.04);
-}
-.hero-slide.is-active .hero-slide-img {
-  animation: kenburns 8.5s ease-out forwards;
-}
-@keyframes kenburns {
-  from { transform: scale(1.04) translate(0, 0); }
-  to   { transform: scale(1.13) translate(-1.5%, -1%); }
-}
-
 /* Scrim stays transparent on the flat mint hero; add a dark gradient here
-   again if real film stills are dropped into .hero-slides later. */
+   again if real film stills are restored to the hero later. */
 .hero-scrim { position: absolute; inset: 0; z-index: 3; background: none; }
 
 .hero-content {
@@ -306,23 +327,9 @@ html.lenis, html.lenis body { height: auto; }
   width: 100%;
   color: var(--ink-soft);
 }
-.hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--crimson);
-  background: var(--gold);
-  border: 2px solid var(--crimson);
-  border-radius: 100px;
-  padding: var(--sp-2) var(--sp-5);
-  margin-bottom: var(--sp-6);
-  opacity: 0;
-  transform: translateY(-10px);
-}
-.hero-title {
+/* Hidden only when JS is there to animate it in (.hero.is-ready). Without
+   the .js gate a no-JS visitor got a permanently invisible wordmark. */
+.js .hero-title {
   opacity: 0;
   transform: translateY(28px);
 }
@@ -331,90 +338,11 @@ html.lenis, html.lenis body { height: auto; }
   height: auto;
   margin: 0 auto;
 }
-.hero-meta {
-  margin-top: var(--sp-6);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-4);
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--ink-soft);
-  opacity: 0;
-  transform: translateY(12px);
-}
-.hero-meta-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--crimson);
-}
-
-/* Slideshow dots */
-.hero-dots {
-  position: absolute;
-  z-index: 4;
-  bottom: var(--sp-8);
-  right: var(--pad-x);
-  display: flex;
-  gap: 10px;
-  opacity: 0;
-}
-.hero-dot {
-  width: 28px;
-  height: 6px;
-  border-radius: 6px;
-  border: 2px solid var(--crimson);
-  background: transparent;
-  transition: background 0.4s ease, width 0.4s var(--ease-soft);
-}
-.hero-dot.active { background: var(--crimson); width: 44px; }
-
-.hero-scroll {
-  position: absolute;
-  z-index: 4;
-  bottom: var(--sp-8);
-  left: var(--pad-x);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-  opacity: 0;
-  color: var(--crimson);
-}
-.hero-scroll-line {
-  width: 3px;
-  height: 34px;
-  border-radius: 3px;
-  background: var(--crimson);
-  animation: scroll-pulse 2.2s ease infinite;
-}
-@keyframes scroll-pulse {
-  0%,100% { opacity: 0.4; transform: scaleY(0.6); }
-  50%     { opacity: 1;   transform: scaleY(1); }
-}
-.hero-scroll-label {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  writing-mode: vertical-rl;
-  rotate: 180deg;
-}
-
 /* Hero intro — staggered entrance once page is ready */
-.hero.is-ready .hero-eyebrow {
-  opacity: 1; transform: none;
-  transition: opacity 0.9s var(--ease-soft) 0.1s, transform 0.9s var(--ease-pop) 0.1s;
-}
 .hero.is-ready .hero-title {
   opacity: 1; transform: none;
   transition: opacity 1.1s var(--ease-soft) 0.22s, transform 1.1s var(--ease-pop) 0.22s;
 }
-.hero.is-ready .hero-meta {
-  opacity: 1; transform: none;
-  transition: opacity 0.9s var(--ease-soft) 0.62s, transform 0.9s var(--ease-soft) 0.62s;
-}
-.hero.is-ready .hero-dots { opacity: 1; transition: opacity 0.9s ease 0.8s; }
-.hero.is-ready .hero-scroll { opacity: 1; transition: opacity 0.9s ease 0.9s; }
 
 /* ─── ABOUT (Hanna & Guðríður) ───────────────────────────────────── */
 .duo {
@@ -486,7 +414,7 @@ html.lenis, html.lenis body { height: auto; }
   border: 3px solid var(--crimson);
   border-radius: 999px;
   background: var(--gold);
-  color: var(--crimson);
+  color: var(--crimson-text);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -534,8 +462,10 @@ html.lenis, html.lenis body { height: auto; }
 .film-poster-img {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   transition: transform 1.2s var(--ease-soft);
 }
 .film-poster-art:hover .film-poster-img { transform: scale(1.05); }
@@ -593,7 +523,7 @@ html.lenis, html.lenis body { height: auto; }
 }
 .detail-value {
   font-size: 1.4rem;
-  color: var(--crimson);
+  color: var(--crimson-text);
 }
 
 /* ─── GALLERY (gold band) ────────────────────────────────────────── */
@@ -636,6 +566,33 @@ html.lenis, html.lenis body { height: auto; }
   margin-bottom: 0;
   text-shadow: 3px 4px 0 var(--surface);
 }
+.gallery-heading-group {
+  display: grid;
+  gap: var(--sp-2);
+}
+.gallery-view-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  color: var(--crimson-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.gallery-view-hint::before {
+  content: '⤢';
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 0.78rem;
+  line-height: 1;
+}
 .gallery-nav-row { display: flex; align-items: center; }
 .gallery-arrows { display: flex; gap: var(--sp-3); }
 .gallery-arrow {
@@ -674,10 +631,21 @@ html.lenis, html.lenis body { height: auto; }
   overflow: hidden;
   position: relative;
   background: var(--bg);
-  background-size: cover;
-  background-position: center;
   box-shadow: var(--sticker-lg);
   transition: transform 0.5s var(--ease-pop), box-shadow 0.5s var(--ease-pop);
+}
+/* These frames were background-image divs, which meant no alt text, no
+   srcset and no lazy loading — all twelve full-size photos were fetched on
+   every page load. object-fit:cover reproduces background-size:cover exactly,
+   and the card's overflow:hidden + border-radius keep each picture clipped
+   inside its own card at every breakpoint. */
+.gallery-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .gallery-item:hover .gallery-still {
@@ -873,9 +841,16 @@ html.lenis, html.lenis body { height: auto; }
     position: sticky;
     top: 0;
     height: 100vh;
-    justify-content: center;
+    /* flex-start, not center. The band sticks to y=0 under the fixed nav, and
+       its contents are taller than the padded box — so `center` overflowed the
+       box equally at both ends and lifted the heading back UP under the nav,
+       which sliced the top off "Framleiðslumyndir" / "Stillur úr myndinni" for
+       the whole scroll-jack (and ghosted it through the 90%-opaque bar).
+       Anchoring to the top makes the nav clearance deterministic, and matches
+       what the phone rule has always done. */
+    justify-content: flex-start;
     overflow: hidden;
-    padding: var(--sp-8) 0;
+    padding: calc(var(--nav-h) + var(--sp-4)) 0 var(--sp-8);
   }
   /* Trailing space after the last still = exactly one inter-item gap, so the
      rhythm of the filmstrip is unbroken from the first frame to the end
@@ -948,6 +923,13 @@ html.lenis, html.lenis body { height: auto; }
   margin-top: var(--sp-12);
   text-align: left;     /* keep card internals left; copy re-centres itself */
 }
+/* The copy comes FIRST in the source so this section's <h2> precedes the two
+   director <h3>s (the document outline previously jumped h1 -> h3). Explicit
+   placement puts it back in the middle column visually, with Hanna left and
+   Guðríður right, exactly as before. */
+.duo-layout > .duo-copy       { grid-column: 2; grid-row: 1; }
+.duo-layout > .director-card:nth-of-type(1) { grid-column: 1; grid-row: 1; }
+.duo-layout > .director-card:nth-of-type(2) { grid-column: 3; grid-row: 1; }
 .duo-copy {
   text-align: center;
   align-self: center;   /* centre the intro against the taller card column */
@@ -958,7 +940,13 @@ html.lenis, html.lenis body { height: auto; }
 /* Tablet: intro on top spanning full width, the two cards below it side by side */
 @media (max-width: 900px) {
   .duo-layout { grid-template-columns: repeat(2, minmax(0, 360px)); justify-content: center; }
-  .duo-copy { grid-column: 1 / -1; order: -1; margin-bottom: var(--sp-8); }
+  /* Drop the desktop three-column placement, or card 2 would still be sent to
+     a column 3 that no longer exists and the grid would grow an implicit one.
+     Source order is already copy-first, so plain auto-placement is correct. */
+  .duo-layout > .duo-copy,
+  .duo-layout > .director-card:nth-of-type(1),
+  .duo-layout > .director-card:nth-of-type(2) { grid-column: auto; grid-row: auto; }
+  .duo-copy { grid-column: 1 / -1; margin-bottom: var(--sp-8); }
 }
 /* Phone: one clean column, in reading order — Um okkur, then Hanna, then
    Guðríður (order:-1 on the copy above already puts the intro first). */
@@ -1014,24 +1002,21 @@ html.lenis, html.lenis body { height: auto; }
   background: var(--bg);
   border-bottom: 4px solid var(--crimson);
 }
-.dp-initial {
-  font-size: clamp(5rem, 12vw, 10rem);
-  color: var(--crimson);
-  text-shadow: 3px 4px 0 var(--surface);
-}
 .director-portrait.has-photo { background: var(--surface); }
+/* cover in EVERY state. The expanded card used to be `contain`, which fits the
+   portrait by its long edge and leaves the card showing down both sides — on a
+   phone the expanded photo box is 366x300 (landscape) against a portrait
+   source, so roughly 55px of bare card sat either side of the picture.
+   object-position biases the crop upward: these are headshots, so the face
+   lives in the top half and a centred crop is the one that takes foreheads. */
 .dp-photo {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center 28%;
 }
-/* The source portraits differ slightly from the shared 7:8 card ratio. A
-   minimal crop (about 3% for Hanna and 6% for Guðríður) fills the closed card
-   cleanly without the blue background frame; the expanded view stays fully
-   contained so the complete portraits remain available. */
-.team-card:not(.is-featured) .dp-photo { object-fit: cover; }
 /* Text sits padded inside the card body */
 .director-role {
   font-size: 0.68rem;
@@ -1221,7 +1206,7 @@ body.team-card-open .dust { display: none; }
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--crimson);
+  color: var(--crimson-text);
   white-space: nowrap;
 }
 .team-card-more-open { display: none; }
@@ -1390,7 +1375,7 @@ body.team-card-open .dust { display: none; }
 .music {
   position: relative;
   padding: clamp(var(--sp-24), 9vw, var(--sp-40)) var(--pad-x);
-  background: var(--crimson);
+  background: var(--crimson-deep);
   border-top: 3px solid var(--ink-soft);
 }
 .music-inner { max-width: 760px; margin: 0 auto; }
@@ -1400,12 +1385,9 @@ body.team-card-open .dust { display: none; }
   font-size: clamp(2.6rem, 6vw, 4.6rem);
   color: var(--gold);
   text-shadow: 3px 4px 0 var(--ink-soft);
-  margin-bottom: var(--sp-3);
-}
-.music-composer {
-  font-size: 0.95rem;
-  color: var(--surface);
-  opacity: 0.85;
+  /* The composer line under this heading used to carry the gap down to the
+     tracklist (--sp-3 here, --sp-10 on it). With that line gone the heading
+     owns the whole gap, or it would sit straight on top of track 01. */
   margin-bottom: var(--sp-10);
 }
 .tracklist {
@@ -1414,17 +1396,43 @@ body.team-card-open .dust { display: none; }
   gap: var(--sp-3);
   margin-bottom: var(--sp-10);
 }
-.tl-track {
+.tl-track { display: block; }
+.tl-trigger {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: var(--sp-5);
   padding: var(--sp-4) var(--sp-6);
-  background: var(--crimson-deep);
+  background: var(--crimson-row);
   border: 3px solid var(--gold);
   border-radius: 100px;
+  color: inherit;
+  cursor: pointer;
   transition: transform 0.3s var(--ease-pop), box-shadow 0.3s ease, background 0.3s ease;
 }
-.tl-track:hover { transform: translateX(4px); box-shadow: 4px 4px 0 var(--gold); }
+.tl-trigger:hover { transform: translateX(4px); box-shadow: 4px 4px 0 var(--gold); }
+.tl-trigger:focus-visible { outline: 3px solid var(--surface); outline-offset: 4px; }
+.tl-trigger.active { background: var(--gold); }
+.tl-trigger.active .tl-num { color: var(--crimson-deep); }
+.tl-trigger.active .tl-name { color: var(--ink-soft); }
+.tl-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 20px;
+  opacity: 0;
+}
+.tl-trigger.active .tl-bars { opacity: 1; }
+.tl-bar {
+  width: 4px;
+  height: 4px;
+  background: var(--crimson-deep);
+  border-radius: 2px;
+}
+.tl-trigger.playing .tl-bar:nth-child(1) { animation: bar-bounce 0.9s ease-in-out infinite; }
+.tl-trigger.playing .tl-bar:nth-child(2) { animation: bar-bounce 0.9s ease-in-out 0.2s infinite; }
+.tl-trigger.playing .tl-bar:nth-child(3) { animation: bar-bounce 0.9s ease-in-out 0.4s infinite; }
+@keyframes bar-bounce { 0%, 100% { height: 4px; } 50% { height: 20px; } }
 .tl-num {
   font-size: 1.3rem;
   color: var(--gold);
@@ -1437,31 +1445,6 @@ body.team-card-open .dust { display: none; }
   font-weight: 600;
   color: var(--surface);
 }
-.tl-track.active { background: var(--gold); }
-.tl-track.active .tl-num { color: var(--crimson); }
-.tl-track.active .tl-name { color: var(--ink-soft); }
-.tl-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 20px;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-.tl-track.active .tl-bars { opacity: 1; }
-.tl-bar {
-  width: 4px;
-  height: 4px;
-  background: var(--crimson);
-  border-radius: 2px;
-  transition: height 0.25s ease;
-}
-.tl-track.active.playing .tl-bar:nth-child(1) { animation: bar-bounce 0.9s ease-in-out infinite; }
-.tl-track.active.playing .tl-bar:nth-child(2) { animation: bar-bounce 0.9s ease-in-out 0.2s infinite; }
-.tl-track.active.playing .tl-bar:nth-child(3) { animation: bar-bounce 0.9s ease-in-out 0.4s infinite; }
-@keyframes bar-bounce { 0%,100% { height: 4px; } 50% { height: 20px; } }
-.tl-track.active:not(.playing) .tl-bar { height: 10px; }
-
 .music-credit {
   padding-top: var(--sp-6);
   border-top: 3px solid var(--gold);
@@ -1470,12 +1453,11 @@ body.team-card-open .dust { display: none; }
   gap: var(--sp-2);
 }
 .music-produced { font-size: 0.92rem; color: var(--surface); }
-.mc-label { margin-right: var(--sp-2); opacity: 0.8; }
+.mc-label { margin-right: var(--sp-2); }
 .mc-name { font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold); }
 .music-note {
   font-size: 0.68rem;
   color: var(--surface);
-  opacity: 0.7;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1506,7 +1488,7 @@ body.team-card-open .dust { display: none; }
   color: var(--ink-soft);
   letter-spacing: 0.02em;
 }
-.footer-credit { color: var(--crimson); font-weight: 600; }
+.footer-credit { color: var(--crimson-text); font-weight: 600; }
 /* Email sits directly under the website credit — underline on hover only,
    so it reads as part of the credit line rather than a loud link. */
 /* Contact links sit on the cream card — underline on hover only, so the row
@@ -1516,6 +1498,10 @@ body.team-card-open .dust { display: none; }
   text-decoration: none;
   border-bottom: 2px solid transparent;
   transition: border-color 0.3s ease, color 0.3s ease;
+  /* The contact links were 22px tall — half the 44px touch-target minimum.
+     Padding grows the hit area without moving the text off its row. */
+  display: inline-block;
+  padding: var(--sp-3) 0;
 }
 .crew-name a:hover { color: var(--crimson); border-bottom-color: var(--crimson); }
 
@@ -1527,7 +1513,7 @@ body.team-card-open .dust { display: none; }
 }
 
 /* ─── REVEAL HELPER (JS toggles .in) ─────────────────────────────── */
-.reveal { opacity: 0; transform: translateY(28px); }
+.js .reveal { opacity: 0; transform: translateY(28px); }
 .reveal.in {
   opacity: 1; transform: none;
   transition: opacity 0.9s var(--ease-soft), transform 0.9s var(--ease-pop);
@@ -1554,7 +1540,6 @@ body.team-card-open .dust { display: none; }
      clean overflow instead of an ugly mid-phrase wrap. */
   .nav-links a { font-size: 1rem; white-space: nowrap; }
   .hero { padding: var(--sp-24) var(--pad-x) var(--sp-20); }
-  .hero-dots { bottom: var(--sp-6); }
 
   /* Give the film information the page width and let the unfinished poster
      act as a small chapter marker instead of dominating the phone viewport. */
@@ -1603,7 +1588,6 @@ body.team-card-open .dust { display: none; }
   .people { padding: var(--sp-16) var(--pad-x); }
   .people-inner > .section-eyebrow { margin-bottom: var(--sp-6); }
   .crew-list {
-    counter-reset: credit;
     display: grid;
     gap: var(--sp-3);
     padding: 0;
@@ -1613,26 +1597,15 @@ body.team-card-open .dust { display: none; }
     box-shadow: none;
   }
   .people .crew-row {
-    counter-increment: credit;
     position: relative;
     display: grid;
     justify-items: start;
     gap: var(--sp-2);
-    padding: var(--sp-5) var(--sp-12) var(--sp-5) var(--sp-5);
+    padding: var(--sp-5);
     background: var(--surface);
     border: 3px solid var(--crimson);
     border-radius: 16px;
     box-shadow: 4px 5px 0 var(--crimson);
-  }
-  .people .crew-row::after {
-    content: counter(credit, decimal-leading-zero);
-    position: absolute;
-    top: var(--sp-4);
-    right: var(--sp-4);
-    font-family: var(--font-serif);
-    font-size: 0.95rem;
-    color: var(--crimson);
-    opacity: 0.5;
   }
   .people .crew-person { font-size: 1.1rem; line-height: 1.3; }
   .people .crew-job {
@@ -1651,8 +1624,6 @@ body.team-card-open .dust { display: none; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .hero-slide { transition: opacity 0.3s ease; clip-path: none; filter: none; }
-  .hero-slide.is-active .hero-slide-img { animation: none; transform: scale(1.02); }
   /* The scroll-driven transform is intentionally disabled in reduced-motion
      mode, so keep every still reachable with a conventional swipe row. */
   /* (--sp-14 does not exist in the scale — that used to silently compute to
@@ -1668,3 +1639,8 @@ body.team-card-open .dust { display: none; }
   .gallery-item { flex: 0 0 min(84vw, 460px); scroll-snap-align: start; }
   .gallery-still { width: 100%; height: auto; aspect-ratio: 4/3; }
 }
+
+/* ─── TOUCH AFFORDANCE COPY ──────────────────────────────────────────
+   "Smelltu á mynd" ("click an image") is the wrong verb on a phone. script.js
+   swaps in the data-is-touch / data-en-touch wording when the pointer is
+   coarse; this rule is only here to document the pairing. */
