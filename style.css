@@ -1630,7 +1630,6 @@ body.team-card-open .dust { display: none; }
   .people { padding: var(--sp-16) var(--pad-x); }
   .people-inner > .section-eyebrow { margin-bottom: var(--sp-6); }
   .crew-list {
-    counter-reset: credit;
     display: grid;
     gap: var(--sp-3);
     padding: 0;
@@ -1640,26 +1639,15 @@ body.team-card-open .dust { display: none; }
     box-shadow: none;
   }
   .people .crew-row {
-    counter-increment: credit;
     position: relative;
     display: grid;
     justify-items: start;
     gap: var(--sp-2);
-    padding: var(--sp-5) var(--sp-12) var(--sp-5) var(--sp-5);
+    padding: var(--sp-5);
     background: var(--surface);
     border: 3px solid var(--crimson);
     border-radius: 16px;
     box-shadow: 4px 5px 0 var(--crimson);
-  }
-  .people .crew-row::after {
-    content: counter(credit, decimal-leading-zero);
-    position: absolute;
-    top: var(--sp-4);
-    right: var(--sp-4);
-    font-family: var(--font-serif);
-    font-size: 0.95rem;
-    color: var(--crimson);
-    opacity: 0.5;
   }
   .people .crew-person { font-size: 1.1rem; line-height: 1.3; }
   .people .crew-job {
