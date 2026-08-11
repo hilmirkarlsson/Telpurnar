@@ -641,12 +641,32 @@ window.setTimeout(() => {
   const DRIFT = 0.4;   // how far toward the origin card it starts (0..1)
   const FROM_SCALE = 0.94;
 
+  /* Phones get their own pair. On a narrow screen .is-featured is a fixed,
+     near-full-width panel, so the gap between where the card sits in flow and
+     where it lands is most of the viewport — on a 390x844 screen the centre
+     moves ~220px. The phone case used to animate scale and opacity ONLY,
+     which meant the card teleported that whole distance on the first frame
+     and then cross-faded in place: it read as a flash rather than a movement,
+     and while opacity was low the darkening backdrop showed straight through
+     the card, so it went muddy before it went cream.
+
+     Full drift instead — the card starts exactly where it was tapped and
+     glides up. No fade at all: a placeholder is already holding the original
+     slot, so a fully opaque card at the start position is indistinguishable
+     from the card that was just sitting there, which is precisely the
+     illusion we want. The desktop pairing keeps its partial drift + fade,
+     where the shorter distance makes the fade read as "emerging" rather than
+     as a flicker. */
+  const PHONE_DRIFT = 1;
+  const PHONE_FROM_SCALE = 0.97;
+  const PHONE_FROM_OPACITY = 1;
+
   const isPhone = () => window.matchMedia('(max-width: 700px)').matches;
 
-  function entryTransform(from, to) {
-    const dx = ((from.left + from.width / 2) - (to.left + to.width / 2)) * DRIFT;
-    const dy = ((from.top + from.height / 2) - (to.top + to.height / 2)) * DRIFT;
-    return `translate(${dx}px, ${dy}px) scale(${FROM_SCALE})`;
+  function entryTransform(from, to, drift = DRIFT, scale = FROM_SCALE) {
+    const dx = ((from.left + from.width / 2) - (to.left + to.width / 2)) * drift;
+    const dy = ((from.top + from.height / 2) - (to.top + to.height / 2)) * drift;
+    return `translate(${dx}px, ${dy}px) scale(${scale})`;
   }
 
   function run(card, keyframes, duration, fill = 'none') {
@@ -710,9 +730,18 @@ window.setTimeout(() => {
     // opacity 1 for the frame before teardown ran — a fully opaque card
     // flashing in flow. Holding the last keyframe keeps it invisible until
     // finish() has collapsed it, then cancels the hold.
+    // Mirror of the entry: on a phone the card travels the full distance back
+    // toward the row it came from instead of shrinking in place. Opacity still
+    // ends at 0 here — unlike the entry, the last keyframe is HELD (fill:
+    // 'forwards') until finish() collapses the card, so it has to be invisible.
     const closing = run(card, [
       { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-      { transform: isPhone() ? `scale(${FROM_SCALE})` : entryTransform(target, current), opacity: 0 }
+      {
+        transform: isPhone()
+          ? entryTransform(target, current, PHONE_DRIFT, PHONE_FROM_SCALE)
+          : entryTransform(target, current),
+        opacity: 0,
+      }
     ], CLOSE_MS, 'forwards');
     closing.finished.then(() => finish(closing)).catch(() => finish(closing));
   }
@@ -739,13 +768,24 @@ window.setTimeout(() => {
     document.body.classList.add('team-card-open');
 
     if (REDUCE || !card.animate) return;
-    requestAnimationFrame(() => {
+    // Measure and start in the SAME frame. Deferring to rAF left one painted
+    // frame where the card was already fixed at its destination with no
+    // transform applied — it flashed at the target spot, then jumped back to
+    // the start of the glide. getBoundingClientRect forces the pending style
+    // and layout to flush, so the rect here is the real featured geometry.
+    {
       const target = card.getBoundingClientRect();
+      const phone = isPhone();
       run(card, [
-        { transform: isPhone() ? `scale(${FROM_SCALE})` : entryTransform(originRect, target), opacity: 0 },
+        {
+          transform: phone
+            ? entryTransform(originRect, target, PHONE_DRIFT, PHONE_FROM_SCALE)
+            : entryTransform(originRect, target),
+          opacity: phone ? PHONE_FROM_OPACITY : 0,
+        },
         { transform: 'translate(0, 0) scale(1)', opacity: 1 }
       ], OPEN_MS);
-    });
+    }
   }
 
   function toggle(card) {
