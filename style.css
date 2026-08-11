@@ -1003,18 +1003,20 @@ html.lenis, html.lenis body { height: auto; }
   border-bottom: 4px solid var(--crimson);
 }
 .director-portrait.has-photo { background: var(--surface); }
+/* cover in EVERY state. The expanded card used to be `contain`, which fits the
+   portrait by its long edge and leaves the card showing down both sides — on a
+   phone the expanded photo box is 366x300 (landscape) against a portrait
+   source, so roughly 55px of bare card sat either side of the picture.
+   object-position biases the crop upward: these are headshots, so the face
+   lives in the top half and a centred crop is the one that takes foreheads. */
 .dp-photo {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: center 28%;
 }
-/* The source portraits differ slightly from the shared 7:8 card ratio. A
-   minimal crop (about 3% for Hanna and 6% for Guðríður) fills the closed card
-   cleanly without the blue background frame; the expanded view stays fully
-   contained so the complete portraits remain available. */
-.team-card:not(.is-featured) .dp-photo { object-fit: cover; }
 /* Text sits padded inside the card body */
 .director-role {
   font-size: 0.68rem;
