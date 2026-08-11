@@ -1043,67 +1043,46 @@ function initGallery(section) {
   update();
 }
 
-/* ─── MUSIC — ambient Web Audio preview ──────────────────────────── */
+/* ─── MUSIC — score previews ─────────────────────────────────────── */
 (function initMusicPlayer() {
-  const TRACK_PRESETS = [
-    [{ f: 55,   g: 0.040 }, { f: 110,   g: 0.028 }, { f: 165,   g: 0.018 }, { f: 220,   g: 0.010 }],
-    [{ f: 73.4, g: 0.038 }, { f: 146.8, g: 0.026 }, { f: 220.0, g: 0.016 }, { f: 293.7, g: 0.010 }],
-    [{ f: 82.4, g: 0.040 }, { f: 164.8, g: 0.028 }, { f: 247.1, g: 0.016 }, { f: 329.6, g: 0.008 }],
-    [{ f: 98.0, g: 0.038 }, { f: 196.0, g: 0.026 }, { f: 294.0, g: 0.018 }, { f: 392.0, g: 0.010 }],
-  ];
-  let audioCtx = null, oscs = [], gains = [], master = null, lfo = null, lfoGain = null;
-  let isPlaying = false, currentTrack = -1;
+  const tracks = Array.from(document.querySelectorAll('.tl-track'));
+  const audio = new Audio();
+  let currentTrack = -1;
 
-  function ensureContext() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    master = audioCtx.createGain(); master.gain.value = 1; master.connect(audioCtx.destination);
-    lfo = audioCtx.createOscillator(); lfoGain = audioCtx.createGain();
-    lfo.frequency.value = 0.08; lfoGain.gain.value = 0.008;
-    lfo.connect(lfoGain); lfoGain.connect(master.gain); lfo.start();
-  }
-  function stopTones() {
-    gains.forEach(g => {
-      if (!audioCtx) return;
-      g.gain.setValueAtTime(g.gain.value, audioCtx.currentTime);
-      g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-    });
-    const snap = oscs.slice();
-    setTimeout(() => snap.forEach(o => { try { o.stop(); } catch (_) {} }), 450);
-    oscs = []; gains = [];
-  }
-  function playTones(idx) {
-    ensureContext();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    stopTones();
-    (TRACK_PRESETS[idx] || TRACK_PRESETS[0]).forEach(({ f, g }) => {
-      const osc = audioCtx.createOscillator(); const gn = audioCtx.createGain();
-      osc.type = 'sine'; osc.frequency.value = f;
-      gn.gain.setValueAtTime(0, audioCtx.currentTime);
-      gn.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 2.0);
-      osc.connect(gn); gn.connect(master); osc.start();
-      oscs.push(osc); gains.push(gn);
-    });
-  }
   function setState(idx, playing) {
-    document.querySelectorAll('.tl-track').forEach((el, i) => {
+    tracks.forEach((el, i) => {
       el.classList.toggle('active', i === idx);
       el.classList.toggle('playing', i === idx && playing);
+      el.setAttribute('aria-pressed', String(i === idx && playing));
     });
   }
+
   function select(idx) {
     if (idx === currentTrack) {
-      isPlaying = !isPlaying;
-      if (isPlaying) { playTones(idx); setState(idx, true); }
-      else { stopTones(); setState(idx, false); }
+      if (audio.paused) {
+        audio.play();
+        setState(idx, true);
+      } else {
+        audio.pause();
+        setState(idx, false);
+      }
       return;
     }
-    currentTrack = idx; isPlaying = true; playTones(idx); setState(idx, true);
+
+    currentTrack = idx;
+    audio.src = tracks[idx].dataset.src;
+    audio.play();
+    setState(idx, true);
   }
-  document.querySelectorAll('.tl-track').forEach((el, i) => {
+
+  audio.addEventListener('ended', () => setState(currentTrack, false));
+  tracks.forEach((el, i) => {
     el.addEventListener('click', () => select(i));
     el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i); }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        select(i);
+      }
     });
   });
 })();
