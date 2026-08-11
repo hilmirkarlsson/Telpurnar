@@ -893,9 +893,12 @@ function initGallery(section) {
 
   function setState(idx, playing) {
     tracks.forEach((el, i) => {
+      const isPlaying = i === idx && playing;
+      const title = el.querySelector('.tl-name').textContent;
       el.classList.toggle('active', i === idx);
-      el.classList.toggle('playing', i === idx && playing);
-      el.setAttribute('aria-pressed', String(i === idx && playing));
+      el.classList.toggle('playing', isPlaying);
+      el.setAttribute('aria-pressed', String(isPlaying));
+      el.setAttribute('aria-label', (isPlaying ? 'Gera hlé á ' : 'Spila ') + title);
     });
   }
 

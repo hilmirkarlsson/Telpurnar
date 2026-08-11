@@ -538,37 +538,24 @@
            credit closing this section. -->
       <h2 class="music-heading" data-is="Frumsamið tónverk" data-en="Original Score">Frumsamið tónverk</h2>
 
-      <!-- These rows used to be role="button" "Spila lag N", and clicking one
-           started a Web Audio oscillator drone generated in script.js. Sitting
-           under Hrannar's name and a "Framleitt af" credit, that read as his
-           score when it was synthesised tone. The play affordance and the
-           synthesiser are both gone; this is a plain track listing until the
-           real recordings exist.
-           TO ADD REAL AUDIO: drop the files in audio/, then give each row an
-           <audio controls preload="none"> (or one shared player) — keep the
-           control a real <button>/<audio>, not a div with role="button". -->
       <ul class="tracklist" role="list" aria-label="Lagalisti">
         <li class="tl-track">
           <button class="tl-trigger" type="button" data-src="audio/tobey-maguire.mp3" aria-pressed="false" aria-label="Spila Tobey Maguire">
-            <span class="tl-num" aria-hidden="true">01</span>
+            <span class="tl-control" aria-hidden="true"><span class="tl-play-icon"></span><span class="tl-pause-icon"><span></span><span></span></span></span>
             <span class="tl-name">Tobey Maguire</span>
-            <span class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></span>
           </button>
         </li>
         <li class="tl-track">
           <button class="tl-trigger" type="button" data-src="audio/enpanadas.mp3" aria-pressed="false" aria-label="Spila Enpanadas">
-            <span class="tl-num" aria-hidden="true">02</span>
+            <span class="tl-control" aria-hidden="true"><span class="tl-play-icon"></span><span class="tl-pause-icon"><span></span><span></span></span></span>
             <span class="tl-name">Enpanadas</span>
-            <span class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></span>
           </button>
         </li>
         <li class="tl-track">
           <button class="tl-trigger" type="button" data-src="audio/brot.mp3" aria-pressed="false" aria-label="Spila Brotið">
-            <span class="tl-num" aria-hidden="true">03</span>
+            <span class="tl-control" aria-hidden="true"><span class="tl-play-icon"></span><span class="tl-pause-icon"><span></span><span></span></span></span>
             <span class="tl-name">Brotið</span>
-            <span class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></span>
           </button>
-        </li>
         </li>
       </ul>
 
