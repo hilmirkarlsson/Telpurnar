@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════
-   TELPURNAR — Main Script v5
+   TELPURNAR — Main Script v6
    Light · Natural · Orano-style cinematic transitions
-   Hero: WebGL displacement reveal (progressive) → CSS slideshow fallback
+   Hero is a static wordmark while short-film imagery is pending; the WebGL
+   displacement renderer and CSS slideshow that drove it live in git history.
 ═══════════════════════════════════════════════════════════════════ */
 
 'use strict';
@@ -74,8 +75,33 @@ const Lang = (function () {
   return { apply, toggle, get: () => current };
 })();
 
+/* ─── TOUCH WORDING ──────────────────────────────────────────────────
+   "Smelltu á mynd" ("click an image") is the wrong verb on a phone. Elements
+   carrying data-is-touch / data-en-touch swap to that wording on a coarse
+   pointer. Runs before Lang.apply so the language pass sees final values. */
+(function initTouchCopy() {
+  if (!window.matchMedia || !window.matchMedia('(hover: none)').matches) return;
+  document.querySelectorAll('[data-is-touch], [data-en-touch]').forEach(el => {
+    ['is', 'en'].forEach(lang => {
+      const touch = el.getAttribute(`data-${lang}-touch`);
+      if (touch) el.setAttribute(`data-${lang}`, touch);
+    });
+  });
+})();
+
 Lang.apply('is');
 /* Lang toggle button hidden for now (index.html) — listener disabled until it's back. */
+
+/* Height of the fixed nav. Mirrors --nav-h in style.css; anything that has to
+   sit clear of the nav (including keyboard focus) measures against this. */
+const NAV_H = 72;
+
+/* Was the last input a key rather than a pointer? Focus handlers use this to
+   tell "tabbed here" from "clicked here" — :focus-visible resolves too late to
+   be readable inside a focus listener. */
+let keyboardNav = false;
+window.addEventListener('keydown', e => { if (e.key === 'Tab') keyboardNav = true; }, true);
+window.addEventListener('pointerdown', () => { keyboardNav = false; }, true);
 
 /* ─── NAV scroll state ───────────────────────────────────────────── */
 (function initNav() {
@@ -231,21 +257,32 @@ Lang.apply('is');
    lightbox to reveal their uncropped source; film stills keep it as a useful
    enlarged view even though their gallery cards now show the full frame. */
 (function initLightbox() {
-  // The stills (and the film poster) are background-image divs, not <img> —
-  // read the URL back out. The poster's image lives one level deeper, in a
-  // nested .film-poster-img, rather than on the trigger element itself.
-  const urlOf = el => {
-    const m = /url\((['"]?)(.*?)\1\)/.exec(el.style.backgroundImage || '');
-    return m ? m[2] : '';
+  // The frames are real <img> elements now (they used to be background-image
+  // divs). Open the LARGEST srcset candidate rather than whatever the card
+  // happened to pick for its own box — the lightbox fills the viewport, so the
+  // 900w variant a small card chose would look soft blown up.
+  const largestOf = img => {
+    if (!img) return '';
+    const set = img.getAttribute('srcset');
+    if (set) {
+      const best = set.split(',')
+        .map(part => {
+          const [url, w] = part.trim().split(/\s+/);
+          return { url, w: parseInt(w, 10) || 0 };
+        })
+        .sort((a, b) => b.w - a.w)[0];
+      if (best && best.url) return best.url;
+    }
+    return img.getAttribute('src') || '';
   };
 
-  // Capture the description now: the trigger's own aria-label gains an
-  // "— opna í fullri stærð" suffix below, and that suffix must not end up in
-  // the lightbox caption (it's an instruction, not a description).
+  // The description now lives on the <img alt> rather than an aria-label on the
+  // wrapper. Capture it before the wrapper gains its "— opna í fullri stærð"
+  // suffix below — that suffix is an instruction, not a caption.
   const stills = Array.from(document.querySelectorAll('.gallery-still, .film-poster-art'))
     .map(el => {
-      const imgEl = el.classList.contains('film-poster-art') ? el.querySelector('.film-poster-img') : el;
-      return { el, src: urlOf(imgEl || el), label: el.getAttribute('aria-label') || '' };
+      const imgEl = el.querySelector('img');
+      return { el, src: largestOf(imgEl), label: imgEl?.getAttribute('alt') || '' };
     })
     .filter(s => s.src && !s.el.classList.contains('is-empty'));
   if (!stills.length) return;   // nothing to open yet (empty Stillur band)
@@ -320,13 +357,73 @@ Lang.apply('is');
   const isOpen = () => box.classList.contains('is-open');
 
   /* ---- triggers on the stills ---- */
-  stills.forEach(({ el }, i) => {
+  stills.forEach(({ el, label: desc }, i) => {
     el.classList.add('is-zoomable');
     // Reachable by keyboard, and announced as the action it now performs.
     el.setAttribute('tabindex', '0');
     el.setAttribute('role', 'button');
-    const label = el.getAttribute('aria-label') || 'Mynd';
-    el.setAttribute('aria-label', `${label} — opna í fullri stærð`);
+    el.setAttribute('aria-label', `${desc || 'Mynd'} — opna í fullri stærð`);
+
+    // Keyboard focus must be VISIBLE. These frames live in a horizontal track
+    // that is positioned by page scroll, so tabbing to one used to move focus
+    // to a card sitting far off-screen with nothing scrolling to meet it —
+    // every stop after the first was invisible. Nudge the page so the focused
+    // frame is actually inside the sticky viewport.
+    el.addEventListener('focus', () => {
+      // Pointer users get scroll from the click itself; only correct for keys.
+      // :focus-visible is not reliable here — it is resolved after the focus
+      // event dispatches, so it reads false exactly when we need it.
+      if (!keyboardNav) return;
+      const r = el.getBoundingClientRect();
+      const offLeft  = r.left < 0;
+      const offRight = r.right > window.innerWidth;
+      const offAbove = r.top < NAV_H;
+      const offBelow = r.bottom > window.innerHeight;
+      if (!(offLeft || offRight || offAbove || offBelow)) return;
+
+      const y = window.scrollY || window.pageYOffset || 0;
+      const section = el.closest('.gallery');
+      const pin = section?.querySelector('.gallery-pin');
+      let target;
+
+      if (pin) {
+        // Horizontal position is purely a function of how far we are through
+        // the pin, so "bring this frame into view" becomes a VERTICAL scroll.
+        // Measure from the document, not offsetTop — the second band is nested
+        // inside .film-world, whose positioning makes offsetTop a local value.
+        const pinTop = pin.getBoundingClientRect().top + y;
+        const travel = Math.max(0, pin.offsetHeight - window.innerHeight);
+        const items = Array.from(section.querySelectorAll('.gallery-still'));
+        const idx = Math.max(0, items.indexOf(el));
+        const frac = items.length > 1 ? idx / (items.length - 1) : 0;
+        target = pinTop + travel * frac;
+      } else {
+        // Centre it, leaving room for the nav.
+        target = r.top + y - Math.max(NAV_H, (window.innerHeight - r.height) / 2);
+      }
+      target = Math.max(0, Math.min(target, document.documentElement.scrollHeight - window.innerHeight));
+
+      // Always go through Lenis when it is running: it owns the scroll
+      // position and its rAF loop would otherwise undo a native scroll.
+      const goTo = t => {
+        if (window.__lenis) window.__lenis.scrollTo(t, { immediate: true, force: true });
+        else window.scrollTo({ top: t, behavior: 'auto' });
+      };
+      goTo(target);
+
+      // Scroll-reveal animations change element heights as they enter, so the
+      // rect measured a moment ago can be stale by the time we land. Re-check
+      // and correct vertically if it is still cut off. Two frames: the first
+      // is when Lenis commits the new offset, the second is after the
+      // scroll-jack has re-applied the track transform for that offset.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const now = el.getBoundingClientRect();
+        if (now.top >= NAV_H && now.bottom <= window.innerHeight) return;
+        const y2 = window.scrollY || window.pageYOffset || 0;
+        const centred = now.top + y2 - Math.max(NAV_H, (window.innerHeight - now.height) / 2);
+        goTo(Math.max(0, Math.min(centred, document.documentElement.scrollHeight - window.innerHeight)));
+      }));
+    });
 
     // Tap, not drag. The phone band is carried sideways by vertical scroll, so
     // a click can land at the end of a flick; ignore anything that moved.
@@ -388,7 +485,6 @@ Lang.apply('is');
   if (REDUCE) return;
   const hero = document.querySelector('.hero');
   const content = document.querySelector('.hero-content');
-  const cue = document.querySelector('.hero-scroll');
   if (!hero || !content) return;
   let ticking = false;
   let heroHeight = hero.offsetHeight || window.innerHeight;
@@ -397,7 +493,6 @@ Lang.apply('is');
     const p = Math.min(y / heroHeight, 1);
     content.style.transform = `translate3d(0, ${y * -0.18}px, 0)`;
     content.style.opacity = String(Math.max(0, 1 - p * 1.15));
-    if (cue) cue.style.opacity = String(Math.max(0, 1 - y / 220));
     ticking = false;
   }
   window.addEventListener('scroll', () => {
@@ -460,325 +555,6 @@ Lang.apply('is');
   })();
 })();
 
-/* ─── HERO DOTS (shared by both renderers) ───────────────────────── */
-function buildHeroDots(count, onSelect) {
-  const wrap = document.getElementById('heroDots');
-  if (!wrap) return { set: () => {} };
-  wrap.innerHTML = '';
-  const dots = [];
-  for (let i = 0; i < count; i++) {
-    const d = document.createElement('button');
-    d.className = 'hero-dot' + (i === 0 ? ' active' : '');
-    d.setAttribute('role', 'tab');
-    d.setAttribute('aria-label', 'Mynd ' + (i + 1));
-    d.addEventListener('click', () => onSelect(i));
-    wrap.appendChild(d);
-    dots.push(d);
-  }
-  return {
-    set(active) { dots.forEach((d, i) => d.classList.toggle('active', i === active)); }
-  };
-}
-
-const DWELL = 6500;        // ms a slide rests
-const TRANSITION = 1500;   // ms of the swap
-
-/* ─── HERO — WebGL displacement renderer ─────────────────────────── */
-function initHeroGL() {
-  const hero = document.querySelector('.hero');
-  const canvas = document.getElementById('heroCanvas');
-  const slideEls = Array.from(document.querySelectorAll('.hero-slide'));
-  if (!hero || !canvas || slideEls.length < 2) return false;
-
-  const sources = slideEls.map(el => el.getAttribute('data-src')).filter(Boolean);
-  if (sources.length < 2) return false;
-
-  let gl;
-  try {
-    gl = canvas.getContext('webgl', { antialias: true, alpha: false, premultipliedAlpha: false })
-      || canvas.getContext('experimental-webgl');
-  } catch (_) { return false; }
-  if (!gl) return false;
-
-  const VERT = `
-    attribute vec2 aPos;
-    varying vec2 vUv;
-    void main(){ vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
-
-  const FRAG = `
-    precision highp float;
-    varying vec2 vUv;
-    uniform sampler2D uTexA;
-    uniform sampler2D uTexB;
-    uniform vec2  uRes;
-    uniform vec2  uImgA;
-    uniform vec2  uImgB;
-    uniform float uProgress;
-    uniform float uTime;
-    uniform float uZoomA;
-    uniform float uZoomB;
-    uniform vec2  uPar;
-
-    float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
-    float noise(vec2 p){
-      vec2 i = floor(p), f = fract(p);
-      float a = hash(i), b = hash(i+vec2(1.0,0.0)), c = hash(i+vec2(0.0,1.0)), d = hash(i+vec2(1.0,1.0));
-      vec2 u = f*f*(3.0-2.0*f);
-      return mix(mix(a,b,u.x), mix(c,d,u.x), u.y);
-    }
-
-    // background-cover mapping + zoom (Ken Burns) around centre
-    vec2 cover(vec2 uv, vec2 img, float zoom){
-      float ar = uRes.x / uRes.y;
-      float ir = img.x / img.y;
-      vec2 r = vec2(min(ar/ir, 1.0), min(ir/ar, 1.0));
-      vec2 cuv = vec2(uv.x*r.x + (1.0-r.x)*0.5, uv.y*r.y + (1.0-r.y)*0.5);
-      return (cuv - 0.5) / zoom + 0.5;
-    }
-
-    void main(){
-      vec2 uv = vUv + uPar;
-      float n = noise(uv * 2.6 + uTime * 0.05);
-
-      // subtle liquid displacement that peaks mid-transition
-      float bell = uProgress * (1.0 - uProgress) * 4.0;   // 0→1→0
-      vec2 dir = vec2(n - 0.5, noise(uv*2.6 - uTime*0.04) - 0.5);
-      vec2 uvA = uv + dir * 0.05 * bell;
-      vec2 uvB = uv - dir * 0.05 * bell;
-
-      vec4 colA = texture2D(uTexA, cover(uvA, uImgA, uZoomA));
-      vec4 colB = texture2D(uTexB, cover(uvB, uImgB, uZoomB));
-
-      // organic, noise-jittered crossfade (soft Orano-style reveal)
-      float jitter = (n - 0.5) * 0.28;
-      float m = smoothstep(0.0, 1.0, clamp(uProgress * 1.3 - 0.15 + jitter, 0.0, 1.0));
-      gl_FragColor = mix(colA, colB, m);
-    }`;
-
-  function compile(type, src) {
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src);
-    gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { gl.deleteShader(s); return null; }
-    return s;
-  }
-  const vs = compile(gl.VERTEX_SHADER, VERT);
-  const fs = compile(gl.FRAGMENT_SHADER, FRAG);
-  if (!vs || !fs) return false;
-  const prog = gl.createProgram();
-  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
-  gl.useProgram(prog);
-
-  // full-screen triangle pair
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
-  const aPos = gl.getAttribLocation(prog, 'aPos');
-  gl.enableVertexAttribArray(aPos);
-  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-  const U = {};
-  ['uTexA','uTexB','uRes','uImgA','uImgB','uProgress','uTime','uZoomA','uZoomB','uPar']
-    .forEach(n => U[n] = gl.getUniformLocation(prog, n));
-
-  // textures (1px placeholder until loaded)
-  function makeTex() {
-    const t = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, t);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([110,130,120,255]));
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    return t;
-  }
-
-  const textures = sources.map(makeTex);
-  const sizes = sources.map(() => [1, 1]);
-  const loaded = sources.map(() => false);
-
-  sources.forEach((src, i) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';   // required for WebGL upload (Wikimedia sends CORS)
-    img.onload = () => {
-      try {
-        gl.bindTexture(gl.TEXTURE_2D, textures[i]);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);   // match screen orientation
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        sizes[i] = [img.naturalWidth || 1, img.naturalHeight || 1];
-        loaded[i] = true;
-        if (!started && loaded[0]) start();
-      } catch (_) { /* tainted/CORS → leave placeholder; fallback handles UX */ }
-    };
-    img.src = src;
-  });
-
-  // sizing
-  let dpr = Math.min(window.devicePixelRatio || 1, 2);
-  function resize() {
-    const w = hero.clientWidth, h = hero.clientHeight;
-    canvas.width = Math.round(w * dpr);
-    canvas.height = Math.round(h * dpr);
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-    gl.viewport(0, 0, canvas.width, canvas.height);
-  }
-  resize();
-  window.addEventListener('resize', resize, { passive: true });
-
-  // state
-  let current = 0;
-  let next = 0;
-  let progress = 0;
-  let transitioning = false;
-  let lastSwap = performance.now();
-  let started = false;
-  const dots = buildHeroDots(sources.length, (i) => go(i));
-
-  // pointer + scroll parallax
-  const par = { x: 0, y: 0, tx: 0, ty: 0 };
-  window.addEventListener('pointermove', (e) => {
-    par.tx = ((e.clientX / window.innerWidth) - 0.5) * 0.016;
-    par.ty = ((e.clientY / window.innerHeight) - 0.5) * 0.016;
-  }, { passive: true });
-
-  function go(target) {
-    if (transitioning || target === current) return;
-    next = target;
-    transitioning = true;
-    progress = 0;
-    transStart = performance.now();
-    dots.set(next);
-  }
-  function advance() { go((current + 1) % sources.length); }
-
-  let transStart = 0;
-  const easeInOut = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
-  let heroVisible = true;
-
-  function render(now) {
-    // parallax smoothing
-    par.x += (par.tx - par.x) * 0.06;
-    par.y += (par.ty - par.y) * 0.06;
-
-    // transition progress
-    if (transitioning) {
-      const t = Math.min((now - transStart) / TRANSITION, 1);
-      progress = easeInOut(t);
-      if (t >= 1) {
-        transitioning = false;
-        current = next;
-        progress = 0;
-        lastSwap = now;
-      }
-    } else if (!REDUCE && now - lastSwap > DWELL && loaded[(current + 1) % sources.length]) {
-      advance();
-    }
-
-    // Ken Burns zoom per slide (reset on swap)
-    const since = (now - lastSwap) / (DWELL + TRANSITION);
-    const kb = REDUCE ? 1.02 : 1.0 + Math.min(Math.max(since, 0), 1.3) * 0.085;
-    const zoomCur = kb;
-    const zoomNext = 1.0 + 0.02;
-
-    gl.useProgram(prog);
-    gl.uniform2f(U.uRes, canvas.width, canvas.height);
-    gl.uniform1f(U.uTime, now * 0.001);
-    gl.uniform1f(U.uProgress, transitioning ? progress : 0.0);
-    gl.uniform2f(U.uPar, par.x, par.y);
-
-    // bind current → A, incoming → B
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, textures[current]);
-    gl.uniform1i(U.uTexA, 0);
-    gl.uniform2f(U.uImgA, sizes[current][0], sizes[current][1]);
-    gl.uniform1f(U.uZoomA, zoomCur);
-
-    const b = transitioning ? next : current;
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, textures[b]);
-    gl.uniform1i(U.uTexB, 1);
-    gl.uniform2f(U.uImgB, sizes[b][0], sizes[b][1]);
-    gl.uniform1f(U.uZoomB, zoomNext);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-    raf = heroVisible ? requestAnimationFrame(render) : 0;
-  }
-
-  let raf = 0;
-  let dead = false;
-  function start() {
-    if (started || dead) return;
-    started = true;
-    hero.classList.add('gl-active');
-    lastSwap = performance.now();
-    raf = requestAnimationFrame(render);
-  }
-
-  // Stop the WebGL slideshow once the hero leaves the viewport. Keeping it
-  // rendering behind the rest of the page steals GPU time from scrolling.
-  if ('IntersectionObserver' in window) {
-    const heroObserver = new IntersectionObserver(([entry]) => {
-      heroVisible = entry.isIntersecting;
-      if (!heroVisible && raf) {
-        cancelAnimationFrame(raf);
-        raf = 0;
-      } else if (heroVisible && started && !raf && !document.hidden) {
-        lastSwap = performance.now();
-        raf = requestAnimationFrame(render);
-      }
-    }, { threshold: 0 });
-    heroObserver.observe(hero);
-  }
-
-  // Watchdog: if textures haven't uploaded in time (e.g. CORS), abandon
-  // WebGL and let the CSS slideshow take over so the hero never sits static.
-  window.setTimeout(() => {
-    if (!started) { dead = true; initHeroCSS(); }
-  }, 3500);
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { if (raf) cancelAnimationFrame(raf); raf = 0; }
-    else if (heroVisible && started && !raf) { lastSwap = performance.now(); raf = requestAnimationFrame(render); }
-  });
-
-  return true;
-}
-
-/* ─── HERO — CSS fallback slideshow ──────────────────────────────── */
-function initHeroCSS() {
-  const slides = Array.from(document.querySelectorAll('.hero-slide'));
-  if (slides.length < 2) return;
-  let active = 0, timer = null;
-  const dots = buildHeroDots(slides.length, (i) => { go(i); restart(); });
-
-  function go(nextIdx) {
-    if (nextIdx === active) return;
-    const cur = slides[active], inc = slides[nextIdx];
-    cur.classList.remove('is-active');
-    cur.classList.add('is-leaving');
-    void inc.offsetWidth;
-    inc.classList.add('is-active');
-    window.setTimeout(() => cur.classList.remove('is-leaving'), 1700);
-    dots.set(nextIdx);
-    active = nextIdx;
-  }
-  function advance() { go((active + 1) % slides.length); }
-  function restart() { if (timer) clearInterval(timer); if (!REDUCE) timer = setInterval(advance, DWELL); }
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { if (timer) clearInterval(timer); } else restart();
-  });
-  restart();
-}
-
-/* Choose renderer: WebGL if possible, else CSS */
-(function initHero() {
-  let ok = false;
-  try { ok = initHeroGL(); } catch (_) { ok = false; }
-  if (!ok) initHeroCSS();
-})();
-
 /* ─── HERO intro reveal ──────────────────────────────────────────── */
 function playHeroIntro() { document.querySelector('.hero')?.classList.add('is-ready'); }
 
@@ -791,6 +567,32 @@ window.setTimeout(() => {
   document.getElementById('loader')?.classList.add('done');
   playHeroIntro();
 }, 2500);
+
+/* ─── GALLERY IMAGE WARM-UP ──────────────────────────────────────────
+   The twelve gallery frames are loading="lazy", which keeps them out of the
+   initial load — but they live in a horizontally-translated track, so a frame
+   still off to the right is "outside the viewport" and would otherwise not
+   start downloading until it slid in, popping in mid-scroll.
+   Once the page is idle we fetch them ahead of time: the browser resolves the
+   same srcset candidate it will use later and puts it in the HTTP cache, so by
+   the time anyone reaches the band (1600px+ down) every frame is ready.
+   Native lazy-loading still covers the no-JS case on its own. */
+(function warmGalleryImages() {
+  const imgs = Array.from(document.querySelectorAll('.gallery-img'));
+  if (!imgs.length) return;
+  const idle = window.requestIdleCallback || (fn => window.setTimeout(fn, 300));
+  const warm = i => {
+    if (i >= imgs.length) return;
+    const src = imgs[i];
+    const pre = new Image();
+    if (src.sizes) pre.sizes = src.sizes;
+    const set = src.getAttribute('srcset');
+    if (set) pre.srcset = set;
+    pre.src = src.getAttribute('src');
+    idle(() => warm(i + 1));
+  };
+  window.addEventListener('load', () => idle(() => warm(0)));
+})();
 
 /* ─── TEAM CARDS — click-to-reveal role + bio ────────────────────── */
 /* Confirmed change: text only appears when a person is clicked/tapped.
@@ -1043,67 +845,9 @@ function initGallery(section) {
   update();
 }
 
-/* ─── MUSIC — ambient Web Audio preview ──────────────────────────── */
-(function initMusicPlayer() {
-  const TRACK_PRESETS = [
-    [{ f: 55,   g: 0.040 }, { f: 110,   g: 0.028 }, { f: 165,   g: 0.018 }, { f: 220,   g: 0.010 }],
-    [{ f: 73.4, g: 0.038 }, { f: 146.8, g: 0.026 }, { f: 220.0, g: 0.016 }, { f: 293.7, g: 0.010 }],
-    [{ f: 82.4, g: 0.040 }, { f: 164.8, g: 0.028 }, { f: 247.1, g: 0.016 }, { f: 329.6, g: 0.008 }],
-    [{ f: 98.0, g: 0.038 }, { f: 196.0, g: 0.026 }, { f: 294.0, g: 0.018 }, { f: 392.0, g: 0.010 }],
-  ];
-  let audioCtx = null, oscs = [], gains = [], master = null, lfo = null, lfoGain = null;
-  let isPlaying = false, currentTrack = -1;
-
-  function ensureContext() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    master = audioCtx.createGain(); master.gain.value = 1; master.connect(audioCtx.destination);
-    lfo = audioCtx.createOscillator(); lfoGain = audioCtx.createGain();
-    lfo.frequency.value = 0.08; lfoGain.gain.value = 0.008;
-    lfo.connect(lfoGain); lfoGain.connect(master.gain); lfo.start();
-  }
-  function stopTones() {
-    gains.forEach(g => {
-      if (!audioCtx) return;
-      g.gain.setValueAtTime(g.gain.value, audioCtx.currentTime);
-      g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
-    });
-    const snap = oscs.slice();
-    setTimeout(() => snap.forEach(o => { try { o.stop(); } catch (_) {} }), 450);
-    oscs = []; gains = [];
-  }
-  function playTones(idx) {
-    ensureContext();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    stopTones();
-    (TRACK_PRESETS[idx] || TRACK_PRESETS[0]).forEach(({ f, g }) => {
-      const osc = audioCtx.createOscillator(); const gn = audioCtx.createGain();
-      osc.type = 'sine'; osc.frequency.value = f;
-      gn.gain.setValueAtTime(0, audioCtx.currentTime);
-      gn.gain.linearRampToValueAtTime(g, audioCtx.currentTime + 2.0);
-      osc.connect(gn); gn.connect(master); osc.start();
-      oscs.push(osc); gains.push(gn);
-    });
-  }
-  function setState(idx, playing) {
-    document.querySelectorAll('.tl-track').forEach((el, i) => {
-      el.classList.toggle('active', i === idx);
-      el.classList.toggle('playing', i === idx && playing);
-    });
-  }
-  function select(idx) {
-    if (idx === currentTrack) {
-      isPlaying = !isPlaying;
-      if (isPlaying) { playTones(idx); setState(idx, true); }
-      else { stopTones(); setState(idx, false); }
-      return;
-    }
-    currentTrack = idx; isPlaying = true; playTones(idx); setState(idx, true);
-  }
-  document.querySelectorAll('.tl-track').forEach((el, i) => {
-    el.addEventListener('click', () => select(i));
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i); }
-    });
-  });
-})();
+/* ─── MUSIC ──────────────────────────────────────────────────────────
+   Removed: a Web Audio oscillator bank that played synthesised drones when a
+   tracklist row was clicked. The rows sat under Hrannar Þór B. Hilmarsson's
+   name and a "Framleitt af" credit, so generated tone read as his score. The
+   tracklist is a plain listing now; wire a real <audio> element here once the
+   recordings exist. */

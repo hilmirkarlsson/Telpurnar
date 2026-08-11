@@ -75,7 +75,7 @@
         "@type": "Movie",
         "name": "Telpurnar",
         "url": "https://telpurproductions.is/#telpurnar",
-        "image": "https://telpurproductions.is/photos/poster-telpurnar.jpg",
+        "image": "https://telpurproductions.is/photos/poster-telpurnar.webp",
         "inLanguage": "is",
         "countryOfOrigin": { "@type": "Country", "name": "Ísland" },
         "genre": "Stuttmynd",
@@ -90,14 +90,36 @@
   }
   </script>
 
-  <!-- Fonts: Luckiest Guy (chunky display) + Fredoka (rounded body) — playful poster pairing -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Luckiest+Guy&display=swap" rel="stylesheet" />
+  <!-- Fonts: Luckiest Guy (chunky display) + Fredoka (rounded body) — playful
+       poster pairing. Self-hosted: the Google Fonts stylesheet was a
+       render-blocking cross-origin request, so a slow or filtered network
+       held up first paint on a page that has no other blocking resource.
+       Only the `latin` subset ships — every Icelandic character (á é í ó ú ý
+       þ æ ö ð) lives inside U+0000-00FF, so latin-ext and hebrew were dropped. -->
+  <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/luckiest-guy-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-  <link rel="stylesheet" href="style.css?v=70" />
+  <link rel="stylesheet" href="style.css?v=71" />
+
+  <!-- The loader is a full-screen opaque overlay. It must default to HIDDEN so
+       that a browser with JS off — or any load where script.js fails — still
+       shows the page instead of a blank screen. JS opts INTO the overlay here,
+       and script.js takes it back off once the intro is ready. -->
+  <script>
+    (function () {
+      var d = document.documentElement;
+      // .js gates every 'hidden until animated in' rule, so a no-JS render
+      // shows the content outright instead of animating it in from opacity:0.
+      d.classList.add('js', 'js-loading');
+      // Failsafe: if script.js never arrives (404, blocked, parse error) nothing
+      // else would ever take the curtain down. Lift it unconditionally after 4s.
+      setTimeout(function () { d.classList.remove('js-loading'); }, 4000);
+    })();
+  </script>
 </head>
 <body>
+
+  <a class="skip-link" href="#main">Beint í efni</a>
 
   <!-- ─── LOADER ─────────────────────────────────────────────────── -->
   <div class="loader" id="loader" aria-hidden="true">
@@ -116,28 +138,23 @@
     </div>
   </nav>
 
-  <!-- ─── HERO ───────────────────────────────────────────────────── -->
-  <section class="hero" id="hero">
-    <!-- WebGL displacement canvas (progressive enhancement) -->
-    <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+  <main id="main">
 
-    <!-- Hero photos removed — AWAITING SHORT-FILM IMAGERY.
-         To restore, add one .hero-slide per image (2+ re-enables the
-         slideshow + WebGL transitions automatically), e.g.:
-         <div class="hero-slide is-active" data-src="IMG_URL">
-           <div class="hero-slide-img" style="background-image:url('IMG_URL')"></div>
-         </div> -->
-    <div class="hero-slides" id="heroSlides" aria-hidden="true"></div>
+  <!-- ─── HERO ───────────────────────────────────────────────────── -->
+  <!-- Hero photos are still AWAITING SHORT-FILM IMAGERY. The WebGL
+       displacement renderer, the CSS fallback slideshow and the dot controls
+       that drove them were removed along with the empty markup — they were
+       ~320 lines of script.js that could never run with zero slides. Restore
+       from git history (see script.js before v68) when the imagery lands. -->
+  <section class="hero" id="hero">
     <div class="hero-scrim" aria-hidden="true"></div>
 
     <div class="hero-content">
       <h1 class="hero-title">
-        <img class="hero-logo" src="photos/telpur-logo.png" alt="Telpur Productions" width="1430" height="1020" />
+        <img class="hero-logo" src="photos/telpur-logo.webp" alt="Telpur Productions"
+             width="1440" height="1027" fetchpriority="high" decoding="async" />
       </h1>
     </div>
-
-    <!-- Slideshow dots -->
-    <div class="hero-dots" id="heroDots" role="tablist" aria-label="Myndir"></div>
   </section>
 
   <!-- ─── 2 · UM OKKUR + TEYMIÐ — studio intro flanked by its two directors ─ -->
@@ -146,12 +163,24 @@
        reveal role + bio ("Þegar ýtt er á manneskju þá kemur textinn með"). -->
   <section class="duo" id="about">
     <div class="duo-inner">
+      <!-- Source order is copy-first so the section's <h2> precedes the two
+           director <h3>s; CSS grid puts the copy back in the middle column. -->
       <div class="duo-layout" id="teamGrid">
+
+        <!-- Um okkur copy — centre column -->
+        <div class="duo-copy">
+          <p class="section-eyebrow" data-is="Um okkur" data-en="About Us">Um okkur</p>
+          <h2 class="duo-heading">Telpur Productions</h2>
+          <p class="duo-bio"
+            data-is="Telpur Productions er nýtt framleiðsluteymi sem kemur ungu listafólki á framfæri."
+            data-en="Telpur Productions is a new production team giving young artists a platform."
+          >Telpur Productions er nýtt framleiðsluteymi sem kemur ungu listafólki á framfæri.</p>
+        </div>
 
         <!-- Hanna — left -->
         <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
-          <div class="director-portrait has-photo" aria-label="Hanna Álfheiður Gunnarsdóttir">
-            <img class="dp-photo" src="photos/hanna.jpg?v=2" alt="Hanna Álfheiður Gunnarsdóttir" loading="lazy" decoding="async" />
+          <div class="director-portrait has-photo">
+            <img class="dp-photo" src="photos/hanna.webp" alt="Hanna Álfheiður Gunnarsdóttir" loading="lazy" decoding="async" width="800" height="941" />
           </div>
           <h3 class="director-name">
             <span>Hanna Álfheiður Gunnarsdóttir</span>
@@ -171,20 +200,10 @@
           </div>
         </article>
 
-        <!-- Um okkur copy — centre -->
-        <div class="duo-copy">
-          <p class="section-eyebrow" data-is="Um okkur" data-en="About Us">Um okkur</p>
-          <h2 class="duo-heading">Telpur Productions</h2>
-          <p class="duo-bio"
-            data-is="Telpur Productions er nýtt framleiðsluteymi sem kemur ungu listafólki á framfæri."
-            data-en="Telpur Productions is a new production team giving young artists a platform."
-          >Telpur Productions er nýtt framleiðsluteymi sem kemur ungu listafólki á framfæri.</p>
-        </div>
-
         <!-- Guðríður — right -->
         <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
-          <div class="director-portrait has-photo" aria-label="Guðríður Jóhannsdóttir">
-            <img class="dp-photo" src="photos/gudridur.jpg?v=2" alt="Guðríður Jóhannsdóttir" loading="lazy" decoding="async" />
+          <div class="director-portrait has-photo">
+            <img class="dp-photo" src="photos/gudridur.webp" alt="Guðríður Jóhannsdóttir" loading="lazy" decoding="async" width="800" height="863" />
           </div>
           <h3 class="director-name">
             <span>Guðríður Jóhannsdóttir</span>
@@ -218,8 +237,9 @@
       <div class="gallery-sticky">
         <div class="gallery-header">
           <div class="gallery-heading-group">
-            <p class="section-eyebrow" data-is="Framleiðslumyndir" data-en="Production Stills">Framleiðslumyndir</p>
-            <p class="gallery-view-hint" data-is="Smelltu á mynd til að skoða hana í fullri stærð." data-en="Select an image to view it full size.">Smelltu á mynd til að skoða hana í fullri stærð.</p>
+            <h2 class="section-eyebrow" data-is="Framleiðslumyndir" data-en="Production Stills">Framleiðslumyndir</h2>
+            <p class="gallery-view-hint" data-is="Smelltu á mynd til að skoða hana í fullri stærð." data-en="Select an image to view it full size."
+             data-is-touch="Ýttu á mynd til að skoða hana í fullri stærð." data-en-touch="Tap an image to view it full size.">Smelltu á mynd til að skoða hana í fullri stærð.</p>
           </div>
           <div class="gallery-nav-row">
             <div class="gallery-arrows">
@@ -240,22 +260,64 @@
         <!-- Behind-the-scenes photos from the Telpurnar shoot (added 2026-07-29). -->
         <div class="gallery-track">
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/bts-01.jpg')" role="img" aria-label="Tökulið að störfum í eldhúsi — leikkona og myndatökumaður"><span class="still-num" aria-hidden="true">01</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/bts-01-900.webp"
+                   srcset="photos/bts-01-900.webp 900w, photos/bts-01-1200.webp 1200w, photos/bts-01-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Tökulið að störfum í eldhúsi — leikkona og myndatökumaður" width="1650" height="2200"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">01</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/bts-02.jpg')" role="img" aria-label="Leikstjóri les handrit með hljóðmanni og myndatökumanni"><span class="still-num" aria-hidden="true">02</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/bts-02-900.webp"
+                   srcset="photos/bts-02-900.webp 900w, photos/bts-02-1200.webp 1200w, photos/bts-02-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Leikstjóri les handrit með hljóðmanni og myndatökumanni" width="1650" height="2200"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">02</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/bts-03.jpg')" role="img" aria-label="Skjár myndavélar sýnir senu í eldhúsinu"><span class="still-num" aria-hidden="true">03</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/bts-03-900.webp"
+                   srcset="photos/bts-03-900.webp 900w, photos/bts-03-1200.webp 1200w, photos/bts-03-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Skjár myndavélar sýnir senu í eldhúsinu" width="1650" height="2200"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">03</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/bts-04.jpg')" role="img" aria-label="Leikkonur brosa fyrir framan myndavélina milli taka"><span class="still-num" aria-hidden="true">04</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/bts-04-900.webp"
+                   srcset="photos/bts-04-900.webp 900w, photos/bts-04-1200.webp 1200w, photos/bts-04-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Leikkonur brosa fyrir framan myndavélina milli taka" width="2200" height="1650"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">04</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/bts-05.jpg')" role="img" aria-label="Tökulið að taka upp senu í gangi utandyra"><span class="still-num" aria-hidden="true">05</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/bts-05-900.webp"
+                   srcset="photos/bts-05-900.webp 900w, photos/bts-05-1200.webp 1200w, photos/bts-05-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Tökulið að taka upp senu í gangi utandyra" width="2048" height="1536"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">05</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/bts-06.jpg')" role="img" aria-label="Faðmlagssena tekin upp utandyra með hljóðnema"><span class="still-num" aria-hidden="true">06</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/bts-06-900.webp"
+                   srcset="photos/bts-06-900.webp 900w, photos/bts-06-1200.webp 1200w, photos/bts-06-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Faðmlagssena tekin upp utandyra með hljóðnema" width="2048" height="1536"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">06</span>
+            </div>
           </figure>
         </div>
 
@@ -271,7 +333,7 @@
   <!-- ─── 4 · VERKEFNI — section intro, sits right above the film-world box ─ -->
   <section class="projects" id="projects">
     <div class="projects-inner">
-      <p class="section-eyebrow" data-is="Verkefni" data-en="Projects">Verkefni</p>
+      <h2 class="section-eyebrow" data-is="Verkefni" data-en="Projects">Verkefni</h2>
     </div>
   </section>
 
@@ -284,8 +346,10 @@
 
       <div class="film-poster-wrap">
         <div class="film-poster">
-          <div class="film-poster-art" aria-label="Kvikmyndaplakat — Telpurnar">
-            <div class="film-poster-img" style="background-image:url('photos/poster-telpurnar.jpg')"></div>
+          <div class="film-poster-art">
+            <img class="film-poster-img" src="photos/poster-telpurnar.webp"
+                 alt="Kvikmyndaplakat — Telpurnar: sýnd í Bíó Paradís 13. og 14. ágúst kl. 19:45, salur 3"
+                 width="900" height="1273" loading="lazy" decoding="async" />
           </div>
           <p class="poster-caption" data-is="Kvikmyndaplakat · 2026" data-en="Film poster · 2026">Kvikmyndaplakat · 2026</p>
         </div>
@@ -336,8 +400,9 @@
       <div class="gallery-sticky">
         <div class="gallery-header">
           <div class="gallery-heading-group">
-            <p class="section-eyebrow" data-is="Stillur úr myndinni" data-en="Stills from the film">Stillur úr myndinni</p>
-            <p class="gallery-view-hint" data-is="Smelltu á mynd til að skoða hana í fullri stærð." data-en="Select an image to view it full size.">Smelltu á mynd til að skoða hana í fullri stærð.</p>
+            <h2 class="section-eyebrow" data-is="Stillur úr myndinni" data-en="Stills from the film">Stillur úr myndinni</h2>
+            <p class="gallery-view-hint" data-is="Smelltu á mynd til að skoða hana í fullri stærð." data-en="Select an image to view it full size."
+             data-is-touch="Ýttu á mynd til að skoða hana í fullri stærð." data-en-touch="Tap an image to view it full size.">Smelltu á mynd til að skoða hana í fullri stærð.</p>
           </div>
           <div class="gallery-nav-row">
             <div class="gallery-arrows">
@@ -357,22 +422,64 @@
 
         <div class="gallery-track">
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/still-01.jpg')" role="img" aria-label="Tvær vinkonur ræða saman í eldhúsinu"><span class="still-num" aria-hidden="true">01</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/still-01-900.webp"
+                   srcset="photos/still-01-900.webp 900w, photos/still-01-1200.webp 1200w, photos/still-01-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Tvær vinkonur ræða saman í eldhúsinu" width="1280" height="500"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">01</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/still-02.jpg')" role="img" aria-label="Æsingur á milli tveggja vinkvenna á götu að kvöldlagi"><span class="still-num" aria-hidden="true">02</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/still-02-900.webp"
+                   srcset="photos/still-02-900.webp 900w, photos/still-02-1200.webp 1200w, photos/still-02-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Æsingur á milli tveggja vinkvenna á götu að kvöldlagi" width="1280" height="508"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">02</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/still-03.jpg')" role="img" aria-label="Nærmynd af áhyggjufullum svip"><span class="still-num" aria-hidden="true">03</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/still-03-900.webp"
+                   srcset="photos/still-03-900.webp 900w, photos/still-03-1200.webp 1200w, photos/still-03-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Nærmynd af áhyggjufullum svip" width="1280" height="501"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">03</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/still-04.jpg')" role="img" aria-label="Vinkona hrópar af skelfingu"><span class="still-num" aria-hidden="true">04</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/still-04-900.webp"
+                   srcset="photos/still-04-900.webp 900w, photos/still-04-1200.webp 1200w, photos/still-04-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Vinkona hrópar af skelfingu" width="1278" height="476"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">04</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/still-05.jpg')" role="img" aria-label="Spennuþrungin sena í ganginum"><span class="still-num" aria-hidden="true">05</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/still-05-900.webp"
+                   srcset="photos/still-05-900.webp 900w, photos/still-05-1200.webp 1200w, photos/still-05-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Spennuþrungin sena í ganginum" width="1280" height="538"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">05</span>
+            </div>
           </figure>
           <figure class="gallery-item">
-            <div class="gallery-still" style="background-image:url('photos/still-06.jpg')" role="img" aria-label="Vinkonurnar þrjár í stofunni"><span class="still-num" aria-hidden="true">06</span></div>
+            <div class="gallery-still">
+              <img class="gallery-img" src="photos/still-06-900.webp"
+                   srcset="photos/still-06-900.webp 900w, photos/still-06-1200.webp 1200w, photos/still-06-1500.webp 1500w"
+                   sizes="(max-width: 767px) 150vw, 1066px"
+                   alt="Vinkonurnar þrjár í stofunni" width="1600" height="620"
+                   loading="lazy" decoding="async" />
+              <span class="still-num" aria-hidden="true">06</span>
+            </div>
           </figure>
         </div>
 
@@ -388,7 +495,7 @@
   <!-- ─── 6 · FÓLKIÐ — full cast & crew by role ───────────────────── -->
   <section class="people" id="people">
     <div class="people-inner">
-      <p class="section-eyebrow" data-is="Fólkið" data-en="The People">Fólkið</p>
+      <h2 class="section-eyebrow" data-is="Fólkið" data-en="The People">Fólkið</h2>
 
       <!-- Cast & crew exactly as listed in Hanna's content document
            (2026-07-30). Guðríður and Hanna share one row because they share
@@ -399,7 +506,7 @@
           <span class="crew-job" data-is="Leikkona, handritshöfundur & framleiðandi" data-en="Actor, writer & producer">Leikkona, handritshöfundur & framleiðandi</span>
         </li>
         <li class="crew-row">
-          <span class="crew-person">Diljá Petursdóttir</span>
+          <span class="crew-person">Diljá Pétursdóttir</span>
           <span class="crew-job" data-is="Leikkona" data-en="Actor">Leikkona</span>
         </li>
         <li class="crew-row">
@@ -429,26 +536,31 @@
       <h2 class="music-heading" data-is="Frumsamið tónverk" data-en="Original Score">Frumsamið tónverk</h2>
       <p class="music-composer">Hrannar Þór B. Hilmarsson</p>
 
+      <!-- These rows used to be role="button" "Spila lag N", and clicking one
+           started a Web Audio oscillator drone generated in script.js. Sitting
+           under Hrannar's name and a "Framleitt af" credit, that read as his
+           score when it was synthesised tone. The play affordance and the
+           synthesiser are both gone; this is a plain track listing until the
+           real recordings exist.
+           TO ADD REAL AUDIO: drop the files in audio/, then give each row an
+           <audio controls preload="none"> (or one shared player) — keep the
+           control a real <button>/<audio>, not a div with role="button". -->
       <ul class="tracklist" role="list" aria-label="Lagalisti">
-        <li class="tl-track" data-track="0" role="button" tabindex="0" aria-label="Spila lag 1">
+        <li class="tl-track">
           <span class="tl-num" aria-hidden="true">01</span>
           <span class="tl-name" data-is="[Lag 1]" data-en="[Track 1]">[Lag 1]</span>
-          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
-        <li class="tl-track" data-track="1" role="button" tabindex="0" aria-label="Spila lag 2">
+        <li class="tl-track">
           <span class="tl-num" aria-hidden="true">02</span>
           <span class="tl-name" data-is="[Lag 2]" data-en="[Track 2]">[Lag 2]</span>
-          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
-        <li class="tl-track" data-track="2" role="button" tabindex="0" aria-label="Spila lag 3">
+        <li class="tl-track">
           <span class="tl-num" aria-hidden="true">03</span>
           <span class="tl-name" data-is="[Lag 3]" data-en="[Track 3]">[Lag 3]</span>
-          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
-        <li class="tl-track" data-track="3" role="button" tabindex="0" aria-label="Spila lag 4">
+        <li class="tl-track">
           <span class="tl-num" aria-hidden="true">04</span>
           <span class="tl-name" data-is="[Lag 4]" data-en="[Track 4]">[Lag 4]</span>
-          <div class="tl-bars" aria-hidden="true"><span class="tl-bar"></span><span class="tl-bar"></span><span class="tl-bar"></span></div>
         </li>
       </ul>
 
@@ -457,7 +569,7 @@
           <span class="mc-label" data-is="Framleitt af" data-en="Produced by">Framleitt af</span>
           <span class="mc-name">Hrannar Þór B. Hilmarsson</span>
         </p>
-        <p class="music-note" data-is="Sýnishorn úr tónlist · endanleg útgáfa óákveðin" data-en="Ambient preview · final score TBD">Sýnishorn úr tónlist · endanleg útgáfa óákveðin</p>
+        <p class="music-note" data-is="Lagalisti · tónlist væntanleg" data-en="Track listing · music coming soon">Lagalisti · tónlist væntanleg</p>
       </div>
 
     </div>
@@ -473,7 +585,7 @@
 
   <section class="contact" id="contact">
     <div class="contact-inner">
-      <p class="section-eyebrow" data-is="Hafa samband" data-en="Get in Touch">Hafa samband</p>
+      <h2 class="section-eyebrow" data-is="Hafa samband" data-en="Get in Touch">Hafa samband</h2>
 
       <ul class="crew-list" role="list">
         <li class="crew-row">
@@ -488,19 +600,21 @@
     </div>
   </section>
 
+  </main>
+
   <!-- ─── FOOTER ─────────────────────────────────────────────────── -->
   <footer class="footer">
     <div class="footer-inner">
       <div class="footer-brand" aria-hidden="true">Telpur</div>
-      <p class="footer-credit" data-is="Hilmir Karlsson · vefsíðuhönnuður" data-en="Hilmir Karlsson · website design">Hilmir Karlsson · vefsíðuhönnuður</p>
       <p class="footer-meta" data-is="© 2026 Telpur Productions · Ísland" data-en="© 2026 Telpur Productions · Iceland">© 2026 Telpur Productions · Ísland</p>
+      <p class="footer-credit" data-is="Hilmir Karlsson · vefsíðuhönnuður" data-en="Hilmir Karlsson · website design">Hilmir Karlsson · vefsíðuhönnuður</p>
     </div>
   </footer>
 
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
   <!-- Lenis provides lightweight wheel smoothing; galleries use native sticky positioning. -->
-  <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
-  <script src="script.js?v=67" defer></script>
+  <script src="vendor/lenis.min.js" defer></script>
+  <script src="script.js?v=68" defer></script>
 
 </body>
 </html>
