@@ -1462,13 +1462,6 @@ body.team-card-open .dust { display: none; }
 .music-produced { font-size: 0.92rem; color: var(--surface); }
 .mc-label { margin-right: var(--sp-2); }
 .mc-name { font-family: var(--font-serif); font-size: 1.15rem; color: var(--gold); }
-.music-note {
-  font-size: 0.68rem;
-  color: var(--surface);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 /* ─── FOOTER (mint) ──────────────────────────────────────────────── */
 .footer {
   padding: var(--sp-16) var(--pad-x);
