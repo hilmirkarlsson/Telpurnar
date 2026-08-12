@@ -17,12 +17,13 @@ canonical, so every absolute URL and the `<link rel="canonical">` point there)
 
 | | |
 |---|---|
-| Guðríður Jóhannsdóttir & Hanna Álfheiður Gunnarsdóttir | Leikkonur, handritshöfundar & framleiðendur |
+| Guðríður Jóhannsdóttir | Leikkona, handritshöfundur & framleiðandi |
+| Hanna Álfheiður Gunnarsdóttir | Leikkona, handritshöfundur & framleiðandi |
 | Diljá Pétursdóttir | Leikkona |
-| Tómas Marshall | Myndataka & aukaleikari |
+| Tómas Marshall | Myndataka |
 | Skúli Helgi Sigurgíslason | Hljóð |
 | Tristan Gylfi Baldursson | Aðstoð á setti |
-| Hrannar Þór B. Hilmarsson | Tónlist |
+| Hrannar | Tónlist |
 | Hilmir Karlsson | Vefsíðuhönnuður |
 
 Telpur Productions is a new Icelandic production team giving young artists a
