@@ -13,7 +13,7 @@ const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* With Lenis running, the only correct way to freeze scrolling is its own
    stop()/start() — it owns the scroll position. We also snap it back to the
    exact offset on release so nothing can drift while an overlay is up.
-   Without Lenis (reduced-motion, or the CDN blocked) fall back to the
+   Without Lenis (reduced-motion, or the local helper unavailable) fall back to the
    position:fixed technique, which preserves the offset by construction —
    plain overflow:hidden does not, and setting body overflow collapses the
    document's scrollable height, which makes Lenis clamp and then glide back. */
@@ -114,7 +114,7 @@ window.addEventListener('pointerdown', () => { keyboardNav = false; }, true);
 
 /* ─── SMOOTH SCROLL (Lenis) ──────────────────────────────────────── */
 (function initLenis() {
-  if (REDUCE || typeof Lenis === 'undefined') return;   // CDN blocked → native scroll
+  if (REDUCE || typeof Lenis === 'undefined') return;   // helper unavailable → native scroll
   const lenis = new Lenis({
     duration: 0.9,
     easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -144,6 +144,12 @@ window.addEventListener('pointerdown', () => { keyboardNav = false; }, true);
       const target = document.querySelector(id);
       if (!target) return;
       e.preventDefault();
+      if (a.classList.contains('skip-link')) {
+        // A skip link must move keyboard/screen-reader focus, not only pixels.
+        lenis.scrollTo(target, { immediate: true });
+        target.focus({ preventScroll: true });
+        return;
+      }
       let crossesGallery = false;
       if (gallery) {
         const galleryTop = gallery.offsetTop;
@@ -342,6 +348,17 @@ window.addEventListener('pointerdown', () => { keyboardNav = false; }, true);
     ScrollLock.lock();
     box.classList.add('is-open');
     closeBtn.focus({ preventScroll: true });
+    // A keyboard-activated role=button can reassert focus on its trigger after
+    // the key event finishes. Reaffirm dialog focus on the next frame so the
+    // background never remains the active element behind the modal.
+    requestAnimationFrame(() => {
+      if (box.classList.contains('is-open')) closeBtn.focus({ preventScroll: true });
+    });
+    window.setTimeout(() => {
+      if (box.classList.contains('is-open') && !box.contains(document.activeElement)) {
+        closeBtn.focus({ preventScroll: true });
+      }
+    }, 300);
   }
 
   function close() {
@@ -595,9 +612,8 @@ window.setTimeout(() => {
 })();
 
 /* ─── TEAM CARDS — click-to-reveal role + bio ────────────────────── */
-/* Confirmed change: text only appears when a person is clicked/tapped.
-   One card open at a time; Enter/Space work because cards are
-   role="button" + tabindex="0". */
+/* Text only appears when a person is clicked/tapped. One card opens at a
+   time; each card exposes a native toggle button for keyboard users. */
 (function initTeamCards() {
   const cards = Array.from(document.querySelectorAll('.team-card'));
   if (!cards.length) return;
@@ -625,6 +641,36 @@ window.setTimeout(() => {
   const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
   const OPEN_MS = 380;
   const CLOSE_MS = 280;
+
+  const toggleFor = card => card.querySelector('.team-card-toggle');
+  const bodyFor = card => card.querySelector('.team-card-body');
+  const nameFor = card => card.querySelector('.director-name > span')?.textContent.trim() || '';
+
+  function setCardState(card, expanded) {
+    const control = toggleFor(card);
+    const body = bodyFor(card);
+    const name = nameFor(card);
+
+    card.classList.toggle('is-open', expanded);
+    card.classList.toggle('is-featured', expanded);
+    control?.setAttribute('aria-expanded', String(expanded));
+    control?.setAttribute(
+      'aria-label',
+      `${expanded ? 'Loka upplýsingum um' : 'Skoða upplýsingar um'} ${name}`
+    );
+    body?.setAttribute('aria-hidden', String(!expanded));
+
+    if (expanded) {
+      card.setAttribute('role', 'dialog');
+      card.setAttribute('aria-modal', 'true');
+      const heading = card.querySelector('.director-name');
+      if (heading?.id) card.setAttribute('aria-labelledby', heading.id);
+    } else {
+      card.removeAttribute('role');
+      card.removeAttribute('aria-modal');
+      card.removeAttribute('aria-labelledby');
+    }
+  }
 
   /* NOT a rigid FLIP — deliberately.
      A FLIP only looks right when the element keeps its aspect ratio. This
@@ -688,8 +734,7 @@ window.setTimeout(() => {
       // suppressed, so the row collapse and text fade never get to play out
       // with the card back in flow (see .is-closing in style.css).
       card.classList.add('is-closing');
-      card.classList.remove('is-open', 'is-featured');
-      card.setAttribute('aria-expanded', 'false');
+      setCardState(card, false);
       placeholder?.remove();
       placeholder = null;
       layout?.classList.remove('has-open');
@@ -711,7 +756,7 @@ window.setTimeout(() => {
       // element that was just reinserted into flow can nudge the native
       // scroll offset even with preventScroll, and Lenis resyncs from it on
       // start(). Restoring last means the offset always gets the final say.
-      card.focus({ preventScroll: true });
+      toggleFor(card)?.focus({ preventScroll: true });
       unlockScroll();
     };
 
@@ -757,15 +802,12 @@ window.setTimeout(() => {
     placeholder.className = 'team-card-placeholder';
     placeholder.style.height = `${originRect.height}px`;
     card.before(placeholder);
-    cards.forEach(c => {
-      c.classList.toggle('is-open', c === card);
-      c.classList.toggle('is-featured', c === card);
-      c.setAttribute('aria-expanded', String(c === card));
-    });
+    cards.forEach(c => setCardState(c, c === card));
     activeCard = card;
     layout?.classList.add('has-open');
     backdrop.classList.add('is-visible');
     document.body.classList.add('team-card-open');
+    toggleFor(card)?.focus({ preventScroll: true });
 
     if (REDUCE || !card.animate) return;
     // Measure and start in the SAME frame. Deferring to rAF left one painted
@@ -798,12 +840,30 @@ window.setTimeout(() => {
 
   backdrop.addEventListener('click', () => closeCard());
   window.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && activeCard) closeCard();
+    if (!activeCard) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeCard();
+      return;
+    }
+    // The featured card is modal and currently has one interactive control.
+    // Keep keyboard focus inside it until it closes.
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      toggleFor(activeCard)?.focus({ preventScroll: true });
+    }
   });
   cards.forEach(card => {
-    card.addEventListener('click', () => toggle(card));
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(card); }
+    const control = toggleFor(card);
+    control?.addEventListener('click', e => {
+      e.stopPropagation();
+      toggle(card);
+    });
+    card.addEventListener('click', e => {
+      if (e.target.closest('.team-card-toggle')) return;
+      // The full collapsed card remains a generous pointer target. Once open,
+      // clicks in the biography should select text rather than dismiss it.
+      if (!card.classList.contains('is-open')) openCard(card);
     });
   });
 })();
@@ -889,7 +949,9 @@ function initGallery(section) {
 (function initMusicPlayer() {
   const tracks = Array.from(document.querySelectorAll('.tl-trigger'));
   const audio = new Audio();
+  audio.preload = 'none';
   let currentTrack = -1;
+  let requestId = 0;
 
   function setState(idx, playing) {
     tracks.forEach((el, i) => {
@@ -903,12 +965,15 @@ function initGallery(section) {
   }
 
   async function select(idx) {
+    const request = ++requestId;
     if (idx === currentTrack) {
       if (audio.paused) {
         try {
           await audio.play();
+          if (request !== requestId) return;
           setState(idx, true);
         } catch {
+          if (request !== requestId) return;
           setState(idx, false);
         }
       } else {
@@ -918,16 +983,29 @@ function initGallery(section) {
       return;
     }
 
+    audio.pause();
     currentTrack = idx;
     audio.src = tracks[idx].dataset.src;
+    setState(idx, false);
     try {
       await audio.play();
+      if (request !== requestId || idx !== currentTrack) return;
       setState(idx, true);
     } catch {
+      if (request !== requestId || idx !== currentTrack) return;
       setState(idx, false);
     }
   }
 
-  audio.addEventListener('ended', () => setState(currentTrack, false));
+  audio.addEventListener('ended', () => {
+    if (currentTrack >= 0) setState(currentTrack, false);
+  });
+  audio.addEventListener('error', () => {
+    if (currentTrack >= 0) setState(currentTrack, false);
+  });
   tracks.forEach((el, i) => el.addEventListener('click', () => select(i)));
 })();
+
+// The inline head failsafe checks this marker before deciding whether to
+// remove JS-only visibility gates. Reaching this line means setup completed.
+window.__telpurAppReady = true;

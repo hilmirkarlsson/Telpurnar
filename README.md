@@ -42,6 +42,9 @@ gold / cream. Sticky horizontal scroll-jack galleries driven by live
 fonts + smooth scroll), a shared lightbox, click-to-reveal director cards, and
 Lenis for wheel smoothing.
 
+Three score previews are served as local MP3 files and loaded only when a
+visitor presses play.
+
 **Nothing loads from a third-party host.** Fonts and Lenis are served from this
 repo, so no external outage or network filter can block first paint.
 
@@ -59,11 +62,13 @@ fonts or anything that cares about origins.
 
 ## Conventions worth knowing before you edit
 
-**Images are WebP with a three-step `srcset`.** Gallery frames ship at 900w /
-1200w / 1500w with `sizes="(max-width: 767px) 150vw, 1066px"` — those numbers
-are the *measured* card widths, not guesses, so change them together if the
-gallery layout changes. Source JPEGs were removed once converted; they're in
-git history if you need to re-export. Regenerate with `sharp`:
+**Images are WebP with a three-step `srcset`.** Gallery frame filenames use
+900 / 1200 / 1500 suffixes, while each `srcset` width descriptor must match the
+file's real pixel width (some source-limited film stills top out at 1278–1280w).
+The `sizes="(max-width: 767px) 150vw, 1066px"` values are the measured card
+widths, not guesses, so change them together if the gallery layout changes.
+Source JPEGs were removed once converted; they're in git history if you need to
+re-export. Regenerate with `sharp`:
 
 ```js
 sharp(src).resize({ width: w, withoutEnlargement: true })
@@ -76,9 +81,10 @@ and fetched every full-size photo on every page load. `object-fit: cover`
 reproduces the old framing exactly.
 
 **The loader defaults to hidden.** `.loader` is only raised by the `.js-loading`
-class that the inline script in `<head>` adds, with a 4s failsafe. Any new
-"invisible until JS animates it in" rule must be gated behind `.js` the same way
-`.hero-title` and `.reveal` are — otherwise a no-JS visitor sees a blank page.
+class that the inline script in `<head>` adds, with a 4s failsafe. If the main
+script does not finish, that failsafe also removes `.js` so all gated content
+becomes visible. Any new "invisible until JS animates it in" rule must be gated
+behind `.js` the same way `.hero-title` and `.reveal` are.
 
 **Anything sticky at `top: 0` must clear the fixed nav** — use `--nav-h`.
 
@@ -100,12 +106,9 @@ pointers.
   outstanding. The WebGL displacement renderer, CSS slideshow and dot controls
   that used to drive it were removed rather than left as dead code — restore
   from git history (`script.js` before v68) when the imagery lands.
-- **Score.** The tracklist shows `[Lag 1–4]` placeholders. It's a plain listing;
-  the previous version played a synthesised Web Audio drone under Hrannar's
-  credit, which was removed. Wire a real `<audio>` element in when the
-  recordings exist.
-- **Email.** `telpur@telpurproductions.is` arrives with the domain — verify it
-  actually receives mail before relying on it. Instagram
+- **Email.** Mail DNS is configured for `telpur@telpurproductions.is`, but
+  verify an end-to-end delivery before relying on it as the only contact path.
+  Instagram
   ([@telpurproductions](https://www.instagram.com/telpurproductions/)) is the
   live channel meanwhile.
 - **No ticket link**, by design — the site is for during and after the

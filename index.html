@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Telpur Productions — nýtt íslenskt framleiðsluteymi sem kemur ungu listafólki á framfæri. Stuttmyndin Telpurnar, eftir Hönnu Álfheiði Gunnarsdóttur og Guðríði Jóhannsdóttur, sýnd í Bíó Paradís 13. og 14. ágúst 2026." />
+  <meta name="description" content="Telpur Productions kynnir Telpurnar, nýja íslenska stuttmynd. Sýningar í Bíó Paradís 13. og 14. ágúst 2026 kl. 19:45 í sal 3." />
   <title>Telpur Productions — Telpurnar, ný íslensk stuttmynd</title>
 
   <!-- ─── SEARCH + SHARING ────────────────────────────────────────────
@@ -20,7 +20,7 @@
   <meta property="og:locale:alternate" content="en_GB" />
   <meta property="og:url" content="https://telpurproductions.is/" />
   <meta property="og:title" content="Telpur Productions — Telpurnar, ný íslensk stuttmynd" />
-  <meta property="og:description" content="Þrjár vinkonur hittast eina kvöldstund. Stuttmyndin Telpurnar sýnd í Bíó Paradís 13. og 14. ágúst 2026." />
+  <meta property="og:description" content="Þrjár vinkonur hittast eina kvöldstund. Telpurnar er sýnd í Bíó Paradís 13. og 14. ágúst kl. 19:45 í sal 3." />
   <!-- Absolute URLs: crawlers and chat apps fetch these without page context. -->
   <meta property="og:image" content="https://telpurproductions.is/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -99,7 +99,7 @@
   <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/luckiest-guy-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-  <link rel="stylesheet" href="style.css?v=71" />
+  <link rel="stylesheet" href="style.css?v=72" />
 
   <!-- The loader is a full-screen opaque overlay. It must default to HIDDEN so
        that a browser with JS off — or any load where script.js fails — still
@@ -111,9 +111,12 @@
       // .js gates every 'hidden until animated in' rule, so a no-JS render
       // shows the content outright instead of animating it in from opacity:0.
       d.classList.add('js', 'js-loading');
-      // Failsafe: if script.js never arrives (404, blocked, parse error) nothing
-      // else would ever take the curtain down. Lift it unconditionally after 4s.
-      setTimeout(function () { d.classList.remove('js-loading'); }, 4000);
+      // Failsafe: if script.js never finishes (404, blocked, parse/runtime
+      // error), lift the curtain and remove every JS-only visibility gate.
+      setTimeout(function () {
+        d.classList.remove('js-loading');
+        if (!window.__telpurAppReady) d.classList.remove('js');
+      }, 4000);
     })();
   </script>
 </head>
@@ -138,7 +141,7 @@
     </div>
   </nav>
 
-  <main id="main">
+  <main id="main" tabindex="-1">
 
   <!-- ─── HERO ───────────────────────────────────────────────────── -->
   <!-- Hero photos are still AWAITING SHORT-FILM IMAGERY. The WebGL
@@ -152,7 +155,7 @@
     <div class="hero-content">
       <h1 class="hero-title">
         <img class="hero-logo" src="photos/telpur-logo.webp" alt="Telpur Productions"
-             width="1440" height="1027" fetchpriority="high" decoding="async" />
+             width="1430" height="1020" fetchpriority="high" decoding="async" />
       </h1>
     </div>
   </section>
@@ -178,18 +181,20 @@
         </div>
 
         <!-- Hanna — left -->
-        <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
+        <article class="director-card team-card">
           <div class="director-portrait has-photo">
             <img class="dp-photo" src="photos/hanna.webp" alt="Hanna Álfheiður Gunnarsdóttir" loading="lazy" decoding="async" width="800" height="941" />
           </div>
-          <h3 class="director-name">
+          <h3 class="director-name" id="hanna-name">
             <span>Hanna Álfheiður Gunnarsdóttir</span>
-            <span class="team-card-more" aria-hidden="true">
+            <button class="team-card-more team-card-toggle" type="button"
+                    aria-expanded="false" aria-controls="hanna-bio"
+                    aria-label="Skoða upplýsingar um Hönnu Álfheiði Gunnarsdóttur">
               <span class="team-card-more-closed" data-is="Meira …" data-en="More …">Meira …</span>
               <span class="team-card-more-open" data-is="Loka" data-en="Close">Loka</span>
-            </span>
+            </button>
           </h3>
-          <div class="team-card-body">
+          <div class="team-card-body" id="hanna-bio" aria-hidden="true">
             <div class="team-card-body-inner">
               <p class="director-role" data-is="Leikkona, handritshöfundur & framleiðandi" data-en="Actor, writer & producer">Leikkona, handritshöfundur & framleiðandi</p>
               <p class="director-bio"
@@ -201,18 +206,20 @@
         </article>
 
         <!-- Guðríður — right -->
-        <article class="director-card team-card" role="button" tabindex="0" aria-expanded="false">
+        <article class="director-card team-card">
           <div class="director-portrait has-photo">
             <img class="dp-photo" src="photos/gudridur.webp" alt="Guðríður Jóhannsdóttir" loading="lazy" decoding="async" width="800" height="863" />
           </div>
-          <h3 class="director-name">
+          <h3 class="director-name" id="gudridur-name">
             <span>Guðríður Jóhannsdóttir</span>
-            <span class="team-card-more" aria-hidden="true">
+            <button class="team-card-more team-card-toggle" type="button"
+                    aria-expanded="false" aria-controls="gudridur-bio"
+                    aria-label="Skoða upplýsingar um Guðríði Jóhannsdóttur">
               <span class="team-card-more-closed" data-is="Meira …" data-en="More …">Meira …</span>
               <span class="team-card-more-open" data-is="Loka" data-en="Close">Loka</span>
-            </span>
+            </button>
           </h3>
-          <div class="team-card-body">
+          <div class="team-card-body" id="gudridur-bio" aria-hidden="true">
             <div class="team-card-body-inner">
               <p class="director-role" data-is="Leikkona, handritshöfundur & framleiðandi" data-en="Actor, writer & producer">Leikkona, handritshöfundur & framleiðandi</p>
               <p class="director-bio"
@@ -338,7 +345,7 @@
   </section>
 
   <!-- ─── 5 · TELPURNAR — the film ────────────────────────────────── -->
-  <div class="film-world" aria-label="Telpurnar — stuttmynd">
+  <div class="film-world">
     <div class="film-world-label" aria-hidden="true">Telpurnar · Stuttmynd</div>
 
   <section class="film" id="telpurnar">
@@ -384,6 +391,10 @@
             <span class="detail-label" data-is="dagana" data-en="On">dagana</span>
             <span class="detail-value" data-is="13. og 14. ágúst" data-en="August 13 &amp; 14">13. og 14. ágúst</span>
           </div>
+          <div class="film-detail">
+            <span class="detail-label" data-is="klukkan" data-en="Time">klukkan</span>
+            <span class="detail-value" data-is="19:45 · salur 3" data-en="19:45 · screen 3">19:45 · salur 3</span>
+          </div>
         </div>
       </div>
 
@@ -424,7 +435,7 @@
           <figure class="gallery-item">
             <div class="gallery-still">
               <img class="gallery-img" src="photos/still-01-900.webp"
-                   srcset="photos/still-01-900.webp 900w, photos/still-01-1200.webp 1200w, photos/still-01-1500.webp 1500w"
+                   srcset="photos/still-01-900.webp 900w, photos/still-01-1200.webp 1200w, photos/still-01-1500.webp 1280w"
                    sizes="(max-width: 767px) 150vw, 1066px"
                    alt="Tvær vinkonur ræða saman í eldhúsinu" width="1280" height="500"
                    loading="lazy" decoding="async" />
@@ -434,7 +445,7 @@
           <figure class="gallery-item">
             <div class="gallery-still">
               <img class="gallery-img" src="photos/still-02-900.webp"
-                   srcset="photos/still-02-900.webp 900w, photos/still-02-1200.webp 1200w, photos/still-02-1500.webp 1500w"
+                   srcset="photos/still-02-900.webp 900w, photos/still-02-1200.webp 1200w, photos/still-02-1500.webp 1280w"
                    sizes="(max-width: 767px) 150vw, 1066px"
                    alt="Æsingur á milli tveggja vinkvenna á götu að kvöldlagi" width="1280" height="508"
                    loading="lazy" decoding="async" />
@@ -444,7 +455,7 @@
           <figure class="gallery-item">
             <div class="gallery-still">
               <img class="gallery-img" src="photos/still-03-900.webp"
-                   srcset="photos/still-03-900.webp 900w, photos/still-03-1200.webp 1200w, photos/still-03-1500.webp 1500w"
+                   srcset="photos/still-03-900.webp 900w, photos/still-03-1200.webp 1200w, photos/still-03-1500.webp 1280w"
                    sizes="(max-width: 767px) 150vw, 1066px"
                    alt="Nærmynd af áhyggjufullum svip" width="1280" height="501"
                    loading="lazy" decoding="async" />
@@ -454,7 +465,7 @@
           <figure class="gallery-item">
             <div class="gallery-still">
               <img class="gallery-img" src="photos/still-04-900.webp"
-                   srcset="photos/still-04-900.webp 900w, photos/still-04-1200.webp 1200w, photos/still-04-1500.webp 1500w"
+                   srcset="photos/still-04-900.webp 900w, photos/still-04-1200.webp 1200w, photos/still-04-1500.webp 1278w"
                    sizes="(max-width: 767px) 150vw, 1066px"
                    alt="Vinkona hrópar af skelfingu" width="1278" height="476"
                    loading="lazy" decoding="async" />
@@ -464,7 +475,7 @@
           <figure class="gallery-item">
             <div class="gallery-still">
               <img class="gallery-img" src="photos/still-05-900.webp"
-                   srcset="photos/still-05-900.webp 900w, photos/still-05-1200.webp 1200w, photos/still-05-1500.webp 1500w"
+                   srcset="photos/still-05-900.webp 900w, photos/still-05-1200.webp 1200w, photos/still-05-1500.webp 1280w"
                    sizes="(max-width: 767px) 150vw, 1066px"
                    alt="Spennuþrungin sena í ganginum" width="1280" height="538"
                    loading="lazy" decoding="async" />
@@ -576,10 +587,8 @@
 
   <!-- ─── 7 · HAFA SAMBAND — contact ──────────────────────────────── -->
   <!-- Contact details per Hanna's document (2026-07-30): one shared address
-       plus the Instagram account, instead of three personal addresses.
-       NOTE: telpur@telpurproductions.is does not exist yet — it arrives with
-       the telpurproductions.is domain. Instagram is the only live channel
-       until then. -->
+       plus the Instagram account, instead of three personal addresses. Mail
+       DNS is configured; confirm an end-to-end delivery separately. -->
   </div><!-- /.film-world -->
 
   <section class="contact" id="contact">
@@ -613,7 +622,7 @@
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
   <!-- Lenis provides lightweight wheel smoothing; galleries use native sticky positioning. -->
   <script src="vendor/lenis.min.js" defer></script>
-  <script src="script.js?v=68" defer></script>
+  <script src="script.js?v=71" defer></script>
 
 </body>
 </html>
