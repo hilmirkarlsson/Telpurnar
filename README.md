@@ -45,8 +45,11 @@ Lenis for wheel smoothing.
 Three score previews are served as local MP3 files and loaded only when a
 visitor presses play.
 
-**Nothing loads from a third-party host.** Fonts and Lenis are served from this
-repo, so no external outage or network filter can block first paint.
+**Nothing render-critical loads from a third-party host.** Fonts and Lenis are
+served from this repo, so no external outage or network filter can block first
+paint. The one exception is the Cloudflare Web Analytics beacon at the end of
+`<body>` — it's a `type="module"` script (deferred by default), has no visible
+UI, sets no cookies, and its failure or absence never affects the page.
 
 ### Local preview
 
