@@ -12,9 +12,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
   <!-- Apply saved theme before paint to avoid a flash of the wrong theme -->
-  <script>(function(){try{var t=localStorage.getItem('telpurnar-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
+  <script>(function(){try{var p=localStorage.getItem('telpurnar-palette');if(p&&p!=='original'){document.documentElement.setAttribute('data-palette',p);return;}var t=localStorage.getItem('telpurnar-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 
-  <link rel="stylesheet" href="style.css?v=12" />
+  <link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body>
 
@@ -277,12 +277,31 @@
     </div>
   </footer>
 
+  <!-- ─── PALETTE PICKER ───────────────────────────────────────────── -->
+  <div class="palette-picker" id="palettePicker" aria-label="Choose colour palette">
+    <div class="palette-picker-label">Litur / Colour</div>
+    <div class="palette-swatches">
+      <button class="palette-btn active" data-palette="original">
+        <span class="palette-swatch"><span style="background:#5E7355"></span><span style="background:#E6D8B8"></span></span>
+        Original
+      </button>
+      <button class="palette-btn" data-palette="rose">
+        <span class="palette-swatch"><span style="background:#F7CDD6"></span><span style="background:#1B3D72"></span></span>
+        Rose Quartz
+      </button>
+      <button class="palette-btn" data-palette="sky">
+        <span class="palette-swatch"><span style="background:#C7E6F7"></span><span style="background:#8B1A3A"></span></span>
+        Sky Blue
+      </button>
+    </div>
+  </div>
+
   <!-- ─── SCRIPT ─────────────────────────────────────────────────── -->
   <!-- Lenis (smooth scroll) + GSAP ScrollTrigger (pinned horizontal stills) -->
   <script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-  <script src="script.js?v=11" defer></script>
+  <script src="script.js?v=12" defer></script>
 
 </body>
 </html>

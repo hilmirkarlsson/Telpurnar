@@ -101,6 +101,132 @@
   box-shadow: var(--glow);
 }
 
+/* ─── PALETTE THEMES ──────────────────────────────────────────────── */
+
+/* Rose Quartz — pink bg, deep navy writing, sky blue accents */
+[data-palette="rose"],
+[data-palette="rose"][data-theme="dark"] {
+  --bg:          #F7CDD6;
+  --surface:     #fce0e8;
+  --surface-soft:#f0c0cc;
+  --surface-2:   #e8b0bc;
+  --ink:         #1B3D72;
+  --ink-soft:    #2D5A9E;
+  --ink-faint:   #5278b8;
+  --moss:        #2D5F8A;
+  --moss-deep:   #1B3D72;
+  --fjord:       #4a80a8;
+  --sand:        #e8c8d0;
+  --line:        #e0b0c0;
+  --line-soft:   #f0c8d4;
+  --nav-bg:      rgba(247,205,214,0.92);
+  --scrim:       rgba(27,61,114,0.25);
+  --glow:        none;
+}
+
+/* Sky Blue — blue bg, deep rose writing, beige accents */
+[data-palette="sky"],
+[data-palette="sky"][data-theme="dark"] {
+  --bg:          #C7E6F7;
+  --surface:     #dceef8;
+  --surface-soft:#b8d8f0;
+  --surface-2:   #a8cce8;
+  --ink:         #8B1A3A;
+  --ink-soft:    #B03060;
+  --ink-faint:   #c05880;
+  --moss:        #8B1A3A;
+  --moss-deep:   #6d1030;
+  --fjord:       #5a90b8;
+  --sand:        #D4B896;
+  --line:        #a8d0e8;
+  --line-soft:   #c0daf0;
+  --nav-bg:      rgba(199,230,247,0.92);
+  --scrim:       rgba(139,26,58,0.20);
+  --glow:        none;
+}
+
+/* ─── PALETTE PICKER UI ───────────────────────────────────────────── */
+.palette-picker {
+  position: fixed;
+  bottom: 2rem;
+  right: 1.5rem;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+.palette-picker-label {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: right;
+  margin-bottom: 0.25rem;
+}
+.palette-swatches {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.palette-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: 2rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.4rem;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-family: var(--font-body);
+  color: var(--ink);
+  letter-spacing: 0.04em;
+  transition: border-color 0.2s, transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.palette-btn:hover { transform: translateX(-3px); }
+.palette-btn.active { border-color: var(--moss); font-weight: 600; }
+.palette-swatch {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  overflow: hidden;
+}
+.palette-swatch span {
+  display: block;
+  width: 50%;
+  height: 100%;
+}
+
+/* Palette overrides dark mode section backgrounds */
+[data-palette="rose"][data-theme="dark"] .film,
+[data-palette="rose"][data-theme="dark"] .filmmakers,
+[data-palette="rose"][data-theme="dark"] .footer,
+[data-palette="rose"][data-theme="dark"] .gallery,
+[data-palette="rose"][data-theme="dark"] .music,
+[data-palette="sky"][data-theme="dark"] .film,
+[data-palette="sky"][data-theme="dark"] .filmmakers,
+[data-palette="sky"][data-theme="dark"] .footer,
+[data-palette="sky"][data-theme="dark"] .gallery,
+[data-palette="sky"][data-theme="dark"] .music {
+  background: var(--bg);
+}
+[data-palette="rose"][data-theme="dark"] .film-heading,
+[data-palette="rose"][data-theme="dark"] .director-name,
+[data-palette="rose"][data-theme="dark"] .music-heading,
+[data-palette="rose"][data-theme="dark"] .footer-brand,
+[data-palette="sky"][data-theme="dark"] .film-heading,
+[data-palette="sky"][data-theme="dark"] .director-name,
+[data-palette="sky"][data-theme="dark"] .music-heading,
+[data-palette="sky"][data-theme="dark"] .footer-brand {
+  text-shadow: none;
+}
+
 /* Smooth fade when switching themes */
 body, .nav, .film, .gallery, .filmmakers, .music, .footer, .loader,
 .gallery-arrow, .tl-track, .film-detail {
@@ -305,9 +431,7 @@ html.lenis, html.lenis body { height: auto; }
   align-items: flex-start;
   padding: var(--sp-32) var(--pad-x) var(--sp-24);
   overflow: hidden;
-  /* natural gradient fallback behind photos */
-  /* Neutral placeholder backdrop while awaiting short-film imagery */
-  background: linear-gradient(155deg, #2c302d 0%, #232826 55%, #191c1a 100%);
+  background: var(--bg);
 }
 
 /* WebGL displacement canvas — sits behind the scrim, above the gradient */

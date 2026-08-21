@@ -54,6 +54,34 @@ document.getElementById('langToggle')?.addEventListener('click', Lang.toggle);
   btn?.addEventListener('click', () => apply(current() === 'dark' ? 'light' : 'dark'));
 })();
 
+/* ─── PALETTE PICKER ─────────────────────────────────────────────── */
+(function initPalette() {
+  const root = document.documentElement;
+  const KEY = 'telpurnar-palette';
+  const btns = document.querySelectorAll('.palette-btn');
+
+  function apply(palette) {
+    if (palette === 'original') {
+      root.removeAttribute('data-palette');
+    } else {
+      root.setAttribute('data-palette', palette);
+      // palette themes are light — force off dark mode
+      root.removeAttribute('data-theme');
+      try { localStorage.setItem('telpurnar-theme', 'light'); } catch (_) {}
+    }
+    btns.forEach(b => b.classList.toggle('active', b.dataset.palette === palette));
+    try { localStorage.setItem(KEY, palette); } catch (_) {}
+  }
+
+  // Restore saved palette
+  try {
+    const saved = localStorage.getItem(KEY);
+    if (saved) apply(saved);
+  } catch (_) {}
+
+  btns.forEach(btn => btn.addEventListener('click', () => apply(btn.dataset.palette)));
+})();
+
 /* ─── SMOOTH SCROLL (Lenis) + ScrollTrigger integration ──────────── */
 (function initLenis() {
   if (REDUCE || typeof Lenis === 'undefined') return;   // CDN blocked → native scroll
